@@ -20,7 +20,7 @@ fun Marker(
 ) {
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(32.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.primary),
         contentAlignment = Alignment.Center
@@ -28,7 +28,7 @@ fun Marker(
         Text(
             text = label,
             color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }

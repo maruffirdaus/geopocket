@@ -5,5 +5,6 @@ import io.github.sceneview.node.Node
 
 data class ArLineUiState(
     val markerNodes: List<AnchorNode> = listOf(),
-    val lineNodes: List<Node> = listOf()
+    val lineNodes: List<Node> = listOf(),
+    val errorMessage: String? = null
 )

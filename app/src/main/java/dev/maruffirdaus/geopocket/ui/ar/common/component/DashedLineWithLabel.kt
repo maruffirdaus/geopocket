@@ -23,8 +23,8 @@ import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 @Composable
 fun DashedLineWithLabel(
     label: String,
-    strokeWidth: Float = 2f,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    strokeWidth: Float = 4f
 ) {
     Box(
         contentAlignment = Alignment.Center
@@ -64,7 +64,7 @@ fun DashedLineWithLabel(
 private fun DashedLineWithLabelPreview() {
     GeoPocketTheme {
         DashedLineWithLabel(
-            "9 m",
+            "0.99 m",
             modifier = Modifier.fillMaxWidth()
         )
     }

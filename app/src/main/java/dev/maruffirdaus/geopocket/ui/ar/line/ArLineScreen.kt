@@ -2,12 +2,10 @@ package dev.maruffirdaus.geopocket.ui.ar.line
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Undo
@@ -20,9 +18,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,11 +44,18 @@ fun ArLineScreen(
     ArLineScreenContent(
         uiState = uiState,
         arScene = {
-            ArLineScene()
+            ArLineScene(
+                markerNodes = uiState.markerNodes,
+                lineNodes = uiState.lineNodes,
+                onMarkerNodeCreate = viewModel::createMarkerNode
+            )
         },
         onBack = {
             navController.popBackStack()
-        }
+        },
+        onMarkerNodeUndo = viewModel::undoMarkerNode,
+        onMarkerNodesClear = viewModel::clearMarkerNodes,
+        onErrorMessageChange = viewModel::changeErrorMessage
     )
 }
 
@@ -56,21 +65,38 @@ fun ArLineScreen(
 fun ArLineScreenContent(
     uiState: ArLineUiState,
     arScene: @Composable () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onMarkerNodeUndo: () -> Unit,
+    onMarkerNodesClear: () -> Unit,
+    onErrorMessageChange: (String?) -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.errorMessage) {
+        if (uiState.errorMessage != null) {
+            snackbarHostState.showSnackbar(uiState.errorMessage)
+            onErrorMessageChange(null)
+        }
+    }
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
         floatingActionButton = {
             HorizontalFloatingToolbar(
                 expanded = false,
                 collapsedShadowElevation = 1.dp
             ) {
                 IconButton(
-                    onClick = {}
+                    onClick = onMarkerNodeUndo,
+                    enabled = uiState.markerNodes.isNotEmpty()
                 ) {
                     Icon(Icons.AutoMirrored.Outlined.Undo, "Undo")
                 }
                 IconButton(
-                    onClick = {}
+                    onClick = onMarkerNodesClear,
+                    enabled = uiState.markerNodes.isNotEmpty()
                 ) {
                     Icon(Icons.Outlined.Clear, "Clear")
                 }
@@ -85,7 +111,7 @@ fun ArLineScreenContent(
             IconButton(
                 onClick = onBack,
                 modifier = Modifier
-                    .padding(WindowInsets.safeDrawing.asPaddingValues())
+                    .systemBarsPadding()
                     .padding(horizontal = 4.dp, vertical = 8.dp)
                     .minimumInteractiveComponentSize()
                     .size(
@@ -115,7 +141,10 @@ private fun ArLineScreenPreview() {
         ArLineScreenContent(
             uiState = ArLineUiState(),
             arScene = {},
-            onBack = {}
+            onBack = {},
+            onMarkerNodeUndo = {},
+            onMarkerNodesClear = {},
+            onErrorMessageChange = {}
         )
     }
 }
