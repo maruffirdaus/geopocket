@@ -2,18 +2,18 @@ package dev.maruffirdaus.geopocket.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -24,6 +24,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import dev.maruffirdaus.geopocket.R
 import dev.maruffirdaus.geopocket.ui.AppDestination
+import dev.maruffirdaus.geopocket.ui.home.component.HomeCard
+import dev.maruffirdaus.geopocket.ui.home.type.HomeItem
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -37,39 +39,38 @@ fun HomeScreen(
     HomeScreenContent(
         uiState = uiState,
         onArLineClick = {
-            navController.navigate(AppDestination.ArLine)
+            navController.navigate(AppDestination.Ar)
         }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
     onArLineClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        CenterAlignedTopAppBar(
+    Column {
+        LargeTopAppBar(
             title = {
                 Text(stringResource(R.string.app_name))
-            }
+            },
+            windowInsets = WindowInsets(),
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            ElevatedCard(
-                onClick = onArLineClick,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = "Line",
-                    modifier = Modifier.padding(16.dp)
+            items(HomeItem.entries) { item ->
+                HomeCard(
+                    item = item,
+                    onClick = onArLineClick,
+                    modifier = Modifier.aspectRatio(1f)
                 )
             }
         }
@@ -80,7 +81,9 @@ fun HomeScreenContent(
 @Preview
 private fun HomeScreenPreview() {
     GeoPocketTheme {
-        Surface {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainer
+        ) {
             HomeScreenContent(
                 uiState = HomeUiState(),
                 onArLineClick = {}

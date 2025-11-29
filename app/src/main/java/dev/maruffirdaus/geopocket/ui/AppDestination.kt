@@ -8,5 +8,5 @@ sealed class AppDestination {
     object Main : AppDestination()
 
     @Serializable
-    object ArLine : AppDestination()
+    object Ar : AppDestination()
 }

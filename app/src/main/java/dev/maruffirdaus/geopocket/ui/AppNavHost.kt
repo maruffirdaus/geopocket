@@ -5,8 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import dev.maruffirdaus.geopocket.ui.ar.line.ArLineScreen
+import dev.maruffirdaus.geopocket.ui.ar.ArScreen
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 import dev.maruffirdaus.geopocket.ui.main.MainScreen
 
@@ -28,8 +27,8 @@ fun AppNavHost(
             )
         }
 
-        composable<AppDestination.ArLine> {
-            ArLineScreen(
+        composable<AppDestination.Ar> {
+            ArScreen(
                 navController = navController
             )
         }

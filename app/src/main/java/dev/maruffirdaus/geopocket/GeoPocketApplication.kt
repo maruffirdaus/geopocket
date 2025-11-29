@@ -1,7 +1,6 @@
 package dev.maruffirdaus.geopocket
 
 import android.app.Application
-import dev.maruffirdaus.geopocket.di.arModule
 import dev.maruffirdaus.geopocket.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -13,7 +12,7 @@ class GeoPocketApplication: Application() {
         startKoin {
             androidLogger()
             androidContext(this@GeoPocketApplication)
-            modules(arModule, viewModelModule)
+            modules(viewModelModule)
         }
     }
 }

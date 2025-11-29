@@ -1,42 +1,41 @@
-package dev.maruffirdaus.geopocket.ui.ar.common.component
+package dev.maruffirdaus.geopocket.ui.ar.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 
 @Composable
-fun Marker(
-    label: String
+fun LineLabel(
+    text: String
 ) {
     Box(
         modifier = Modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary),
-        contentAlignment = Alignment.Center
+            .clip(RoundedCornerShape(100))
+            .background(Color.White)
+            .padding(horizontal = 8.dp)
     ) {
         Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.titleMedium
+            text = text,
+            color = Color.Black,
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }
 
 @Composable
 @Preview
-private fun MarkerPreview() {
+private fun LineLabelPreview() {
     GeoPocketTheme {
-        Marker("A")
+        LineLabel("0.99 m")
     }
 }
