@@ -8,5 +8,7 @@ sealed class AppDestination {
     object Main : AppDestination()
 
     @Serializable
-    object Ar : AppDestination()
+    data class Ar(
+        val mode: String
+    ) : AppDestination()
 }

@@ -1,79 +1,45 @@
 package dev.maruffirdaus.geopocket.ui.ar.component
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.filament.Engine
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
-import com.google.ar.core.Pose
-import com.google.ar.core.Trackable
-import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import dev.maruffirdaus.geopocket.ui.ar.node.NodeManager
 import dev.romainguy.kotlin.math.Float2
-import dev.romainguy.kotlin.math.Float3
-import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isValid
-import io.github.sceneview.ar.arcore.position
-import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.ar.rememberARCameraNode
 import io.github.sceneview.loaders.MaterialLoader
-import io.github.sceneview.math.Position
-import io.github.sceneview.node.Node
 import io.github.sceneview.node.ViewNode2
-import io.github.sceneview.rememberEngine
-import io.github.sceneview.rememberMaterialLoader
-import io.github.sceneview.rememberNode
 import io.github.sceneview.rememberView
-import io.github.sceneview.rememberViewNodeManager
 
 @Composable
 fun CustomArScene(
-    markerNodes: List<Node>,
-    lineNodes: List<Node>,
-    lineLabelNodes: List<Node>,
-    onCrosshairMove: (Trackable, Pose, Position) -> Unit,
-    engine: Engine = rememberEngine(),
-    materialLoader: MaterialLoader = rememberMaterialLoader(engine),
-    windowManager: ViewNode2.WindowManager = rememberViewNodeManager()
+    engine: Engine,
+    materialLoader: MaterialLoader,
+    windowManager: ViewNode2.WindowManager,
+    nodeManager: NodeManager
 ) {
+    val state by nodeManager.state.collectAsStateWithLifecycle()
+
+    var arSceneWidth by remember { mutableIntStateOf(0) }
+    var arSceneHeight by remember { mutableIntStateOf(0) }
+
     val view = rememberView(engine).apply {
         setShadowingEnabled(false)
     }
 
     val cameraNode = rememberARCameraNode(engine)
-    val crosshairNode = rememberNode {
-        ViewNode2(
-            engine = engine,
-            windowManager = windowManager,
-            materialLoader = materialLoader,
-            unlit = true,
-            content = {
-                GeoPocketTheme {
-                    Box(contentAlignment = Alignment.Center) {
-                        Crosshair()
-                    }
-                }
-            }
-        ).apply {
-            pxPerUnits = 2000f
-            collisionShape = null
-            isPositionEditable = false
-            updateGeometrySize()
-        }
-    }
 
     var frame by remember { mutableStateOf<Frame?>(null) }
-
-    var arSceneWidth by remember { mutableIntStateOf(0) }
-    var arSceneHeight by remember { mutableIntStateOf(0) }
 
     ARScene(
         modifier = Modifier.onGloballyPositioned { layoutCoordinates ->
@@ -96,10 +62,15 @@ fun CustomArScene(
         view = view,
         cameraNode = cameraNode,
         childNodes = buildList {
-            add(crosshairNode)
-            addAll(markerNodes)
-            addAll(lineNodes)
-            addAll(lineLabelNodes)
+            state.crosshairNode?.let { node ->
+                add(node)
+            }
+            state.lineHelperNode?.let { node ->
+                add(node)
+            }
+            addAll(state.markerNodes)
+            addAll(state.lineNodes)
+            addAll(state.lineLabelNodes)
         },
         viewNodeWindowManager = windowManager,
         onSessionUpdated = { _, updatedFrame ->
@@ -119,26 +90,11 @@ fun CustomArScene(
             }
 
             if (hitResult != null) {
-                val pose = hitResult.hitPose
-                crosshairNode.worldPosition = pose.position
-
-                val flatCorrection = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
-                crosshairNode.quaternion = pose.quaternion * flatCorrection
-
-                val correction = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), 0f)
-                val correctedQuaternion = pose.quaternion * correction
-
-                val correctedPose = Pose(
-                    floatArrayOf(pose.tx(), pose.ty(), pose.tz()),
-                    floatArrayOf(
-                        correctedQuaternion.x,
-                        correctedQuaternion.y,
-                        correctedQuaternion.z,
-                        correctedQuaternion.w
-                    )
+                nodeManager.updateCrosshairNode(
+                    hitResult.trackable,
+                    hitResult.hitPose,
+                    cameraNode.worldPosition
                 )
-
-                onCrosshairMove(hitResult.trackable, correctedPose, cameraNode.worldPosition)
             }
         }
     )

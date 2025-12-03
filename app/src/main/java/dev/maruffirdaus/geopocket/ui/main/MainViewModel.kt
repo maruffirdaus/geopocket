@@ -1,7 +1,7 @@
 package dev.maruffirdaus.geopocket.ui.main
 
 import androidx.lifecycle.ViewModel
-import dev.maruffirdaus.geopocket.ui.main.type.NavItem
+import dev.maruffirdaus.geopocket.ui.main.model.NavItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

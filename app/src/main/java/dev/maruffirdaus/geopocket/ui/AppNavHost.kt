@@ -5,7 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import dev.maruffirdaus.geopocket.ui.ar.ArScreen
+import dev.maruffirdaus.geopocket.ui.common.model.ArPlacingMode
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 import dev.maruffirdaus.geopocket.ui.main.MainScreen
 
@@ -27,8 +29,11 @@ fun AppNavHost(
             )
         }
 
-        composable<AppDestination.Ar> {
+        composable<AppDestination.Ar> { backStackEntry ->
+            val args = backStackEntry.toRoute<AppDestination.Ar>()
+
             ArScreen(
+                mode = ArPlacingMode.valueOf(args.mode),
                 navController = navController
             )
         }

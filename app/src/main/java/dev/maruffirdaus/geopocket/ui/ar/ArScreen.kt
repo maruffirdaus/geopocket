@@ -23,9 +23,7 @@ import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -33,21 +31,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.google.ar.core.Pose
-import com.google.ar.core.Trackable
 import dev.maruffirdaus.geopocket.R
+import dev.maruffirdaus.geopocket.ui.ar.component.Crosshair
 import dev.maruffirdaus.geopocket.ui.ar.component.CustomArScene
 import dev.maruffirdaus.geopocket.ui.ar.component.LineLabel
-import dev.maruffirdaus.geopocket.ui.ar.component.rememberNodeManager
+import dev.maruffirdaus.geopocket.ui.ar.node.rememberNodeManager
+import dev.maruffirdaus.geopocket.ui.common.model.ArPlacingMode
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
-import io.github.sceneview.math.Position
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.rememberViewNodeManager
+import kotlinx.coroutines.flow.map
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ArScreen(
+    mode: ArPlacingMode,
     navController: NavHostController,
     viewModel: ArViewModel = koinViewModel()
 ) {
@@ -57,55 +56,50 @@ fun ArScreen(
     val materialLoader = rememberMaterialLoader(engine)
     val windowManager = rememberViewNodeManager()
 
-    val nodeManager = rememberNodeManager(engine, materialLoader, windowManager) { length ->
-        GeoPocketTheme {
-            Box(contentAlignment = Alignment.Center) {
-                LineLabel("%.2f".format(length) + " m")
+    val nodeManager = rememberNodeManager(
+        engine = engine,
+        materialLoader = materialLoader,
+        windowManager = windowManager,
+        mode = mode,
+        crosshairContent = {
+            GeoPocketTheme {
+                Box(contentAlignment = Alignment.Center) {
+                    Crosshair()
+                }
+            }
+        },
+        lineLabelContent = { length ->
+            GeoPocketTheme {
+                Box(contentAlignment = Alignment.Center) {
+                    LineLabel("%.2f".format(length) + " m")
+                }
             }
         }
-    }
+    )
 
-    val markerNodes by nodeManager.markerNodes.collectAsStateWithLifecycle()
-    val lineNodes by nodeManager.lineNodes.collectAsStateWithLifecycle()
-    val lineLabelNodes by nodeManager.lineLabelNodes.collectAsStateWithLifecycle()
-
-    var currentTrackable by remember { mutableStateOf<Trackable?>(null) }
-    var currentPose by remember { mutableStateOf<Pose?>(null) }
-    var currentCamPos by remember { mutableStateOf<Position?>(null) }
+    val markerNodes by nodeManager.state.map { it.markerNodes }
+        .collectAsStateWithLifecycle(emptyList())
 
     ArScreenContent(
         uiState = uiState,
         emptyNodes = markerNodes.isEmpty(),
         arScene = {
             CustomArScene(
-                markerNodes = markerNodes,
-                lineNodes = lineNodes,
-                lineLabelNodes = lineLabelNodes,
-                onCrosshairMove = { trackable, pose, camPos ->
-                    currentTrackable = trackable
-                    currentPose = pose
-                    currentCamPos = camPos
-                },
                 engine = engine,
                 materialLoader = materialLoader,
-                windowManager = windowManager
+                windowManager = windowManager,
+                nodeManager = nodeManager
             )
         },
         onBack = {
             navController.popBackStack()
         },
         onNodeAdd = {
-            if (markerNodes.size < 2) {
-                val trackable = currentTrackable
-                val pose = currentPose
-                val camPos = currentCamPos
-
-                if (trackable != null && pose != null && camPos != null) {
-                    nodeManager.createMarkerNode(trackable.createAnchor(pose), camPos)
+            nodeManager.addMarkerNode(
+                onMaxNodesReached = {
+                    viewModel.changeErrorMessage("You cannot place more than ${mode.maxNodes} nodes")
                 }
-            } else {
-                viewModel.changeErrorMessage("You cannot place more than 2 nodes")
-            }
+            )
         },
         onNodesClear = nodeManager::clearNodes,
         onErrorMessageChange = viewModel::changeErrorMessage

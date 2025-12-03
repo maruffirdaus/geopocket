@@ -25,7 +25,7 @@ import androidx.navigation.NavHostController
 import dev.maruffirdaus.geopocket.R
 import dev.maruffirdaus.geopocket.ui.AppDestination
 import dev.maruffirdaus.geopocket.ui.home.component.HomeCard
-import dev.maruffirdaus.geopocket.ui.home.type.HomeItem
+import dev.maruffirdaus.geopocket.ui.home.model.HomeItem
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -38,8 +38,8 @@ fun HomeScreen(
 
     HomeScreenContent(
         uiState = uiState,
-        onArLineClick = {
-            navController.navigate(AppDestination.Ar)
+        onNavigate = { destination ->
+            navController.navigate(destination)
         }
     )
 }
@@ -48,7 +48,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
-    onArLineClick: () -> Unit
+    onNavigate: (AppDestination) -> Unit
 ) {
     Column {
         LargeTopAppBar(
@@ -69,7 +69,9 @@ fun HomeScreenContent(
             items(HomeItem.entries) { item ->
                 HomeCard(
                     item = item,
-                    onClick = onArLineClick,
+                    onClick = {
+                        onNavigate(AppDestination.Ar(item.toArPlacingMode().name))
+                    },
                     modifier = Modifier.aspectRatio(1f)
                 )
             }
@@ -86,7 +88,7 @@ private fun HomeScreenPreview() {
         ) {
             HomeScreenContent(
                 uiState = HomeUiState(),
-                onArLineClick = {}
+                onNavigate = {}
             )
         }
     }

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.maruffirdaus.geopocket.ui.main.type.NavItem
+import dev.maruffirdaus.geopocket.ui.main.model.NavItem
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.compose.viewmodel.koinViewModel
 
