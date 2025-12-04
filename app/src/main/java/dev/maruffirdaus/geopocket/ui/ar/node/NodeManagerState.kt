@@ -1,13 +1,12 @@
 package dev.maruffirdaus.geopocket.ui.ar.node
 
-import io.github.sceneview.ar.node.AnchorNode
-import io.github.sceneview.node.Node
-import io.github.sceneview.node.ViewNode2
+import dev.maruffirdaus.geopocket.ui.ar.node.model.CrosshairNode
+import dev.maruffirdaus.geopocket.ui.ar.node.model.LineNode
+import dev.maruffirdaus.geopocket.ui.ar.node.model.MarkerNode
 
 data class NodeManagerState(
-    val crosshairNode: ViewNode2? = null,
-    val lineHelperNode: Node? = null,
-    val markerNodes: List<AnchorNode> = listOf(),
-    val lineNodes: List<Node> = listOf(),
-    val lineLabelNodes: List<ViewNode2> = listOf()
+    val crosshairNode: CrosshairNode? = null,
+    val lineHelperNode: LineNode? = null,
+    val markerNodes: Map<String, MarkerNode> = mapOf(),
+    val lineNodes: Map<String, LineNode> = mapOf()
 )

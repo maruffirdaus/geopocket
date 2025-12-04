@@ -32,7 +32,6 @@ object LineLabelNodeUtil {
         pxPerUnits = 2000f
         collisionShape = null
         isPositionEditable = false
-        updateGeometrySize()
         update(this@apply, startPos, endPos, camPos)
     }
 

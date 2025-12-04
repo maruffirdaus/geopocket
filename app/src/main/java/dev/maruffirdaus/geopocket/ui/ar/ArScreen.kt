@@ -35,11 +35,13 @@ import dev.maruffirdaus.geopocket.R
 import dev.maruffirdaus.geopocket.ui.ar.component.Crosshair
 import dev.maruffirdaus.geopocket.ui.ar.component.CustomArScene
 import dev.maruffirdaus.geopocket.ui.ar.component.LineLabel
+import dev.maruffirdaus.geopocket.ui.ar.component.ViewNode2Container
 import dev.maruffirdaus.geopocket.ui.ar.node.rememberNodeManager
 import dev.maruffirdaus.geopocket.ui.common.model.ArPlacingMode
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
+import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberViewNodeManager
 import kotlinx.coroutines.flow.map
 import org.koin.compose.viewmodel.koinViewModel
@@ -53,32 +55,30 @@ fun ArScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val engine = rememberEngine()
+    val modelLoader = rememberModelLoader(engine)
     val materialLoader = rememberMaterialLoader(engine)
     val windowManager = rememberViewNodeManager()
 
     val nodeManager = rememberNodeManager(
         engine = engine,
+        modelLoader = modelLoader,
         materialLoader = materialLoader,
         windowManager = windowManager,
         mode = mode,
         crosshairContent = {
-            GeoPocketTheme {
-                Box(contentAlignment = Alignment.Center) {
-                    Crosshair()
-                }
+            ViewNode2Container {
+                Crosshair()
             }
         },
         lineLabelContent = { length ->
-            GeoPocketTheme {
-                Box(contentAlignment = Alignment.Center) {
-                    LineLabel("%.2f".format(length) + " m")
-                }
+            ViewNode2Container {
+                LineLabel("%.2f".format(length) + " m")
             }
         }
     )
 
     val markerNodes by nodeManager.state.map { it.markerNodes }
-        .collectAsStateWithLifecycle(emptyList())
+        .collectAsStateWithLifecycle(emptyMap())
 
     ArScreenContent(
         uiState = uiState,
@@ -86,6 +86,7 @@ fun ArScreen(
         arScene = {
             CustomArScene(
                 engine = engine,
+                modelLoader = modelLoader,
                 materialLoader = materialLoader,
                 windowManager = windowManager,
                 nodeManager = nodeManager

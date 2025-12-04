@@ -1,18 +1,17 @@
 package dev.maruffirdaus.geopocket.ui.ar.node
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.filament.Engine
+import com.google.android.filament.Material
 import com.google.ar.core.Pose
 import com.google.ar.core.Trackable
-import dev.maruffirdaus.geopocket.ui.ar.node.util.CrosshairNodeUtil
-import dev.maruffirdaus.geopocket.ui.ar.node.util.LineLabelNodeUtil
-import dev.maruffirdaus.geopocket.ui.ar.node.util.LineNodeUtil
-import dev.maruffirdaus.geopocket.ui.ar.node.util.MarkerNodeUtil
+import dev.maruffirdaus.geopocket.ui.ar.node.model.CrosshairNode
+import dev.maruffirdaus.geopocket.ui.ar.node.model.LineNode
+import dev.maruffirdaus.geopocket.ui.ar.node.model.MarkerNode
 import dev.maruffirdaus.geopocket.ui.common.model.ArPlacingMode
-import dev.romainguy.kotlin.math.Float4
-import dev.romainguy.kotlin.math.length
+import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.loaders.MaterialLoader
+import io.github.sceneview.loaders.ModelLoader
 import io.github.sceneview.math.Position
 import io.github.sceneview.node.ViewNode2
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +20,7 @@ import kotlinx.coroutines.flow.update
 
 class NodeManager(
     private val engine: Engine,
+    private val modelLoader: ModelLoader,
     private val materialLoader: MaterialLoader,
     private val windowManager: ViewNode2.WindowManager,
     private val mode: ArPlacingMode,
@@ -36,14 +36,13 @@ class NodeManager(
     private var currentPose: Pose? = null
     private var currentCamPos: Position? = null
 
-    private val lineLengths = MutableStateFlow(listOf<Float>())
+    private var unlitMaterial: Material? = null
 
-    private val flatMaterial = materialLoader.createColorInstance(
-        color = Float4(5.0f, 5.0f, 5.0f, 1.0f),
-        metallic = 0f,
-        roughness = 1f,
-        reflectance = 0f
-    )
+    suspend fun loadMaterial() {
+        unlitMaterial = materialLoader.loadMaterial("materials/unlit_material.filamat")?.apply {
+            setDefaultParameter("color", 1f, 1f, 1f, 1f)
+        }
+    }
 
     fun addMarkerNode(onMaxNodesReached: () -> Unit) {
         if (state.value.markerNodes.size == mode.maxNodes) {
@@ -52,133 +51,67 @@ class NodeManager(
         }
 
         val anchor = currentTrackable?.createAnchor(currentPose ?: return) ?: return
-
-        val currentIndex = state.value.markerNodes.size
-        val previousIndex = currentIndex - 1
-        val nextIndex = (currentIndex + 1).takeIf { it < mode.maxNodes } ?: 0
-
-        val markerNode = MarkerNodeUtil.create(
+        val markerNode = MarkerNode(
             engine = engine,
-            materialInstance = flatMaterial,
-            anchor = anchor
-        ) { pose ->
-            val updatedPreviousIndex =
-                if (previousIndex == -1 &&
-                    state.value.markerNodes.size == mode.maxNodes &&
-                    state.value.lineNodes.size > 1
-                ) {
-                    state.value.markerNodes.lastIndex
-                } else {
-                    previousIndex
+            materialInstance = materialLoader.createInstance(unlitMaterial ?: return),
+            anchor = anchor,
+            onPoseChange = { pose ->
+                connectedNodeIds.forEach { connectedNodeId ->
+                    val lineNode = state.value.lineNodes[connectedNodeId] ?: return@forEach
+                    val isStartNode = id == lineNode.startNodeId
+                    val startPos = if (isStartNode) {
+                        pose.position
+                    } else {
+                        state.value.markerNodes[lineNode.startNodeId]?.node?.worldPosition
+                            ?: return@forEach
+                    }
+                    val endPos = if (isStartNode) {
+                        state.value.markerNodes[lineNode.endNodeId]?.node?.worldPosition
+                            ?: return@forEach
+                    } else {
+                        pose.position
+                    }
+                    lineNode.update(startPos, endPos, currentCamPos ?: return@forEach)
                 }
-            val position = Position(pose.tx(), pose.ty(), pose.tz())
+            }
+        )
 
-            state.value.markerNodes.getOrNull(updatedPreviousIndex)?.let { previousNode ->
-                lineLengths.update {
-                    it.mapIndexed { index, item ->
-                        if (index == previousIndex) {
-                            length(position - previousNode.worldPosition)
-                        } else {
-                            item
-                        }
-                    }
-                }
-                LineNodeUtil.update(
-                    state.value.lineNodes.getOrNull(updatedPreviousIndex) ?: return@let,
-                    previousNode.worldPosition,
-                    position,
-                    currentCamPos ?: return@let
-                )
-                LineLabelNodeUtil.update(
-                    state.value.lineLabelNodes.getOrNull(updatedPreviousIndex) ?: return@let,
-                    previousNode.worldPosition,
-                    position,
-                    currentCamPos ?: return@let
-                )
-            }
-            state.value.markerNodes.getOrNull(nextIndex)?.let { nextNode ->
-                lineLengths.update {
-                    it.mapIndexed { index, item ->
-                        if (index == currentIndex) {
-                            length(position - nextNode.worldPosition)
-                        } else {
-                            item
-                        }
-                    }
-                }
-                LineNodeUtil.update(
-                    state.value.lineNodes.getOrNull(currentIndex) ?: return@let,
-                    position,
-                    nextNode.worldPosition,
-                    currentCamPos ?: return@let
-                )
-                LineLabelNodeUtil.update(
-                    state.value.lineLabelNodes.getOrNull(currentIndex) ?: return@let,
-                    position,
-                    nextNode.worldPosition,
-                    currentCamPos ?: return@let
-                )
-            }
+        if (state.value.markerNodes.isNotEmpty()) {
+            addLineNode(state.value.markerNodes.values.last(), markerNode)
         }
 
         _state.update {
-            it.copy(markerNodes = it.markerNodes + markerNode)
-        }
-
-        if (state.value.markerNodes.size > 1) {
-            addLineNode(previousIndex, currentIndex)
-            addLineLabelNode(previousIndex, currentIndex)
+            it.copy(markerNodes = it.markerNodes + mapOf(markerNode.id to markerNode))
         }
 
         if (state.value.markerNodes.size == mode.maxNodes) {
             disableLineHelperNode()
 
             if (state.value.markerNodes.size > 2) {
-                addLineNode(currentIndex, nextIndex)
-                addLineLabelNode(currentIndex, nextIndex)
+                addLineNode(markerNode, state.value.markerNodes.values.first())
             }
         }
     }
 
-    private fun addLineNode(startNodeIndex: Int, endNodeIndex: Int) {
-        val startPos = state.value.markerNodes.getOrNull(startNodeIndex)?.worldPosition ?: return
-        val endPos = state.value.markerNodes.getOrNull(endNodeIndex)?.worldPosition ?: return
-
-        val lineNode = LineNodeUtil.create(
-            engine = engine,
-            materialInstance = flatMaterial,
-            startPos = startPos,
-            endPos = endPos,
-            camPos = currentCamPos ?: return
-        )
-
-        _state.update {
-            it.copy(lineNodes = it.lineNodes + lineNode)
-        }
-    }
-
-    private fun addLineLabelNode(startNodeIndex: Int, endNodeIndex: Int) {
-        val startPos = state.value.markerNodes.getOrNull(startNodeIndex)?.worldPosition ?: return
-        val endPos = state.value.markerNodes.getOrNull(endNodeIndex)?.worldPosition ?: return
-
-        lineLengths.update {
-            it + length(endPos - startPos)
-        }
-
-        val lineLabelNode = LineLabelNodeUtil.create(
+    private fun addLineNode(startNode: MarkerNode, endNode: MarkerNode) {
+        val lineNode = LineNode(
             engine = engine,
             windowManager = windowManager,
             materialLoader = materialLoader,
-            startPos = startPos,
-            endPos = endPos,
+            material = unlitMaterial ?: return,
+            startPos = startNode.node.worldPosition,
+            endPos = endNode.node.worldPosition,
             camPos = currentCamPos ?: return,
-            content = {
-                lineLabelContent(lineLengths.collectAsStateWithLifecycle().value[startNodeIndex])
-            }
+            labelContent = { lineLabelContent(length) },
+            startNodeId = startNode.id,
+            endNodeId = endNode.id
         )
 
+        startNode.connectedNodeIds += lineNode.id
+        endNode.connectedNodeIds += lineNode.id
+
         _state.update {
-            it.copy(lineLabelNodes = it.lineLabelNodes + lineLabelNode)
+            it.copy(lineNodes = it.lineNodes + mapOf(lineNode.id to lineNode))
         }
     }
 
@@ -186,7 +119,7 @@ class NodeManager(
         if (state.value.crosshairNode == null) {
             _state.update {
                 it.copy(
-                    crosshairNode = CrosshairNodeUtil.create(
+                    crosshairNode = CrosshairNode(
                         engine = engine,
                         windowManager = windowManager,
                         materialLoader = materialLoader,
@@ -196,22 +129,17 @@ class NodeManager(
             }
         }
 
-        state.value.crosshairNode?.let {
-            CrosshairNodeUtil.update(it, pose)
-        }
+        state.value.crosshairNode?.update(pose)
 
         currentTrackable = trackable
-        currentPose = CrosshairNodeUtil.calculateCorrectedPose(pose)
+        currentPose = state.value.crosshairNode?.calculateCorrectedPose()
         currentCamPos = camPos
 
-        state.value.lineHelperNode?.let { node ->
-            LineNodeUtil.update(
-                node = node,
-                startPos = state.value.markerNodes.lastOrNull()?.worldPosition ?: return@let,
-                endPos = state.value.crosshairNode?.worldPosition ?: return@let,
-                camPos = currentCamPos ?: return@let
-            )
-        }
+        state.value.lineHelperNode?.update(
+            startPos = state.value.markerNodes.values.lastOrNull()?.node?.worldPosition ?: return,
+            endPos = state.value.crosshairNode?.node?.worldPosition ?: return,
+            camPos = currentCamPos ?: return
+        )
 
         if (isLineHelperNodeEnabled && state.value.lineHelperNode == null) {
             addLineHelperNode()
@@ -221,12 +149,16 @@ class NodeManager(
     private fun addLineHelperNode() {
         _state.update {
             it.copy(
-                lineHelperNode = LineNodeUtil.create(
+                lineHelperNode = LineNode(
                     engine = engine,
-                    materialInstance = flatMaterial,
-                    startPos = state.value.markerNodes.lastOrNull()?.worldPosition ?: return,
-                    endPos = state.value.crosshairNode?.worldPosition ?: return,
-                    camPos = currentCamPos ?: return
+                    windowManager = windowManager,
+                    materialLoader = materialLoader,
+                    material = unlitMaterial ?: return,
+                    startPos = state.value.markerNodes.values.lastOrNull()?.node?.worldPosition
+                        ?: return,
+                    endPos = state.value.crosshairNode?.node?.worldPosition ?: return,
+                    camPos = currentCamPos ?: return,
+                    labelContent = { lineLabelContent(length) }
                 )
             )
         }
@@ -237,6 +169,7 @@ class NodeManager(
     }
 
     fun disableLineHelperNode() {
+        state.value.lineHelperNode?.destroy()
         _state.update {
             it.copy(lineHelperNode = null)
         }
@@ -244,12 +177,17 @@ class NodeManager(
     }
 
     fun clearNodes() {
+        state.value.markerNodes.values.forEach {
+            it.destroy()
+        }
+        state.value.lineNodes.values.forEach {
+            it.destroy()
+        }
         _state.update {
             it.copy(
                 lineHelperNode = null,
-                markerNodes = listOf(),
-                lineNodes = listOf(),
-                lineLabelNodes = listOf()
+                markerNodes = mapOf(),
+                lineNodes = mapOf()
             )
         }
         enableLineHelperNode()
