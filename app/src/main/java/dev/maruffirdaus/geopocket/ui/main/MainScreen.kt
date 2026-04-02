@@ -3,7 +3,6 @@ package dev.maruffirdaus.geopocket.ui.main
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -40,9 +39,7 @@ fun MainScreenContent(
 ) {
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
+            NavigationBar {
                 NavItem.entries.forEach { navItem ->
                     val isSelected = uiState.selectedNavItem == navItem
 
@@ -67,8 +64,7 @@ fun MainScreenContent(
                     )
                 }
             }
-        },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier.padding(innerPadding)

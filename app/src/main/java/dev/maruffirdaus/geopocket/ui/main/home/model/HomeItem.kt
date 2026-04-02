@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.home.model
+package dev.maruffirdaus.geopocket.ui.main.home.model
 
 import androidx.annotation.DrawableRes
 import dev.maruffirdaus.geopocket.R

@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import dev.maruffirdaus.geopocket.ui.AppNavHost
+import dev.maruffirdaus.geopocket.ui.navigation.AppNavDisplay
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GeoPocketTheme {
-                AppNavHost()
+                AppNavDisplay()
             }
         }
     }

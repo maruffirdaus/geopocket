@@ -1,7 +1,7 @@
 package dev.maruffirdaus.geopocket.di
 
 import dev.maruffirdaus.geopocket.ui.ar.ArViewModel
-import dev.maruffirdaus.geopocket.ui.home.HomeViewModel
+import dev.maruffirdaus.geopocket.ui.main.home.HomeViewModel
 import dev.maruffirdaus.geopocket.ui.main.MainViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

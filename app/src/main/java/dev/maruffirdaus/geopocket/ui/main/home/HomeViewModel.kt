@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.home
+package dev.maruffirdaus.geopocket.ui.main.home
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

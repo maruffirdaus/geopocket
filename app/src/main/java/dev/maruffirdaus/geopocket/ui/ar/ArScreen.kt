@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
@@ -30,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import dev.maruffirdaus.geopocket.R
 import dev.maruffirdaus.geopocket.ui.ar.component.Crosshair
 import dev.maruffirdaus.geopocket.ui.ar.component.CustomArScene
@@ -49,7 +49,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ArScreen(
     mode: ArPlacingMode,
-    navController: NavHostController,
+    onNavigateBack: () -> Unit,
     viewModel: ArViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -92,9 +92,7 @@ fun ArScreen(
                 nodeManager = nodeManager
             )
         },
-        onBack = {
-            navController.popBackStack()
-        },
+        onNavigateBack = onNavigateBack,
         onNodeAdd = {
             nodeManager.addMarkerNode(
                 onMaxNodesReached = {
@@ -113,7 +111,7 @@ fun ArScreenContent(
     uiState: ArUiState,
     emptyNodes: Boolean,
     arScene: @Composable () -> Unit,
-    onBack: () -> Unit,
+    onNavigateBack: () -> Unit,
     onNodeAdd: () -> Unit,
     onNodesClear: () -> Unit,
     onErrorMessageChange: (String?) -> Unit
@@ -165,8 +163,8 @@ fun ArScreenContent(
             modifier = Modifier.fillMaxSize()
         ) {
             arScene()
-            IconButton(
-                onClick = onBack,
+            FilledIconButton(
+                onClick = onNavigateBack,
                 modifier = Modifier
                     .padding(innerPadding)
                     .padding(horizontal = 4.dp, vertical = 8.dp)
@@ -177,7 +175,7 @@ fun ArScreenContent(
                         )
                     ),
                 shape = IconButtonDefaults.smallRoundShape,
-                colors = IconButtonDefaults.iconButtonColors(
+                colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
@@ -199,7 +197,7 @@ private fun ArScreenPreview() {
             uiState = ArUiState(),
             emptyNodes = true,
             arScene = {},
-            onBack = {},
+            onNavigateBack = {},
             onNodeAdd = {},
             onNodesClear = {},
             onErrorMessageChange = {}

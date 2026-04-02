@@ -70,17 +70,17 @@ fun CustomArScene(
         planeRenderer = false,
         view = view,
         cameraNode = cameraNode,
-        childNodes = buildList {
-            state.crosshairNode?.let {
-                add(it.node)
-            }
-            state.lineHelperNode?.let {
-                add(it.node)
-                add(it.labelNode)
-            }
-            addAll(state.markerNodes.values.map { it.node })
-            addAll(state.lineNodes.values.flatMap { listOf(it.node, it.labelNode) })
-        },
+//        childNodes = buildList {
+//            state.crosshairNode?.let {
+//                add(it.node)
+//            }
+//            state.lineHelperNode?.let {
+//                add(it.node)
+//                add(it.labelNode)
+//            }
+//            addAll(state.markerNodes.values.map { it.node })
+//            addAll(state.lineNodes.values.flatMap { listOf(it.node, it.labelNode) })
+//        },
         viewNodeWindowManager = windowManager,
         onSessionUpdated = { _, updatedFrame ->
             frame = updatedFrame

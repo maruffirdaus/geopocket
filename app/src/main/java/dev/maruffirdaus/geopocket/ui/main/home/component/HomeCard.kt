@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.home.component
+package dev.maruffirdaus.geopocket.ui.main.home.component
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.maruffirdaus.geopocket.ui.home.model.HomeItem
+import dev.maruffirdaus.geopocket.ui.main.home.model.HomeItem
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 
 @Composable
@@ -27,11 +26,7 @@ fun HomeCard(
     Card(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        )
+        shape = RoundedCornerShape(24.dp)
     ) {
         Spacer(Modifier.height(24.dp))
         Icon(
