@@ -2,7 +2,7 @@ package dev.maruffirdaus.geopocket.ui.main.home.model
 
 import androidx.annotation.DrawableRes
 import dev.maruffirdaus.geopocket.R
-import dev.maruffirdaus.geopocket.ui.common.model.ArPlacingMode
+import dev.maruffirdaus.geopocket.ui.common.model.ARPlacingMode
 
 enum class HomeItem(
     val title: String,
@@ -12,7 +12,7 @@ enum class HomeItem(
     TRIANGLE("Concept of Triangle", R.drawable.ic_triangle),
     RECTANGLE("Concept of Rectangle", R.drawable.ic_rectangle);
 
-    fun toArPlacingMode(): ArPlacingMode {
-        return ArPlacingMode.entries[this.ordinal]
+    fun toARPlacingMode(): ARPlacingMode {
+        return ARPlacingMode.entries[this.ordinal]
     }
 }

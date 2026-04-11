@@ -1,6 +1,6 @@
 package dev.maruffirdaus.geopocket.ui.common.model
 
-enum class ArPlacingMode(
+enum class ARPlacingMode(
     val maxNodes: Int
 ) {
     LINE(2),

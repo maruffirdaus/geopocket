@@ -3,7 +3,7 @@ package dev.maruffirdaus.geopocket.ui.main.model
 import androidx.annotation.DrawableRes
 import dev.maruffirdaus.geopocket.R
 
-enum class NavItem(
+enum class MainNavItem(
     val label: String,
     @param:DrawableRes val selectedIcon: Int,
     @param:DrawableRes val unselectedIcon: Int

@@ -10,14 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 
 @Composable
 fun LineLabel(
-    text: String
+    length: Float
 ) {
+    val locale = LocalLocale.current.platformLocale
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(100))
@@ -25,7 +28,7 @@ fun LineLabel(
             .padding(horizontal = 8.dp)
     ) {
         Text(
-            text = text,
+            text = "${String.format(locale, "%.2f", length)} m",
             color = Color.Black,
             style = MaterialTheme.typography.labelSmall
         )
@@ -36,6 +39,6 @@ fun LineLabel(
 @Preview
 private fun LineLabelPreview() {
     GeoPocketTheme {
-        LineLabel("0.99 m")
+        LineLabel(0.99f)
     }
 }

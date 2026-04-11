@@ -9,7 +9,7 @@ sealed interface AppNavKey : NavKey {
     object Main : AppNavKey
 
     @Serializable
-    data class Ar(
+    data class AR(
         val mode: String
     ) : AppNavKey
 }

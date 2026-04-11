@@ -8,8 +8,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import dev.maruffirdaus.geopocket.ui.ar.ArScreen
-import dev.maruffirdaus.geopocket.ui.common.model.ArPlacingMode
+import dev.maruffirdaus.geopocket.ui.ar.ARScreen
+import dev.maruffirdaus.geopocket.ui.common.model.ARPlacingMode
 import dev.maruffirdaus.geopocket.ui.main.MainScreen
 import dev.maruffirdaus.geopocket.ui.main.home.HomeScreen
 
@@ -35,9 +35,9 @@ fun AppNavDisplay(
                     }
                 )
             }
-            entry<AppNavKey.Ar> { key ->
-                ArScreen(
-                    mode = ArPlacingMode.valueOf(key.mode),
+            entry<AppNavKey.AR> { key ->
+                ARScreen(
+                    mode = ARPlacingMode.valueOf(key.mode),
                     onNavigateBack = {
                         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
                     }

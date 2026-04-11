@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 
 @Composable
-fun Crosshair(
+fun PlacementIndicator(
     modifier: Modifier = Modifier,
     color: Color = Color.White,
     overallSize: Dp = 64.dp,
@@ -53,6 +53,6 @@ fun Crosshair(
 @Preview
 private fun CrosshairPreview() {
     GeoPocketTheme {
-        Crosshair()
+        PlacementIndicator()
     }
 }

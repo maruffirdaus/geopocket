@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.maruffirdaus.geopocket.ui.main.model.NavItem
+import dev.maruffirdaus.geopocket.ui.main.model.MainNavItem
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -27,7 +27,7 @@ fun MainScreen(
     MainScreenContent(
         uiState = uiState,
         homeScreen = homeScreen,
-        onSelectedNavItemChange = viewModel::changeSelectedNavItem
+        onEvent = viewModel::onEvent
     )
 }
 
@@ -35,18 +35,18 @@ fun MainScreen(
 fun MainScreenContent(
     uiState: MainUiState,
     homeScreen: @Composable () -> Unit,
-    onSelectedNavItemChange: (NavItem) -> Unit
+    onEvent: (MainEvent) -> Unit
 ) {
     Scaffold(
         bottomBar = {
             NavigationBar {
-                NavItem.entries.forEach { navItem ->
+                MainNavItem.entries.forEach { navItem ->
                     val isSelected = uiState.selectedNavItem == navItem
 
                     NavigationBarItem(
                         selected = isSelected,
                         onClick = {
-                            onSelectedNavItemChange(navItem)
+                            onEvent(MainEvent.OnSelectedNavItemUpdate(navItem))
                         },
                         icon = {
                             Icon(
@@ -70,7 +70,7 @@ fun MainScreenContent(
             modifier = Modifier.padding(innerPadding)
         ) {
             when (uiState.selectedNavItem) {
-                NavItem.HOME -> homeScreen()
+                MainNavItem.HOME -> homeScreen()
                 else -> {}
             }
         }
@@ -84,7 +84,7 @@ private fun MainScreenPreview() {
         MainScreenContent(
             uiState = MainUiState(),
             homeScreen = {},
-            onSelectedNavItemChange = {}
+            onEvent = {}
         )
     }
 }

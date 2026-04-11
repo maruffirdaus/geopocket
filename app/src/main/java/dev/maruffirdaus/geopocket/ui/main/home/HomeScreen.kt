@@ -63,7 +63,7 @@ fun HomeScreenContent(
                 HomeCard(
                     item = item,
                     onClick = {
-                        onNavigate(AppNavKey.Ar(item.toArPlacingMode().name))
+                        onNavigate(AppNavKey.AR(item.toARPlacingMode().name))
                     },
                     modifier = Modifier.aspectRatio(1f)
                 )
