@@ -13,7 +13,9 @@ import io.github.sceneview.math.Position
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.koin.core.annotation.KoinViewModel
 
+@KoinViewModel
 class ARViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ARUiState())
     val uiState = _uiState.asStateFlow()

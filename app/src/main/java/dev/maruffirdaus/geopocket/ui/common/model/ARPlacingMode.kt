@@ -4,6 +4,7 @@ enum class ARPlacingMode(
     val maxNodes: Int
 ) {
     LINE(2),
+    ANGLE(3),
     TRIANGLE(3),
-    RECTANGLE(4)
+    QUADRILATERAL(4)
 }

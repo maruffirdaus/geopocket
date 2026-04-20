@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface AppNavKey : NavKey {
     @Serializable
-    object Main : AppNavKey
+    object Home : AppNavKey
 
     @Serializable
     data class AR(

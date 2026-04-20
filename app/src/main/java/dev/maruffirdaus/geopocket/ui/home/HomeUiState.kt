@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.main.home
+package dev.maruffirdaus.geopocket.ui.home
 
 data class HomeUiState(
     val isLoading: Boolean = false

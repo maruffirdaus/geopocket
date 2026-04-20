@@ -10,12 +10,11 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import dev.maruffirdaus.geopocket.ui.ar.ARScreen
 import dev.maruffirdaus.geopocket.ui.common.model.ARPlacingMode
-import dev.maruffirdaus.geopocket.ui.main.MainScreen
-import dev.maruffirdaus.geopocket.ui.main.home.HomeScreen
+import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 
 @Composable
 fun AppNavDisplay(
-    backStack: NavBackStack<NavKey> = rememberNavBackStack(AppNavKey.Main)
+    backStack: NavBackStack<NavKey> = rememberNavBackStack(AppNavKey.Home)
 ) {
     NavDisplay(
         backStack = backStack,
@@ -24,14 +23,10 @@ fun AppNavDisplay(
             rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = entryProvider {
-            entry<AppNavKey.Main> {
-                MainScreen(
-                    homeScreen = {
-                        HomeScreen(
-                            onNavigate = { key ->
-                                backStack.add(key)
-                            }
-                        )
+            entry<AppNavKey.Home> {
+                HomeScreen(
+                    onNavigate = { key ->
+                        backStack.add(key)
                     }
                 )
             }
