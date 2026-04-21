@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.home
+package dev.maruffirdaus.geopocket.ui.topic
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,40 +17,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
-import com.adamglin.phosphoricons.regular.Gear
-import com.adamglin.phosphoricons.regular.Trophy
-import dev.maruffirdaus.geopocket.R
+import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.domain.topic.Topic
-import dev.maruffirdaus.geopocket.ui.home.component.TopicCard
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import dev.maruffirdaus.geopocket.ui.topic.component.SubtopicCard
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun HomeScreen(
+fun TopicScreen(
     onNavigate: (AppNavKey) -> Unit,
-    viewModel: HomeViewModel = koinViewModel()
+    onNavigateBack: () -> Unit,
+    viewModel: TopicViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    HomeScreenContent(
+    TopicScreenContent(
         uiState = uiState,
-        onNavigate = onNavigate
+        onNavigate = onNavigate,
+        onNavigateBack = onNavigateBack
     )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun HomeScreenContent(
-    uiState: HomeUiState,
-    onNavigate: (AppNavKey) -> Unit
+fun TopicScreenContent(
+    uiState: TopicUiState,
+    onNavigate: (AppNavKey) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -58,29 +57,15 @@ fun HomeScreenContent(
         topBar = {
             LargeFlexibleTopAppBar(
                 title = {
-                    Text(stringResource(R.string.app_name))
+                    Text(uiState.topic.title)
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {
-                            onNavigate(AppNavKey.Achievement)
-                        }
+                        onClick = onNavigateBack
                     ) {
                         Icon(
-                            imageVector = PhosphorIcons.Regular.Trophy,
-                            contentDescription = "Pencapaian"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            onNavigate(AppNavKey.Settings)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = PhosphorIcons.Regular.Gear,
-                            contentDescription = "Pengaturan"
+                            imageVector = PhosphorIcons.Regular.ArrowLeft,
+                            contentDescription = "Kembali"
                         )
                     }
                 },
@@ -93,20 +78,17 @@ fun HomeScreenContent(
             contentPadding = innerPadding + PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(Topic.entries.sortedBy { it.order }) { item ->
-                val subtopicIds = Subtopic.entries.filter { it.topic == item }.map { it.id }.toSet()
-                val unlockedSubtopics = uiState.subtopicProgresses.filter { it.id in subtopicIds }
+            items(Subtopic.entries.filter { it.topic == uiState.topic }
+                .sortedBy { it.order }) { item ->
+                val unlockedSubtopicIds = uiState.subtopicProgresses.map { it.id }.toSet()
 
-                TopicCard(
-                    topic = item,
-                    unlocked = item.order == 0 || unlockedSubtopics.isNotEmpty(),
-                    onClick = {
-                        onNavigate(AppNavKey.Topic(item.name))
-                    },
+                SubtopicCard(
+                    subtopic = item,
+                    unlocked = item.order == 0 || item.id in unlockedSubtopicIds,
+                    onClick = {},
                     modifier = Modifier.fillMaxWidth(),
-                    progress = if (unlockedSubtopics.isEmpty()) 0f else {
-                        unlockedSubtopics.size.toFloat() / subtopicIds.size.toFloat()
-                    }
+                    highestScore = uiState.subtopicProgresses
+                        .firstOrNull { it.id == item.id }?.highestScore ?: 0
                 )
             }
         }
@@ -115,11 +97,12 @@ fun HomeScreenContent(
 
 @Composable
 @Preview
-private fun HomeScreenPreview() {
+private fun TopicScreenPreview() {
     GeoPocketTheme {
-        HomeScreenContent(
-            uiState = HomeUiState(),
-            onNavigate = {}
+        TopicScreenContent(
+            uiState = TopicUiState(),
+            onNavigate = {},
+            onNavigateBack = {}
         )
     }
 }

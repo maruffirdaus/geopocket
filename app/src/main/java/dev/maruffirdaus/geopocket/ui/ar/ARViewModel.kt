@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.ui.ar.model.LineNode
 import dev.maruffirdaus.geopocket.ui.ar.model.MarkerNode
-import dev.maruffirdaus.geopocket.ui.ar.model.PlacementIndicatorNode
-import dev.romainguy.kotlin.math.Float3
-import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.math.Position
@@ -40,31 +37,23 @@ class ARViewModel : ViewModel() {
     }
 
     private fun updatePlacementIndicator(pose: Pose, camPos: Position) {
-        val correction = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
-        val worldPosition = pose.position
-        val quaternion = pose.quaternion * correction
-
         _uiState.update { state ->
             val previewLine = if (isPreviewLineEnabled) {
                 state.markers.values.lastOrNull()?.let { lastMarker ->
                     LineNode(
                         startPos = lastMarker.worldPosition,
-                        endPos = worldPosition,
+                        endPos = pose.position,
                         camPos = camPos
                     )
                 }
             } else null
 
             state.copy(
-                placementIndicator = PlacementIndicatorNode(
-                    worldPosition = worldPosition,
-                    quaternion = quaternion
-                ),
                 previewLine = previewLine
             )
         }
 
-        currentPose = uiState.value.placementIndicator?.calculateCorrectedPose()
+        currentPose = pose
         currentCamPos = camPos
     }
 

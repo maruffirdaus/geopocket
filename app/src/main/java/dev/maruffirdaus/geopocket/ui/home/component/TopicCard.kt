@@ -10,12 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,21 +23,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.maruffirdaus.geopocket.ui.home.model.HomeItem
-import dev.maruffirdaus.geopocket.ui.home.model.HomeItemStatus
+import dev.maruffirdaus.geopocket.domain.topic.Topic
+import dev.maruffirdaus.geopocket.ui.common.component.TopicStatusLabel
+import dev.maruffirdaus.geopocket.ui.common.model.TopicStatus
+import dev.maruffirdaus.geopocket.ui.home.extension.toIcon
+import dev.maruffirdaus.geopocket.ui.home.extension.toIconContainerShape
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun HomeCard(
-    item: HomeItem,
+fun TopicCard(
+    topic: Topic,
+    unlocked: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    progress: Float = 0f
 ) {
     Card(
         onClick = onClick,
         modifier = modifier,
-        enabled = item.status != HomeItemStatus.LOCKED,
+        enabled = unlocked,
         shape = RoundedCornerShape(24.dp)
     ) {
         Column(
@@ -51,72 +55,46 @@ fun HomeCard(
                 Box(
                     modifier = Modifier
                         .size(64.dp)
-                        .clip(CircleShape)
+                        .clip(topic.toIconContainerShape())
                         .background(
                             color = MaterialTheme.colorScheme.primary.copy(
-                                alpha = if (item.status == HomeItemStatus.LOCKED) 0.38f else 1f
+                                alpha = if (!unlocked) 0.38f else 1f
                             )
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.title,
+                        imageVector = topic.toIcon(),
+                        contentDescription = topic.title,
                         modifier = Modifier.size(32.dp),
                         tint = MaterialTheme.colorScheme.onPrimary.copy(
-                            alpha = if (item.status == HomeItemStatus.LOCKED) 0.38f else 1f
+                            alpha = if (!unlocked) 0.38f else 1f
                         )
                     )
                 }
-                Row(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(
-                            color = MaterialTheme.colorScheme.secondary.copy(
-                                alpha = if (item.status == HomeItemStatus.LOCKED) 0.38f else 1f
-                            )
-                        )
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = item.status.icon,
-                        contentDescription = item.status.title,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSecondary.copy(
-                            alpha = if (item.status == HomeItemStatus.LOCKED) 0.38f else 1f
-                        )
-                    )
-                    Text(
-                        text = item.status.title,
-                        color = MaterialTheme.colorScheme.onSecondary.copy(
-                            alpha = if (item.status == HomeItemStatus.LOCKED) 0.38f else 1f
-                        ),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
+                TopicStatusLabel(
+                    status = when {
+                        !unlocked -> TopicStatus.LOCKED
+                        progress >= 1f -> TopicStatus.PASSED
+                        else -> TopicStatus.NOT_PASSED
+                    }
+                )
+
             }
             Spacer(Modifier.height(24.dp))
             Text(
-                text = item.title,
+                text = topic.title,
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = item.description,
+                text = topic.description,
                 style = MaterialTheme.typography.bodySmall
             )
-            if (item.status != HomeItemStatus.LOCKED) {
+            if (unlocked) {
                 Spacer(Modifier.height(24.dp))
-                LinearProgressIndicator(
-                    progress = {
-                        if (item.status == HomeItemStatus.COMPLETED) {
-                            1f
-                        } else {
-                            0.5f
-                        }
-                    },
+                LinearWavyProgressIndicator(
+                    progress = { progress },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -126,12 +104,14 @@ fun HomeCard(
 
 @Composable
 @Preview
-private fun HomeCardPreview() {
+private fun TopicCardPreview() {
     GeoPocketTheme {
-        HomeCard(
-            item = HomeItem.ANGLE,
+        TopicCard(
+            topic = Topic.ANGLE,
+            unlocked = true,
             onClick = {},
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            progress = 0.5f
         )
     }
 }

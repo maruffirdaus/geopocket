@@ -8,9 +8,15 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.maruffirdaus.geopocket.domain.topic.Subtopic
+import dev.maruffirdaus.geopocket.domain.topic.Topic
+import dev.maruffirdaus.geopocket.ui.achievement.AchievementScreen
 import dev.maruffirdaus.geopocket.ui.ar.ARScreen
-import dev.maruffirdaus.geopocket.ui.common.model.ARPlacingMode
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
+import dev.maruffirdaus.geopocket.ui.settings.SettingsScreen
+import dev.maruffirdaus.geopocket.ui.topic.TopicScreen
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun AppNavDisplay(
@@ -30,9 +36,36 @@ fun AppNavDisplay(
                     }
                 )
             }
+            entry<AppNavKey.Topic> { key ->
+                TopicScreen(
+                    onNavigate = { key ->
+                        backStack.add(key)
+                    },
+                    onNavigateBack = {
+                        if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+                    },
+                    viewModel = koinViewModel {
+                        parametersOf(Topic.valueOf(key.topic))
+                    }
+                )
+            }
             entry<AppNavKey.AR> { key ->
                 ARScreen(
-                    mode = ARPlacingMode.valueOf(key.mode),
+                    subtopic = Subtopic.valueOf(key.subtopic),
+                    onNavigateBack = {
+                        if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+                    }
+                )
+            }
+            entry<AppNavKey.Achievement> {
+                AchievementScreen(
+                    onNavigateBack = {
+                        if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+                    }
+                )
+            }
+            entry<AppNavKey.Settings> {
+                SettingsScreen(
                     onNavigateBack = {
                         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
                     }

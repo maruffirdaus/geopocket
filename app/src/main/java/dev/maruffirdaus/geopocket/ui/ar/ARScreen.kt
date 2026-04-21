@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,8 +49,7 @@ import com.google.android.filament.ToneMapper
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Pose
-import dev.maruffirdaus.geopocket.ui.ar.component.PlacementIndicator
-import dev.maruffirdaus.geopocket.ui.common.model.ARPlacingMode
+import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.arcore.isValid
@@ -66,11 +66,13 @@ private const val HIT_TEST_INTERVAL_MS = 100L
 
 @Composable
 fun ARScreen(
-    mode: ARPlacingMode,
+    subtopic: Subtopic,
     onNavigateBack: () -> Unit,
     viewModel: ARViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val locale = LocalLocale.current.platformLocale
 
     var arSceneWidth by remember { mutableIntStateOf(0) }
     var arSceneHeight by remember { mutableIntStateOf(0) }
@@ -181,23 +183,6 @@ fun ARScreen(
                     }
                 }
             ) {
-                uiState.placementIndicator?.let {
-                    key("placementIndicator") {
-                        ViewNode(
-                            windowManager = windowManager,
-                            unlit = true,
-                            apply = {
-                                position = it.worldPosition
-                                quaternion = it.quaternion
-                                pxPerUnits = 2000f
-                                collisionShape = null
-                                isPositionEditable = false
-                            }
-                        ) {
-                            PlacementIndicator()
-                        }
-                    }
-                }
                 uiState.previewLine?.let {
                     key("previewLine") {
                         CubeNode(
@@ -210,19 +195,13 @@ fun ARScreen(
                                 isPositionEditable = false
                             }
                         )
-//                        ViewNode(
-//                            windowManager = windowManager,
-//                            unlit = true,
-//                            apply = {
-//                                worldPosition = it.label.worldPosition
-//                                quaternion = it.label.quaternion
-//                                pxPerUnits = 2000f
-//                                collisionShape = null
-//                                isPositionEditable = false
-//                            }
-//                        ) {
-//                            LineLabel(it.label.length)
-//                        }
+                        TextNode(
+                            text = "${String.format(locale, "%.2f", it.length)} m",
+                            fontSize = 48f,
+                            position = it.worldPosition,
+                            widthMeters = 0.1f,
+                            heightMeters = 0.05f
+                        )
                     }
                 }
                 anchors.forEach { (id, anchor) ->
@@ -257,19 +236,13 @@ fun ARScreen(
                                 isPositionEditable = false
                             }
                         )
-//                        ViewNode(
-//                            windowManager = windowManager,
-//                            unlit = true,
-//                            apply = {
-//                                worldPosition = line.label.worldPosition
-//                                quaternion = line.label.quaternion
-//                                pxPerUnits = 2000f
-//                                collisionShape = null
-//                                isPositionEditable = false
-//                            }
-//                        ) {
-//                            LineLabel(line.label.length)
-//                        }
+                        TextNode(
+                            text = "${String.format(locale, "%.2f", line.length)} m",
+                            fontSize = 48f,
+                            position = line.worldPosition,
+                            widthMeters = 0.1f,
+                            heightMeters = 0.05f
+                        )
                     }
                 }
             }

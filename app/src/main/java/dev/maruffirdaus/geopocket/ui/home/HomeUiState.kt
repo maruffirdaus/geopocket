@@ -1,5 +1,7 @@
 package dev.maruffirdaus.geopocket.ui.home
 
+import dev.maruffirdaus.geopocket.data.local.subtopic.SubtopicProgress
+
 data class HomeUiState(
-    val isLoading: Boolean = false
+    val subtopicProgresses: List<SubtopicProgress> = listOf()
 )

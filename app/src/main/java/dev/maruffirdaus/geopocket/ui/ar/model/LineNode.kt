@@ -20,7 +20,7 @@ data class LineNode(
     val scale: Scale = Scale(),
     val startMarkerId: String? = null,
     val endMarkerId: String? = null,
-    val label: LineLabelNode = LineLabelNode(),
+    val length: Float = 0f,
 ) {
     constructor(
         startPos: Position,
@@ -31,20 +31,23 @@ data class LineNode(
     ) : this(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
-        scale = Float3(length(endPos - startPos), 0.0025f, 0.0001f),
+        scale = Float3(length(endPos - startPos), WIDTH, HEIGHT),
         startMarkerId = startMarkerId,
         endMarkerId = endMarkerId,
-        label = LineLabelNode(startPos, endPos, camPos)
+        length = length(endPos - startPos)
     )
 
     fun copy(startPos: Position, endPos: Position, camPos: Position): LineNode = this.copy(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
-        scale = Float3(length(endPos - startPos), 0.0025f, 0.0001f),
-        label = LineLabelNode(startPos, endPos, camPos)
+        scale = Float3(length(endPos - startPos), WIDTH, HEIGHT),
+        length = length(endPos - startPos)
     )
 
     companion object {
+        private const val WIDTH = 0.0025f
+        private const val HEIGHT = 0.0001f
+
         private fun calculateQuaternion(
             startPos: Position,
             endPos: Position,

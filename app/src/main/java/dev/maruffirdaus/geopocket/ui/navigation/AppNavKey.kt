@@ -9,7 +9,18 @@ sealed interface AppNavKey : NavKey {
     object Home : AppNavKey
 
     @Serializable
-    data class AR(
-        val mode: String
+    data class Topic(
+        val topic: String
     ) : AppNavKey
+
+    @Serializable
+    data class AR(
+        val subtopic: String
+    ) : AppNavKey
+
+    @Serializable
+    object Achievement : AppNavKey
+
+    @Serializable
+    object Settings : AppNavKey
 }
