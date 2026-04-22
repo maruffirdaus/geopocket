@@ -30,19 +30,21 @@ import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.Topic
 import dev.maruffirdaus.geopocket.ui.home.component.TopicCard
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
+import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(
-    onNavigate: (AppNavKey) -> Unit,
-    viewModel: HomeViewModel = koinViewModel()
+    viewModel: HomeViewModel = koinViewModel(),
+    navHandler: NavHandler = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     HomeScreenContent(
         uiState = uiState,
-        onNavigate = onNavigate
+        navHandler = navHandler
     )
 }
 
@@ -50,7 +52,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
-    onNavigate: (AppNavKey) -> Unit
+    navHandler: NavHandler
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -63,7 +65,7 @@ fun HomeScreenContent(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onNavigate(AppNavKey.Scratchpad)
+                            navHandler.push(AppNavKey.Scratchpad)
                         }
                     ) {
                         Icon(
@@ -75,7 +77,7 @@ fun HomeScreenContent(
                 actions = {
                     IconButton(
                         onClick = {
-                            onNavigate(AppNavKey.Settings)
+                            navHandler.push(AppNavKey.Settings)
                         }
                     ) {
                         Icon(
@@ -101,7 +103,7 @@ fun HomeScreenContent(
                     topic = item,
                     unlocked = true /*item.order == 0 || unlockedSubtopics.isNotEmpty()*/,
                     onClick = {
-                        onNavigate(AppNavKey.Topic(item.name))
+                        navHandler.push(AppNavKey.Topic(item.name))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     progress = if (unlockedSubtopics.isEmpty()) 0f else {
@@ -119,7 +121,7 @@ private fun HomeScreenPreview() {
     GeoPocketTheme {
         HomeScreenContent(
             uiState = HomeUiState(),
-            onNavigate = {}
+            navHandler = NavHandler()
         )
     }
 }

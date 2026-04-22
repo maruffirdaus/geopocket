@@ -25,22 +25,22 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
+import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import dev.maruffirdaus.geopocket.ui.topic.component.SubtopicCard
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun TopicScreen(
-    onNavigate: (AppNavKey) -> Unit,
-    onNavigateBack: () -> Unit,
-    viewModel: TopicViewModel = koinViewModel()
+    viewModel: TopicViewModel = koinViewModel(),
+    navHandler: NavHandler = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TopicScreenContent(
         uiState = uiState,
-        onNavigate = onNavigate,
-        onNavigateBack = onNavigateBack
+        navHandler = navHandler
     )
 }
 
@@ -48,8 +48,7 @@ fun TopicScreen(
 @Composable
 fun TopicScreenContent(
     uiState: TopicUiState,
-    onNavigate: (AppNavKey) -> Unit,
-    onNavigateBack: () -> Unit
+    navHandler: NavHandler
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -61,7 +60,9 @@ fun TopicScreenContent(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = onNavigateBack
+                        onClick = {
+                            navHandler.pop()
+                        }
                     ) {
                         Icon(
                             imageVector = PhosphorIcons.Regular.ArrowLeft,
@@ -86,7 +87,7 @@ fun TopicScreenContent(
                     subtopic = item,
                     unlocked = true /*item.order == 0 || item.id in unlockedSubtopicIds*/,
                     onClick = {
-                        onNavigate(AppNavKey.Instructions(item.name))
+                        navHandler.push(AppNavKey.Instructions(item.name))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     highestScore = uiState.subtopicProgresses
@@ -103,8 +104,7 @@ private fun TopicScreenPreview() {
     GeoPocketTheme {
         TopicScreenContent(
             uiState = TopicUiState(),
-            onNavigate = {},
-            onNavigateBack = {}
+            navHandler = NavHandler()
         )
     }
 }

@@ -40,22 +40,22 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.ui.instructions.component.InstructionsAnimationCanvas
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
+import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun InstructionsScreen(
-    onNavigate: (AppNavKey) -> Unit,
-    onNavigateBack: () -> Unit,
-    viewModel: InstructionsViewModel = koinViewModel()
+    viewModel: InstructionsViewModel = koinViewModel(),
+    navHandler: NavHandler = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     InstructionsScreenContent(
         uiState = uiState,
-        onNavigate = onNavigate,
-        onNavigateBack = onNavigateBack
+        navHandler = navHandler
     )
 }
 
@@ -63,8 +63,7 @@ fun InstructionsScreen(
 @Composable
 fun InstructionsScreenContent(
     uiState: InstructionsUiState,
-    onNavigate: (AppNavKey) -> Unit,
-    onNavigateBack: () -> Unit
+    navHandler: NavHandler
 ) {
     val scope = rememberCoroutineScope()
 
@@ -76,7 +75,9 @@ fun InstructionsScreenContent(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = onNavigateBack
+                        onClick = {
+                            navHandler.pop()
+                        }
                     ) {
                         Icon(
                             imageVector = PhosphorIcons.Regular.ArrowLeft,
@@ -115,7 +116,9 @@ fun InstructionsScreenContent(
                     .weight(1f)
             ) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -157,7 +160,7 @@ fun InstructionsScreenContent(
             }
             Button(
                 onClick = {
-                    onNavigate(AppNavKey.AR(uiState.subtopic.name))
+                    navHandler.push(AppNavKey.AR(uiState.subtopic.name))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,8 +178,7 @@ private fun InstructionsScreenPreview() {
     GeoPocketTheme {
         InstructionsScreenContent(
             uiState = InstructionsUiState(),
-            onNavigate = {},
-            onNavigateBack = {}
+            navHandler = NavHandler()
         )
     }
 }

@@ -2,6 +2,7 @@ package dev.maruffirdaus.geopocket.ui.ar
 
 import androidx.lifecycle.ViewModel
 import com.google.ar.core.Pose
+import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNode
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNode
 import io.github.sceneview.ar.arcore.position
@@ -10,10 +11,13 @@ import io.github.sceneview.math.Position
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
-class ARViewModel : ViewModel() {
+class ARViewModel(
+    @InjectedParam private val subtopic: Subtopic
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ARUiState())
     val uiState = _uiState.asStateFlow()
 

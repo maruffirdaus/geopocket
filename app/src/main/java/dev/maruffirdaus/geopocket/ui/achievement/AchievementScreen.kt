@@ -19,21 +19,23 @@ import androidx.compose.ui.unit.dp
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import org.koin.compose.koinInject
 
 @Composable
 fun AchievementScreen(
-    onNavigateBack: () -> Unit
+    navHandler: NavHandler = koinInject()
 ) {
     AchievementScreenContent(
-        onNavigateBack = onNavigateBack
+        navHandler = navHandler
     )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AchievementScreenContent(
-    onNavigateBack: () -> Unit
+    navHandler: NavHandler
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -45,7 +47,9 @@ fun AchievementScreenContent(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = onNavigateBack
+                        onClick = {
+                            navHandler.pop()
+                        }
                     ) {
                         Icon(
                             imageVector = PhosphorIcons.Regular.ArrowLeft,
@@ -72,7 +76,7 @@ fun AchievementScreenContent(
 private fun AchievementScreenPreview() {
     GeoPocketTheme {
         AchievementScreenContent(
-            onNavigateBack = {}
+            navHandler = NavHandler()
         )
     }
 }

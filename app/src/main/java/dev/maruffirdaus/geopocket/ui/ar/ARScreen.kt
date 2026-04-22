@@ -49,7 +49,7 @@ import com.google.android.filament.ToneMapper
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Pose
-import dev.maruffirdaus.geopocket.domain.topic.Subtopic
+import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.arcore.isValid
@@ -60,15 +60,15 @@ import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.rememberView
 import io.github.sceneview.rememberViewNodeManager
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val HIT_TEST_INTERVAL_MS = 100L
 
 @Composable
 fun ARScreen(
-    subtopic: Subtopic,
-    onNavigateBack: () -> Unit,
-    viewModel: ARViewModel = koinViewModel()
+    viewModel: ARViewModel = koinViewModel(),
+    navHandler: NavHandler = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -117,6 +117,7 @@ fun ARScreen(
 
     ARScreenContent(
         uiState = uiState,
+        onEvent = viewModel::onEvent,
         arScene = {
             ARSceneView(
                 modifier = Modifier.onGloballyPositioned { layoutCoordinates ->
@@ -247,8 +248,7 @@ fun ARScreen(
                 }
             }
         },
-        onNavigateBack = onNavigateBack,
-        onEvent = viewModel::onEvent
+        navHandler = navHandler
     )
 }
 
@@ -256,9 +256,9 @@ fun ARScreen(
 @Composable
 fun ARScreenContent(
     uiState: ARUiState,
+    onEvent: (AREvent) -> Unit,
     arScene: @Composable () -> Unit,
-    onNavigateBack: () -> Unit,
-    onEvent: (AREvent) -> Unit
+    navHandler: NavHandler
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -312,7 +312,9 @@ fun ARScreenContent(
         ) {
             arScene()
             FilledIconButton(
-                onClick = onNavigateBack,
+                onClick = {
+                    navHandler.pop()
+                },
                 modifier = Modifier
                     .padding(innerPadding)
                     .padding(horizontal = 4.dp, vertical = 8.dp)
@@ -343,9 +345,9 @@ private fun ARScreenPreview() {
     GeoPocketTheme {
         ARScreenContent(
             uiState = ARUiState(),
+            onEvent = {},
             arScene = {},
-            onNavigateBack = {},
-            onEvent = {}
+            navHandler = NavHandler()
         )
     }
 }
