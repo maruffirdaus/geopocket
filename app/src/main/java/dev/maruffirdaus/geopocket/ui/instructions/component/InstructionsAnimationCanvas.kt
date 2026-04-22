@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.Topic
 import kotlinx.coroutines.delay
-import kotlin.math.cos
-import kotlin.math.sin
 
 private const val POINT_HOLD_DURATION = 400L
 private const val SEGMENT_DRAW_DURATION = 500
@@ -124,7 +122,9 @@ fun InstructionsAnimationCanvas(
         }
     }
 
-    Canvas(modifier = modifier) {
+    Canvas(
+        modifier = modifier
+    ) {
         if (canvasSize != size) canvasSize = size
 
         completedSegments.forEachIndexed { segmentIndex, (fromPointIndex, toPointIndex) ->
@@ -132,11 +132,15 @@ fun InstructionsAnimationCanvas(
             val segmentEnd = pointTargetPositions[toPointIndex]
             val segmentMidpoint = segmentStart.midpoint(segmentEnd)
             val segmentConstraint = constraint.segments.getOrNull(segmentIndex)
-            val lengthLabel =
-                segmentConstraint?.run { minLength ?: maxLength }
-                    ?.let { "%.0f cm".format(it * 100) }
+            val lengthLabel = segmentConstraint?.run { minLength ?: maxLength }
+                ?.let { "%.0f cm".format(it * 100) }
 
-            drawLine(segmentColor, segmentStart, segmentEnd, strokeWidth = segmentStrokeWidthPx)
+            drawLine(
+                color = segmentColor,
+                start = segmentStart,
+                end = segmentEnd,
+                strokeWidth = segmentStrokeWidthPx
+            )
 
             lengthLabel?.let {
                 drawContext.canvas.nativeCanvas.drawText(
@@ -149,20 +153,22 @@ fun InstructionsAnimationCanvas(
         }
 
         if (completedSegments.size >= 2) {
-            pointTargetPositions.forEachIndexed { vertexIndex, vertexPosition ->
-                completedSegments.firstOrNull { it.second == vertexIndex } ?: return@forEachIndexed
-                completedSegments.firstOrNull { it.first == vertexIndex } ?: return@forEachIndexed
-                val angleConstraint = constraint.angles.getOrNull(vertexIndex - 1).let {
-                    if (vertexIndex == 0) constraint.angles.last() else it
+            pointTargetPositions.forEachIndexed { pointIndex, pointPosition ->
+                completedSegments.firstOrNull { it.second == pointIndex } ?: return@forEachIndexed
+                completedSegments.firstOrNull { it.first == pointIndex } ?: return@forEachIndexed
+                val angleConstraint = if (pointIndex == 0) {
+                    constraint.angles.last()
+                } else {
+                    constraint.angles.getOrNull(pointIndex - 1)
                 }
-                val angleLabel =
-                    angleConstraint?.run { minDegree ?: maxDegree }?.let { "%.0f°".format(it) }
+                val angleLabel = angleConstraint?.run { minDegree ?: maxDegree }
+                    ?.let { "%.0f°".format(it) }
 
                 angleLabel?.let {
                     drawContext.canvas.nativeCanvas.drawText(
                         it,
-                        vertexPosition.x,
-                        vertexPosition.y - pointRadiusPx - pointHaloPaddingPx - labelOffsetAbovePx,
+                        pointPosition.x,
+                        pointPosition.y - pointRadiusPx - pointHaloPaddingPx - labelOffsetAbovePx,
                         labelColor.textPaint(labelTextSizePx, bold = true)
                     )
                 }
@@ -177,20 +183,23 @@ fun InstructionsAnimationCanvas(
                 segmentStart.y + (segmentEnd.y - segmentStart.y) * segmentDrawProgress.value
             )
             drawLine(
-                segmentColor,
-                segmentStart,
-                currentSegmentEnd,
+                color = segmentColor,
+                start = segmentStart,
+                end = currentSegmentEnd,
                 strokeWidth = segmentStrokeWidthPx
             )
 
             if (segmentDrawProgress.value > LABEL_VISIBLE_THRESHOLD) {
-                val animatingMidpoint = segmentStart.midpoint(currentSegmentEnd)
-                val animatingSegmentConst = constraint.segments.getOrNull(completedSegments.size)
-                animatingSegmentConst?.run { minLength ?: maxLength }?.let {
+                val animatingSegmentMidpoint = segmentStart.midpoint(currentSegmentEnd)
+                val segmentConstraint = constraint.segments.getOrNull(completedSegments.size)
+                val lengthLabel = segmentConstraint?.run { minLength ?: maxLength }
+                    ?.let { "%.0f cm".format(it * 100) }
+
+                lengthLabel?.let {
                     drawContext.canvas.nativeCanvas.drawText(
-                        "%.0f cm".format(it * 100),
-                        animatingMidpoint.x,
-                        animatingMidpoint.y - labelOffsetAbovePx,
+                        it,
+                        animatingSegmentMidpoint.x,
+                        animatingSegmentMidpoint.y - labelOffsetAbovePx,
                         labelColor.textPaint(labelTextSizePx, bold = true)
                     )
                 }
@@ -203,11 +212,15 @@ fun InstructionsAnimationCanvas(
             val fontMetrics = textPaint.fontMetrics
             val centerY = pointPosition.y - (fontMetrics.ascent + fontMetrics.descent) / 2
             drawCircle(
-                pointColor.copy(alpha = 0.38f),
-                scaledRadius + pointHaloPaddingPx,
-                pointPosition
+                color = pointColor.copy(alpha = 0.38f),
+                radius = scaledRadius + pointHaloPaddingPx,
+                center = pointPosition
             )
-            drawCircle(pointColor, scaledRadius, pointPosition)
+            drawCircle(
+                color = pointColor,
+                radius = scaledRadius,
+                center = pointPosition
+            )
             drawContext.canvas.nativeCanvas.drawText(
                 ('A' + pointIndex).toString(),
                 pointPosition.x,
@@ -236,22 +249,10 @@ private fun Subtopic.pointPositions(canvasSize: Size): List<Offset> {
         )
 
         Topic.TRIANGLE -> {
-            val topDeg = 270.0
-            val bottomLeftDeg = 150.0
-            val bottomRightDeg = 30.0
             listOf(
-                Offset(
-                    centerX + shapeRadius * cos(Math.toRadians(topDeg)).toFloat(),
-                    centerY + shapeRadius * sin(Math.toRadians(topDeg)).toFloat()
-                ),
-                Offset(
-                    centerX + shapeRadius * cos(Math.toRadians(bottomLeftDeg)).toFloat(),
-                    centerY + shapeRadius * sin(Math.toRadians(bottomLeftDeg)).toFloat()
-                ),
-                Offset(
-                    centerX + shapeRadius * cos(Math.toRadians(bottomRightDeg)).toFloat(),
-                    centerY + shapeRadius * sin(Math.toRadians(bottomRightDeg)).toFloat()
-                )
+                Offset(centerX, centerY - shapeRadius),
+                Offset(centerX - shapeRadius, centerY + shapeRadius),
+                Offset(centerX + shapeRadius, centerY + shapeRadius)
             )
         }
 
