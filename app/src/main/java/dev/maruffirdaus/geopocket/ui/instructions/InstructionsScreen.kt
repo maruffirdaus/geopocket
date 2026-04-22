@@ -5,14 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -92,7 +90,8 @@ fun InstructionsScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(PaddingValues(vertical = 16.dp) + innerPadding),
+                .padding(innerPadding)
+                .padding(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             val steps = uiState.subtopic.steps()

@@ -14,6 +14,7 @@ import dev.maruffirdaus.geopocket.ui.achievement.AchievementScreen
 import dev.maruffirdaus.geopocket.ui.ar.ARScreen
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 import dev.maruffirdaus.geopocket.ui.instructions.InstructionsScreen
+import dev.maruffirdaus.geopocket.ui.scratchpad.ScratchpadScreen
 import dev.maruffirdaus.geopocket.ui.settings.SettingsScreen
 import dev.maruffirdaus.geopocket.ui.topic.TopicScreen
 import org.koin.androidx.compose.koinViewModel
@@ -66,6 +67,13 @@ fun AppNavDisplay(
             entry<AppNavKey.AR> { key ->
                 ARScreen(
                     subtopic = Subtopic.valueOf(key.subtopic),
+                    onNavigateBack = {
+                        if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+                    }
+                )
+            }
+            entry<AppNavKey.Scratchpad> {
+                ScratchpadScreen(
                     onNavigateBack = {
                         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
                     }

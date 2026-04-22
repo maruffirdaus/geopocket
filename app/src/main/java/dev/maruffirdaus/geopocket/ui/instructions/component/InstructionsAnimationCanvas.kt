@@ -157,8 +157,8 @@ fun InstructionsAnimationCanvas(
                 completedSegments.firstOrNull { it.second == pointIndex } ?: return@forEachIndexed
                 completedSegments.firstOrNull { it.first == pointIndex } ?: return@forEachIndexed
                 val angleConstraint =
-                    constraint.angles.getOrNull(pointIndex - 1) ?: constraint.angles.last()
-                val angleLabel = angleConstraint.formatString()
+                    constraint.angles.getOrNull(pointIndex - 1) ?: constraint.angles.lastOrNull()
+                val angleLabel = angleConstraint?.formatString()
 
                 angleLabel?.let {
                     drawContext.canvas.nativeCanvas.drawText(

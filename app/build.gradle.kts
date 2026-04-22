@@ -11,12 +11,12 @@ plugins {
 
 android {
     namespace = "dev.maruffirdaus.geopocket"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "dev.maruffirdaus.geopocket"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
 
@@ -58,6 +58,16 @@ android {
 dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.ink.authoring)
+    implementation(libs.androidx.ink.authoring.compose)
+    implementation(libs.androidx.ink.brush)
+    implementation(libs.androidx.ink.brush.compose)
+    implementation(libs.androidx.ink.geometry)
+    implementation(libs.androidx.ink.geometry.compose)
+    implementation(libs.androidx.ink.nativeloader)
+    implementation(libs.androidx.ink.rendering)
+    implementation(libs.androidx.ink.storage)
+    implementation(libs.androidx.ink.strokes)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.material3)

@@ -24,19 +24,19 @@ class ARViewModel : ViewModel() {
 
     fun onEvent(event: AREvent) {
         when (event) {
-            is AREvent.OnPlacementIndicatorUpdate -> updatePlacementIndicator(
+            is AREvent.OnUpdatePlacementIndicator -> onUpdatePlacementIndicator(
                 event.pose,
                 event.camPos
             )
 
-            AREvent.OnMarkerAdd -> addMarker()
-            is AREvent.OnMarkerMove -> moveMarker(event.id, event.pose)
-            AREvent.OnMarkersClear -> clearMarkers()
-            is AREvent.OnErrorMessageUpdate -> updateErrorMessage(event.message)
+            AREvent.OnAddPoint -> onAddPoint()
+            is AREvent.OnPointMoved -> onPointMoved(event.id, event.pose)
+            AREvent.OnClearPoints -> onClearPoints()
+            is AREvent.OnUpdateErrorMessage -> onUpdateErrorMessage(event.message)
         }
     }
 
-    private fun updatePlacementIndicator(pose: Pose, camPos: Position) {
+    private fun onUpdatePlacementIndicator(pose: Pose, camPos: Position) {
         _uiState.update { state ->
             val previewSegment = if (isPreviewSegmentEnabled) {
                 state.points.values.lastOrNull()?.let { lastMarker ->
@@ -57,7 +57,7 @@ class ARViewModel : ViewModel() {
         currentCamPos = camPos
     }
 
-    private fun addMarker() {
+    private fun onAddPoint() {
         val pose = currentPose ?: return
         val camPos = currentCamPos ?: return
 
@@ -91,7 +91,7 @@ class ARViewModel : ViewModel() {
         }
     }
 
-    private fun moveMarker(id: String, pose: Pose) {
+    private fun onPointMoved(id: String, pose: Pose) {
         val marker = uiState.value.points[id] ?: return
         val camPos = currentCamPos ?: return
 
@@ -122,7 +122,7 @@ class ARViewModel : ViewModel() {
         }
     }
 
-    private fun clearMarkers() {
+    private fun onClearPoints() {
         _uiState.update {
             it.copy(
                 previewSegment = null,
@@ -132,7 +132,7 @@ class ARViewModel : ViewModel() {
         }
     }
 
-    private fun updateErrorMessage(message: String?) {
+    private fun onUpdateErrorMessage(message: String?) {
         _uiState.update {
             it.copy(errorMessage = message)
         }

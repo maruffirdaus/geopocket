@@ -63,7 +63,7 @@ fun HomeScreenContent(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onNavigate(AppNavKey.Achievement)
+                            onNavigate(AppNavKey.Scratchpad)
                         }
                     ) {
                         Icon(

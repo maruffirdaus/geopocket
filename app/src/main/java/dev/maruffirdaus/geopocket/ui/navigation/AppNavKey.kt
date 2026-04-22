@@ -24,6 +24,9 @@ sealed interface AppNavKey : NavKey {
     ) : AppNavKey
 
     @Serializable
+    object Scratchpad : AppNavKey
+
+    @Serializable
     object Achievement : AppNavKey
 
     @Serializable

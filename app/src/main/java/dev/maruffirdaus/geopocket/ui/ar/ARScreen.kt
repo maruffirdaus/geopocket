@@ -155,7 +155,7 @@ fun ARScreen(
 
                             if (hitResult != null) {
                                 viewModel.onEvent(
-                                    AREvent.OnPlacementIndicatorUpdate(
+                                    AREvent.OnUpdatePlacementIndicator(
                                         hitResult.hitPose,
                                         cameraNode.worldPosition
                                     )
@@ -209,7 +209,7 @@ fun ARScreen(
                         AnchorNode(
                             anchor = anchor,
                             onUpdated = {
-                                viewModel.onEvent(AREvent.OnMarkerMove(id, it.pose))
+                                viewModel.onEvent(AREvent.OnPointMoved(id, it.pose))
                             }
                         ) {
                             CylinderNode(
@@ -265,7 +265,7 @@ fun ARScreenContent(
     LaunchedEffect(uiState.errorMessage) {
         if (uiState.errorMessage != null) {
             snackbarHostState.showSnackbar(uiState.errorMessage)
-            onEvent(AREvent.OnErrorMessageUpdate(null))
+            onEvent(AREvent.OnUpdateErrorMessage(null))
         }
     }
 
@@ -281,7 +281,7 @@ fun ARScreenContent(
                 ) {
                     IconButton(
                         onClick = {
-                            onEvent(AREvent.OnMarkersClear)
+                            onEvent(AREvent.OnClearPoints)
                         },
                         enabled = uiState.points.isNotEmpty()
                     ) {
@@ -294,7 +294,7 @@ fun ARScreenContent(
                 Spacer(Modifier.width(8.dp))
                 FloatingActionButton(
                     onClick = {
-                        onEvent(AREvent.OnMarkerAdd)
+                        onEvent(AREvent.OnAddPoint)
                     },
                     elevation = FloatingActionButtonDefaults.elevation(1.dp, 1.dp, 1.dp, 1.dp)
                 ) {
