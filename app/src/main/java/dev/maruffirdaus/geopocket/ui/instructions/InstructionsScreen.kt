@@ -1,19 +1,39 @@
 package dev.maruffirdaus.geopocket.ui.instructions
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,6 +43,7 @@ import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.ui.instructions.component.InstructionsAnimationCanvas
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -47,6 +68,8 @@ fun InstructionsScreenContent(
     onNavigate: (AppNavKey) -> Unit,
     onNavigateBack: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             LargeFlexibleTopAppBar(
@@ -67,20 +90,81 @@ fun InstructionsScreenContent(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(PaddingValues(vertical = 16.dp) + innerPadding),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            val steps = uiState.subtopic.steps()
+            val pagerState = rememberPagerState { steps.size }
+
             Card(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 InstructionsAnimationCanvas(
                     subtopic = uiState.subtopic,
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
+                        .padding(12.dp)
                 )
             }
-            uiState.subtopic.steps().forEach { step ->
-                Text(step)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = steps[pagerState.currentPage],
+                        textAlign = TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clip(CircleShape),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                repeat(steps.size) { index ->
+                    val isCurrentPage = index == pagerState.currentPage
+                    val color = if (isCurrentPage) {
+                        MaterialTheme.colorScheme.secondary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainer
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .height(12.dp)
+                            .weight(1f)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(color)
+                            .clickable {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            }
+                    )
+                }
+            }
+            Button(
+                onClick = {
+                    onNavigate(AppNavKey.AR(uiState.subtopic.name))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("Mulai")
             }
         }
     }

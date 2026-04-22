@@ -29,7 +29,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.domain.topic.Topic
+import dev.maruffirdaus.geopocket.domain.topic.constraint.AngleConstraint
+import dev.maruffirdaus.geopocket.domain.topic.constraint.SegmentConstraint
 import kotlinx.coroutines.delay
 
 private const val POINT_HOLD_DURATION = 400L
@@ -132,8 +133,7 @@ fun InstructionsAnimationCanvas(
             val segmentEnd = pointTargetPositions[toPointIndex]
             val segmentMidpoint = segmentStart.midpoint(segmentEnd)
             val segmentConstraint = constraint.segments.getOrNull(segmentIndex)
-            val lengthLabel = segmentConstraint?.run { minLength ?: maxLength }
-                ?.let { "%.0f cm".format(it * 100) }
+            val lengthLabel = segmentConstraint?.formatString()
 
             drawLine(
                 color = segmentColor,
@@ -156,13 +156,9 @@ fun InstructionsAnimationCanvas(
             pointTargetPositions.forEachIndexed { pointIndex, pointPosition ->
                 completedSegments.firstOrNull { it.second == pointIndex } ?: return@forEachIndexed
                 completedSegments.firstOrNull { it.first == pointIndex } ?: return@forEachIndexed
-                val angleConstraint = if (pointIndex == 0) {
-                    constraint.angles.last()
-                } else {
-                    constraint.angles.getOrNull(pointIndex - 1)
-                }
-                val angleLabel = angleConstraint?.run { minDegree ?: maxDegree }
-                    ?.let { "%.0f°".format(it) }
+                val angleConstraint =
+                    constraint.angles.getOrNull(pointIndex - 1) ?: constraint.angles.last()
+                val angleLabel = angleConstraint.formatString()
 
                 angleLabel?.let {
                     drawContext.canvas.nativeCanvas.drawText(
@@ -192,8 +188,7 @@ fun InstructionsAnimationCanvas(
             if (segmentDrawProgress.value > LABEL_VISIBLE_THRESHOLD) {
                 val animatingSegmentMidpoint = segmentStart.midpoint(currentSegmentEnd)
                 val segmentConstraint = constraint.segments.getOrNull(completedSegments.size)
-                val lengthLabel = segmentConstraint?.run { minLength ?: maxLength }
-                    ?.let { "%.0f cm".format(it * 100) }
+                val lengthLabel = segmentConstraint?.formatString()
 
                 lengthLabel?.let {
                     drawContext.canvas.nativeCanvas.drawText(
@@ -236,31 +231,64 @@ private fun Subtopic.pointPositions(canvasSize: Size): List<Offset> {
     val centerY = canvasSize.height / 2f
     val shapeRadius = minOf(canvasSize.width, canvasSize.height) * SHAPE_RADIUS_FRACTION
 
-    return when (topic) {
-        Topic.LINE -> listOf(
+    return when (this) {
+        Subtopic.LINE_SEGMENT -> listOf(
             Offset(centerX - shapeRadius, centerY),
             Offset(centerX + shapeRadius, centerY)
         )
 
-        Topic.ANGLE -> listOf(
+        Subtopic.ANGLE_ACUTE -> listOf(
+            Offset(centerX + shapeRadius, centerY - shapeRadius),
+            Offset(centerX - shapeRadius, centerY + shapeRadius),
+            Offset(centerX + shapeRadius, centerY + shapeRadius)
+        )
+
+        Subtopic.ANGLE_RIGHT -> listOf(
             Offset(centerX - shapeRadius, centerY - shapeRadius),
             Offset(centerX - shapeRadius, centerY + shapeRadius),
             Offset(centerX + shapeRadius, centerY + shapeRadius)
         )
 
-        Topic.TRIANGLE -> {
+        Subtopic.ANGLE_OBTUSE -> listOf(
+            Offset(centerX - shapeRadius, centerY - shapeRadius),
+            Offset(centerX - shapeRadius / 2f, centerY + shapeRadius / 2f),
+            Offset(centerX + shapeRadius, centerY + shapeRadius)
+        )
+
+        Subtopic.TRIANGLE_EQUILATERAL -> {
+            listOf(
+                Offset(centerX, centerY - shapeRadius * 0.75f),
+                Offset(centerX - shapeRadius, centerY + shapeRadius * 0.75f),
+                Offset(centerX + shapeRadius, centerY + shapeRadius * 0.75f)
+            )
+        }
+
+        Subtopic.TRIANGLE_ISOSCELES -> listOf(
+            Offset(centerX, centerY - shapeRadius),
+            Offset(centerX - shapeRadius, centerY + shapeRadius),
+            Offset(centerX + shapeRadius, centerY + shapeRadius)
+        )
+
+        Subtopic.TRIANGLE_SCALENE -> {
             listOf(
                 Offset(centerX, centerY - shapeRadius),
-                Offset(centerX - shapeRadius, centerY + shapeRadius),
+                Offset(centerX - shapeRadius, centerY + shapeRadius / 2f),
                 Offset(centerX + shapeRadius, centerY + shapeRadius)
             )
         }
 
-        Topic.QUADRILATERAL -> listOf(
+        Subtopic.QUADRILATERAL_SQUARE -> listOf(
             Offset(centerX - shapeRadius, centerY - shapeRadius),
             Offset(centerX - shapeRadius, centerY + shapeRadius),
             Offset(centerX + shapeRadius, centerY + shapeRadius),
             Offset(centerX + shapeRadius, centerY - shapeRadius)
+        )
+
+        Subtopic.QUADRILATERAL_RECTANGLE -> listOf(
+            Offset(centerX - shapeRadius, centerY - shapeRadius * 0.75f),
+            Offset(centerX - shapeRadius, centerY + shapeRadius * 0.75f),
+            Offset(centerX + shapeRadius, centerY + shapeRadius * 0.75f),
+            Offset(centerX + shapeRadius, centerY - shapeRadius * 0.75f)
         )
     }
 }
@@ -273,4 +301,30 @@ private fun Color.textPaint(textSizePx: Float, bold: Boolean = false) = Paint().
     textAlign = Paint.Align.CENTER
     typeface = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
     isAntiAlias = true
+}
+
+private fun SegmentConstraint.formatString(): String? {
+    return when {
+        minLength != null && maxLength != null && minLength == maxLength -> {
+            "%.0f cm".format(minLength * 100)
+        }
+
+        minLength != null && maxLength != null -> {
+            "%.0f - %.0f cm".format(minLength * 100, maxLength * 100)
+        }
+
+        minLength != null -> "%.0f cm".format(minLength * 100)
+        maxLength != null -> "%.0f cm".format(maxLength * 100)
+        else -> null
+    }
+}
+
+private fun AngleConstraint.formatString(): String? {
+    return when {
+        minDegree != null && maxDegree != null && minDegree == maxDegree -> "${minDegree.toInt()}°"
+        minDegree != null && maxDegree != null -> "${minDegree.toInt()}° - ${maxDegree.toInt()}°"
+        minDegree != null -> "${minDegree.toInt()}°"
+        maxDegree != null -> "${maxDegree.toInt()}°"
+        else -> null
+    }
 }

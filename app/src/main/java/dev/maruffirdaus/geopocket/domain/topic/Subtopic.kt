@@ -80,9 +80,9 @@ enum class Subtopic(
             pointCount = 3,
             closedShape = true,
             angles = listOf(
-                AngleConstraint(45f, 45f),
-                AngleConstraint(45f, 45f),
-                AngleConstraint(90f, 90f)
+                AngleConstraint(50f, 50f),
+                AngleConstraint(50f, 50f),
+                AngleConstraint(80f, 80f)
             )
         )
     ),
@@ -96,8 +96,8 @@ enum class Subtopic(
             pointCount = 3,
             closedShape = true,
             angles = listOf(
-                AngleConstraint(60f, 60f),
                 AngleConstraint(30f, 30f),
+                AngleConstraint(60f, 60f),
                 AngleConstraint(90f, 90f)
             )
         )
@@ -140,8 +140,8 @@ enum class Subtopic(
         }
 
         constraint.segments.forEachIndexed { index, line ->
-            val from = ('A' + index)
-            val to = ('A' + index + 1)
+            val from = ('A' + index % constraint.pointCount)
+            val to = ('A' + (index + 1) % constraint.pointCount)
             val minLength = line.minLength?.times(100)?.toInt()
             val maxLength = line.maxLength?.times(100)?.toInt()
             val lengthHint = when {
@@ -155,9 +155,9 @@ enum class Subtopic(
         }
 
         constraint.angles.forEachIndexed { index, angle ->
-            val a = ('A' + index)
-            val b = ('A' + index + 1)
-            val c = ('A' + index + 2)
+            val a = ('A' + index % constraint.pointCount)
+            val b = ('A' + (index + 1) % constraint.pointCount)
+            val c = ('A' + (index + 2) % constraint.pointCount)
             val minDegree = angle.minDegree?.toInt()
             val maxDegree = angle.maxDegree?.toInt()
             val angleHint = when {
