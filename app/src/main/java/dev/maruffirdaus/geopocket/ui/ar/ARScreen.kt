@@ -100,8 +100,8 @@ fun ARScreen(
 
     var lastHitTestMs by remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(uiState.markers) {
-        val anchorsToRemove = anchors.keys - uiState.markers.keys
+    LaunchedEffect(uiState.points) {
+        val anchorsToRemove = anchors.keys - uiState.points.keys
         anchorsToRemove.forEach { id ->
             anchors[id]?.detach()
             anchors.remove(id)
@@ -164,7 +164,7 @@ fun ARScreen(
                         }
                     }
 
-                    uiState.markers.values.forEach { marker ->
+                    uiState.points.values.forEach { marker ->
                         if (marker.id in anchors) return@forEach
                         val pose = Pose(
                             floatArrayOf(
@@ -183,8 +183,8 @@ fun ARScreen(
                     }
                 }
             ) {
-                uiState.previewLine?.let {
-                    key("previewLine") {
+                uiState.previewSegment?.let {
+                    key("previewSegment") {
                         CubeNode(
                             materialInstance = whiteMaterial,
                             position = it.worldPosition,
@@ -224,7 +224,7 @@ fun ARScreen(
                         }
                     }
                 }
-                uiState.measurementLines.forEach { (id, line) ->
+                uiState.segments.forEach { (id, line) ->
                     key(id) {
                         CubeNode(
                             materialInstance = whiteMaterial,
@@ -283,7 +283,7 @@ fun ARScreenContent(
                         onClick = {
                             onEvent(AREvent.OnMarkersClear)
                         },
-                        enabled = uiState.markers.isNotEmpty()
+                        enabled = uiState.points.isNotEmpty()
                     ) {
                         Icon(
                             imageVector = PhosphorIcons.Regular.Trash,

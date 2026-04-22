@@ -13,7 +13,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-data class LineNode(
+data class SegmentNode(
     val id: String = Uuid.random().toString(),
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
@@ -37,7 +37,7 @@ data class LineNode(
         length = length(endPos - startPos)
     )
 
-    fun copy(startPos: Position, endPos: Position, camPos: Position): LineNode = this.copy(
+    fun copy(startPos: Position, endPos: Position, camPos: Position): SegmentNode = this.copy(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
         scale = Float3(length(endPos - startPos), WIDTH, HEIGHT),

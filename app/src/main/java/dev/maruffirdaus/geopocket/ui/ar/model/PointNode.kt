@@ -6,7 +6,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-data class MarkerNode(
+data class PointNode(
     val id: String = Uuid.random().toString(),
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),

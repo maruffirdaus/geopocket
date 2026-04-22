@@ -1,43 +1,39 @@
-package dev.maruffirdaus.geopocket.ui.topic
+package dev.maruffirdaus.geopocket.ui.instructions
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.plus
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
-import dev.maruffirdaus.geopocket.domain.topic.Subtopic
+import dev.maruffirdaus.geopocket.ui.instructions.component.InstructionsAnimationCanvas
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
-import dev.maruffirdaus.geopocket.ui.topic.component.SubtopicCard
-import org.koin.compose.viewmodel.koinViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun TopicScreen(
+fun InstructionsScreen(
     onNavigate: (AppNavKey) -> Unit,
     onNavigateBack: () -> Unit,
-    viewModel: TopicViewModel = koinViewModel()
+    viewModel: InstructionsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    TopicScreenContent(
+    InstructionsScreenContent(
         uiState = uiState,
         onNavigate = onNavigate,
         onNavigateBack = onNavigateBack
@@ -46,18 +42,16 @@ fun TopicScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TopicScreenContent(
-    uiState: TopicUiState,
+fun InstructionsScreenContent(
+    uiState: InstructionsUiState,
     onNavigate: (AppNavKey) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
     Scaffold(
         topBar = {
             LargeFlexibleTopAppBar(
                 title = {
-                    Text(uiState.topic.title)
+                    Text(uiState.subtopic.title)
                 },
                 navigationIcon = {
                     IconButton(
@@ -68,30 +62,25 @@ fun TopicScreenContent(
                             contentDescription = "Kembali"
                         )
                     }
-                },
-                scrollBehavior = scrollBehavior
+                }
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            contentPadding = innerPadding + PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        Column(
+            modifier = Modifier.padding(innerPadding)
         ) {
-            items(Subtopic.entries.filter { it.topic == uiState.topic }
-                .sortedBy { it.order }) { item ->
-                val unlockedSubtopicIds = uiState.subtopicProgresses.map { it.id }.toSet()
-
-                SubtopicCard(
-                    subtopic = item,
-                    unlocked = true /*item.order == 0 || item.id in unlockedSubtopicIds*/,
-                    onClick = {
-                        onNavigate(AppNavKey.Instructions(item.name))
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    highestScore = uiState.subtopicProgresses
-                        .firstOrNull { it.id == item.id }?.highestScore ?: 0
+            Card(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                InstructionsAnimationCanvas(
+                    subtopic = uiState.subtopic,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
                 )
+            }
+            uiState.subtopic.steps().forEach { step ->
+                Text(step)
             }
         }
     }
@@ -99,10 +88,10 @@ fun TopicScreenContent(
 
 @Composable
 @Preview
-private fun TopicScreenPreview() {
+private fun InstructionsScreenPreview() {
     GeoPocketTheme {
-        TopicScreenContent(
-            uiState = TopicUiState(),
+        InstructionsScreenContent(
+            uiState = InstructionsUiState(),
             onNavigate = {},
             onNavigateBack = {}
         )

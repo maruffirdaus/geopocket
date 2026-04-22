@@ -99,7 +99,7 @@ fun HomeScreenContent(
 
                 TopicCard(
                     topic = item,
-                    unlocked = item.order == 0 || unlockedSubtopics.isNotEmpty(),
+                    unlocked = true /*item.order == 0 || unlockedSubtopics.isNotEmpty()*/,
                     onClick = {
                         onNavigate(AppNavKey.Topic(item.name))
                     },

@@ -14,6 +14,11 @@ sealed interface AppNavKey : NavKey {
     ) : AppNavKey
 
     @Serializable
+    data class Instructions(
+        val subtopic: String
+    ) : AppNavKey
+
+    @Serializable
     data class AR(
         val subtopic: String
     ) : AppNavKey

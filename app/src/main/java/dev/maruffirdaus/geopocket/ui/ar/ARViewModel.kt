@@ -2,8 +2,8 @@ package dev.maruffirdaus.geopocket.ui.ar
 
 import androidx.lifecycle.ViewModel
 import com.google.ar.core.Pose
-import dev.maruffirdaus.geopocket.ui.ar.model.LineNode
-import dev.maruffirdaus.geopocket.ui.ar.model.MarkerNode
+import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNode
+import dev.maruffirdaus.geopocket.ui.ar.model.PointNode
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.math.Position
@@ -17,7 +17,7 @@ class ARViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ARUiState())
     val uiState = _uiState.asStateFlow()
 
-    private var isPreviewLineEnabled = true
+    private var isPreviewSegmentEnabled = true
 
     private var currentPose: Pose? = null
     private var currentCamPos: Position? = null
@@ -38,9 +38,9 @@ class ARViewModel : ViewModel() {
 
     private fun updatePlacementIndicator(pose: Pose, camPos: Position) {
         _uiState.update { state ->
-            val previewLine = if (isPreviewLineEnabled) {
-                state.markers.values.lastOrNull()?.let { lastMarker ->
-                    LineNode(
+            val previewSegment = if (isPreviewSegmentEnabled) {
+                state.points.values.lastOrNull()?.let { lastMarker ->
+                    SegmentNode(
                         startPos = lastMarker.worldPosition,
                         endPos = pose.position,
                         camPos = camPos
@@ -49,7 +49,7 @@ class ARViewModel : ViewModel() {
             } else null
 
             state.copy(
-                previewLine = previewLine
+                previewSegment = previewSegment
             )
         }
 
@@ -61,11 +61,11 @@ class ARViewModel : ViewModel() {
         val pose = currentPose ?: return
         val camPos = currentCamPos ?: return
 
-        var marker = MarkerNode(worldPosition = pose.position, quaternion = pose.quaternion)
-        val lastMarker = uiState.value.markers.values.lastOrNull()
+        var marker = PointNode(worldPosition = pose.position, quaternion = pose.quaternion)
+        val lastMarker = uiState.value.points.values.lastOrNull()
 
         if (lastMarker != null) {
-            val line = LineNode(
+            val line = SegmentNode(
                 startPos = lastMarker.worldPosition,
                 endPos = marker.worldPosition,
                 camPos = camPos,
@@ -80,33 +80,33 @@ class ARViewModel : ViewModel() {
                     marker.id to marker
                 )
                 it.copy(
-                    markers = it.markers + updatedMarkers,
-                    measurementLines = it.measurementLines + (line.id to line)
+                    points = it.points + updatedMarkers,
+                    segments = it.segments + (line.id to line)
                 )
             }
         } else {
             _uiState.update {
-                it.copy(markers = it.markers + (marker.id to marker))
+                it.copy(points = it.points + (marker.id to marker))
             }
         }
     }
 
     private fun moveMarker(id: String, pose: Pose) {
-        val marker = uiState.value.markers[id] ?: return
+        val marker = uiState.value.points[id] ?: return
         val camPos = currentCamPos ?: return
 
-        val updatedLines = mutableMapOf<String, LineNode>()
+        val updatedLines = mutableMapOf<String, SegmentNode>()
 
         marker.connectedLineIds.forEach { lineId ->
-            val line = uiState.value.measurementLines[lineId] ?: return@forEach
+            val line = uiState.value.segments[lineId] ?: return@forEach
             val isStart = line.startMarkerId == id
             val startPos = if (isStart) {
                 pose.position
             } else {
-                uiState.value.markers[line.startMarkerId]?.worldPosition ?: return@forEach
+                uiState.value.points[line.startMarkerId]?.worldPosition ?: return@forEach
             }
             val endPos = if (isStart) {
-                uiState.value.markers[line.endMarkerId]?.worldPosition ?: return@forEach
+                uiState.value.points[line.endMarkerId]?.worldPosition ?: return@forEach
             } else {
                 pose.position
             }
@@ -116,8 +116,8 @@ class ARViewModel : ViewModel() {
 
         _uiState.update {
             it.copy(
-                markers = it.markers + (id to marker.copy(worldPosition = pose.position)),
-                measurementLines = it.measurementLines + updatedLines
+                points = it.points + (id to marker.copy(worldPosition = pose.position)),
+                segments = it.segments + updatedLines
             )
         }
     }
@@ -125,9 +125,9 @@ class ARViewModel : ViewModel() {
     private fun clearMarkers() {
         _uiState.update {
             it.copy(
-                previewLine = null,
-                markers = mapOf(),
-                measurementLines = mapOf()
+                previewSegment = null,
+                points = mapOf(),
+                segments = mapOf()
             )
         }
     }
