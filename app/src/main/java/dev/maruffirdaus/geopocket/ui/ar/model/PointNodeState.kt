@@ -6,9 +6,10 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-data class PointNode(
+data class PointNodeState(
     val id: String = Uuid.random().toString(),
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
+    val label: String = "A",
     val connectedLineIds: List<String> = listOf()
 )

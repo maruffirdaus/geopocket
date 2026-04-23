@@ -22,20 +22,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,26 +35,11 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import com.adamglin.phosphoricons.regular.Plus
 import com.adamglin.phosphoricons.regular.Trash
-import com.google.android.filament.ColorGrading
-import com.google.android.filament.ToneMapper
-import com.google.ar.core.Anchor
-import com.google.ar.core.Config
-import com.google.ar.core.Pose
+import dev.maruffirdaus.geopocket.ui.ar.component.AppARSceneView
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
-import io.github.sceneview.ar.ARSceneView
-import io.github.sceneview.ar.arcore.isValid
-import io.github.sceneview.ar.rememberARCameraNode
-import io.github.sceneview.collision.Vector3
-import io.github.sceneview.math.toRotation
-import io.github.sceneview.rememberEngine
-import io.github.sceneview.rememberMaterialLoader
-import io.github.sceneview.rememberView
-import io.github.sceneview.rememberViewNodeManager
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-
-private const val HIT_TEST_INTERVAL_MS = 100L
 
 @Composable
 fun ARScreen(
@@ -72,184 +48,24 @@ fun ARScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val locale = LocalLocale.current.platformLocale
-
-    var arSceneWidth by remember { mutableIntStateOf(0) }
-    var arSceneHeight by remember { mutableIntStateOf(0) }
-
-    val engine = rememberEngine()
-    val materialLoader = rememberMaterialLoader(engine)
-
-    val colorGrading = remember(engine) {
-        ColorGrading.Builder()
-            .toneMapper(ToneMapper.Linear())
-            .build(engine)
-    }
-    val view = rememberView(engine).apply {
-        this.colorGrading = colorGrading
-    }
-
-    val cameraNode = rememberARCameraNode(engine)
-    val windowManager = rememberViewNodeManager()
-
-    val anchors = remember { mutableStateMapOf<String, Anchor>() }
-
-    val whiteMaterial = remember(materialLoader) {
-        materialLoader.createColorInstance(Color.White)
-    }
-
-    var lastHitTestMs by remember { mutableLongStateOf(0L) }
-
-    LaunchedEffect(uiState.points) {
-        val anchorsToRemove = anchors.keys - uiState.points.keys
-        anchorsToRemove.forEach { id ->
-            anchors[id]?.detach()
-            anchors.remove(id)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            anchors.values.forEach { it.detach() }
-            anchors.clear()
-        }
-    }
-
     ARScreenContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
-        arScene = {
-            ARSceneView(
-                modifier = Modifier.onGloballyPositioned { layoutCoordinates ->
-                    arSceneWidth = layoutCoordinates.size.width
-                    arSceneHeight = layoutCoordinates.size.height
-                },
-                engine = engine,
-                materialLoader = materialLoader,
-                sessionConfiguration = { session, config ->
-                    config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
-                    config.depthMode =
-                        when (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
-                            true -> Config.DepthMode.AUTOMATIC
-                            else -> Config.DepthMode.DISABLED
-                        }
-                    config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
-                    config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
-                },
-                planeRenderer = true,
-                view = view,
-                cameraNode = cameraNode,
-                viewNodeWindowManager = windowManager,
-                onSessionUpdated = { session, frame ->
-                    val currentTimeMs = System.currentTimeMillis()
-
-                    if (currentTimeMs - lastHitTestMs >= HIT_TEST_INTERVAL_MS) {
-                        lastHitTestMs = currentTimeMs
-
-                        val centerX = arSceneWidth / 2f
-                        val centerY = arSceneHeight / 2f
-
-                        if (centerX > 0f && centerY > 0f) {
-                            val hitResult = frame
-                                .hitTest(centerX, centerY)
-                                .firstOrNull { it.isValid(depthPoint = false, point = false) }
-
-                            if (hitResult != null) {
-                                viewModel.onEvent(
-                                    AREvent.OnUpdatePlacementIndicator(
-                                        hitResult.hitPose,
-                                        cameraNode.worldPosition
-                                    )
-                                )
-                            }
-                        }
-                    }
-
-                    uiState.points.values.forEach { marker ->
-                        if (marker.id in anchors) return@forEach
-                        val pose = Pose(
-                            floatArrayOf(
-                                marker.worldPosition.x,
-                                marker.worldPosition.y,
-                                marker.worldPosition.z
-                            ),
-                            floatArrayOf(
-                                marker.quaternion.x,
-                                marker.quaternion.y,
-                                marker.quaternion.z,
-                                marker.quaternion.w
-                            )
-                        )
-                        anchors[marker.id] = session.createAnchor(pose)
-                    }
-                }
-            ) {
-                uiState.previewSegment?.let {
-                    key("previewSegment") {
-                        CubeNode(
-                            materialInstance = whiteMaterial,
-                            position = it.worldPosition,
-                            rotation = it.quaternion.toRotation(),
-                            scale = it.scale,
-                            apply = {
-                                collisionShape = null
-                                isPositionEditable = false
-                            }
-                        )
-                        TextNode(
-                            text = "${String.format(locale, "%.2f", it.length)} m",
-                            fontSize = 48f,
-                            position = it.worldPosition,
-                            widthMeters = 0.1f,
-                            heightMeters = 0.05f
-                        )
-                    }
-                }
-                anchors.forEach { (id, anchor) ->
-                    key(id) {
-                        AnchorNode(
-                            anchor = anchor,
-                            onUpdated = {
-                                viewModel.onEvent(AREvent.OnPointMoved(id, it.pose))
-                            }
-                        ) {
-                            CylinderNode(
-                                radius = 0.005f,
-                                height = 0.0001f,
-                                materialInstance = whiteMaterial,
-                                apply = {
-                                    collisionShape =
-                                        io.github.sceneview.collision.Box(Vector3(0.1f, 0.1f, 0.1f))
-                                }
-                            )
-                        }
-                    }
-                }
-                uiState.segments.forEach { (id, line) ->
-                    key(id) {
-                        CubeNode(
-                            materialInstance = whiteMaterial,
-                            position = line.worldPosition,
-                            rotation = line.quaternion.toRotation(),
-                            scale = line.scale,
-                            apply = {
-                                collisionShape = null
-                                isPositionEditable = false
-                            }
-                        )
-                        TextNode(
-                            text = "${String.format(locale, "%.2f", line.length)} m",
-                            fontSize = 48f,
-                            position = line.worldPosition,
-                            widthMeters = 0.1f,
-                            heightMeters = 0.05f
-                        )
-                    }
-                }
-            }
-        },
         navHandler = navHandler
-    )
+    ) {
+        AppARSceneView(
+            reticle = uiState.reticle,
+            previewSegment = uiState.previewSegment,
+            points = uiState.points,
+            segments = uiState.segments,
+            onUpdateReticle = { pose, camPos ->
+                viewModel.onEvent(AREvent.OnUpdateReticle(pose, camPos))
+            },
+            onPointMoved = { id, pose ->
+                viewModel.onEvent(AREvent.OnPointMoved(id, pose))
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -257,8 +73,8 @@ fun ARScreen(
 fun ARScreenContent(
     uiState: ARUiState,
     onEvent: (AREvent) -> Unit,
-    arScene: @Composable () -> Unit,
-    navHandler: NavHandler
+    navHandler: NavHandler,
+    arContent: @Composable () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -310,7 +126,7 @@ fun ARScreenContent(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            arScene()
+            arContent()
             FilledIconButton(
                 onClick = {
                     navHandler.pop()
@@ -346,8 +162,7 @@ private fun ARScreenPreview() {
         ARScreenContent(
             uiState = ARUiState(),
             onEvent = {},
-            arScene = {},
             navHandler = NavHandler()
-        )
+        ) {}
     }
 }

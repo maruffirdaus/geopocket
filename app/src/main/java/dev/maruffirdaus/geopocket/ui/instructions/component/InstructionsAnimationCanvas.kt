@@ -293,9 +293,9 @@ private fun Subtopic.pointPositions(canvasSize: Size): List<Offset> {
     }
 }
 
-private fun Offset.midpoint(other: Offset) = Offset((x + other.x) / 2f, (y + other.y) / 2f)
+private fun Offset.midpoint(other: Offset): Offset = Offset((x + other.x) / 2f, (y + other.y) / 2f)
 
-private fun Color.textPaint(textSizePx: Float, bold: Boolean = false) = Paint().apply {
+private fun Color.textPaint(textSizePx: Float, bold: Boolean = false): Paint = Paint().apply {
     color = this@textPaint.toArgb()
     textSize = textSizePx
     textAlign = Paint.Align.CENTER

@@ -5,6 +5,7 @@ import dev.romainguy.kotlin.math.Float4
 import dev.romainguy.kotlin.math.Mat4
 import dev.romainguy.kotlin.math.Quaternion
 import dev.romainguy.kotlin.math.cross
+import dev.romainguy.kotlin.math.dot
 import dev.romainguy.kotlin.math.length
 import dev.romainguy.kotlin.math.normalize
 import io.github.sceneview.math.Position
@@ -13,7 +14,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-data class SegmentNode(
+data class SegmentNodeState(
     val id: String = Uuid.random().toString(),
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
@@ -31,23 +32,20 @@ data class SegmentNode(
     ) : this(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
-        scale = Float3(length(endPos - startPos), WIDTH, HEIGHT),
+        scale = Float3(length(endPos - startPos), 1f, 1f),
         startMarkerId = startMarkerId,
         endMarkerId = endMarkerId,
         length = length(endPos - startPos)
     )
 
-    fun copy(startPos: Position, endPos: Position, camPos: Position): SegmentNode = this.copy(
+    fun copy(startPos: Position, endPos: Position, camPos: Position): SegmentNodeState = this.copy(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
-        scale = Float3(length(endPos - startPos), WIDTH, HEIGHT),
+        scale = Float3(length(endPos - startPos), 1f, 1f),
         length = length(endPos - startPos)
     )
 
     companion object {
-        private const val WIDTH = 0.0025f
-        private const val HEIGHT = 0.0001f
-
         private fun calculateQuaternion(
             startPos: Position,
             endPos: Position,
@@ -55,22 +53,22 @@ data class SegmentNode(
         ): Quaternion {
             val midPoint = (startPos + endPos) / 2f
 
-            var xAxis = endPos - startPos
-            if (length(xAxis) < 0.0001f) return Quaternion()
-            xAxis = normalize(xAxis)
+            var xAxis = normalize(endPos - startPos)
 
-            var zAxis = camPos - midPoint
+            val toCamera = normalize(camPos - midPoint)
 
-            var yAxis = cross(xAxis, zAxis)
+            var yAxis = cross(toCamera, xAxis)
+            yAxis = normalize(yAxis)
 
-            yAxis = if (length(yAxis) < 0.0001f) {
-                Float3(0f, 1f, 0f)
-            } else {
-                normalize(yAxis)
-            }
-
-            zAxis = cross(xAxis, yAxis)
+            var zAxis = cross(xAxis, yAxis)
             zAxis = normalize(zAxis)
+
+            val worldUp = Float3(0f, 1f, 0f)
+
+            if (dot(yAxis, worldUp) < 0f) {
+                yAxis = -yAxis
+                xAxis = -xAxis
+            }
 
             val rotationMatrix = Mat4(
                 Float4(xAxis, 0f),

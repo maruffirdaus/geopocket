@@ -3,8 +3,11 @@ package dev.maruffirdaus.geopocket.ui.ar
 import androidx.lifecycle.ViewModel
 import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNode
-import dev.maruffirdaus.geopocket.ui.ar.model.PointNode
+import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
+import dev.romainguy.kotlin.math.Float3
+import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.math.Position
@@ -28,7 +31,7 @@ class ARViewModel(
 
     fun onEvent(event: AREvent) {
         when (event) {
-            is AREvent.OnUpdatePlacementIndicator -> onUpdatePlacementIndicator(
+            is AREvent.OnUpdateReticle -> onUpdateReticle(
                 event.pose,
                 event.camPos
             )
@@ -40,11 +43,12 @@ class ARViewModel(
         }
     }
 
-    private fun onUpdatePlacementIndicator(pose: Pose, camPos: Position) {
+    private fun onUpdateReticle(pose: Pose, camPos: Position) {
         _uiState.update { state ->
+            val correction = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
             val previewSegment = if (isPreviewSegmentEnabled) {
                 state.points.values.lastOrNull()?.let { lastMarker ->
-                    SegmentNode(
+                    SegmentNodeState(
                         startPos = lastMarker.worldPosition,
                         endPos = pose.position,
                         camPos = camPos
@@ -53,6 +57,10 @@ class ARViewModel(
             } else null
 
             state.copy(
+                reticle = ReticleNodeState(
+                    worldPosition = pose.position,
+                    quaternion = pose.quaternion * correction
+                ),
                 previewSegment = previewSegment
             )
         }
@@ -65,11 +73,15 @@ class ARViewModel(
         val pose = currentPose ?: return
         val camPos = currentCamPos ?: return
 
-        var marker = PointNode(worldPosition = pose.position, quaternion = pose.quaternion)
+        var marker = PointNodeState(
+            worldPosition = pose.position,
+            quaternion = pose.quaternion,
+            label = ('A' + uiState.value.points.size).toString()
+        )
         val lastMarker = uiState.value.points.values.lastOrNull()
 
         if (lastMarker != null) {
-            val line = SegmentNode(
+            val line = SegmentNodeState(
                 startPos = lastMarker.worldPosition,
                 endPos = marker.worldPosition,
                 camPos = camPos,
@@ -99,7 +111,7 @@ class ARViewModel(
         val marker = uiState.value.points[id] ?: return
         val camPos = currentCamPos ?: return
 
-        val updatedLines = mutableMapOf<String, SegmentNode>()
+        val updatedLines = mutableMapOf<String, SegmentNodeState>()
 
         marker.connectedLineIds.forEach { lineId ->
             val line = uiState.value.segments[lineId] ?: return@forEach

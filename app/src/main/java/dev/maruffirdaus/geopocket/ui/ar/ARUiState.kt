@@ -1,11 +1,13 @@
 package dev.maruffirdaus.geopocket.ui.ar
 
-import dev.maruffirdaus.geopocket.ui.ar.model.PointNode
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNode
+import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
 
 data class ARUiState(
-    val previewSegment: SegmentNode? = null,
-    val points: Map<String, PointNode> = mapOf(),
-    val segments: Map<String, SegmentNode> = mapOf(),
+    val reticle: ReticleNodeState? = null,
+    val previewSegment: SegmentNodeState? = null,
+    val points: Map<String, PointNodeState> = mapOf(),
+    val segments: Map<String, SegmentNodeState> = mapOf(),
     val errorMessage: String? = null
 )
