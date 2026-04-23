@@ -58,6 +58,7 @@ fun ARScreen(
             previewSegment = uiState.previewSegment,
             points = uiState.points,
             segments = uiState.segments,
+            angles = uiState.angles,
             onUpdateReticle = { pose, camPos ->
                 viewModel.onEvent(AREvent.OnUpdateReticle(pose, camPos))
             },

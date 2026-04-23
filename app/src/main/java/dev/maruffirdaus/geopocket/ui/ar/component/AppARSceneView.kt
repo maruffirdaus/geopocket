@@ -17,6 +17,7 @@ import com.google.android.filament.ToneMapper
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Pose
+import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
@@ -37,6 +38,7 @@ fun AppARSceneView(
     previewSegment: SegmentNodeState?,
     points: Map<String, PointNodeState>,
     segments: Map<String, SegmentNodeState>,
+    angles: Map<String, AngleNodeState>,
     onUpdateReticle: (Pose, Position) -> Unit,
     onPointMoved: (String, Pose) -> Unit
 ) {
@@ -171,6 +173,14 @@ fun AppARSceneView(
             key(segment.id) {
                 SegmentNode(
                     state = segment,
+                    windowManager = windowManager
+                )
+            }
+        }
+        angles.values.forEach { angle ->
+            key(angle.id) {
+                AngleNode(
+                    state = angle,
                     windowManager = windowManager
                 )
             }

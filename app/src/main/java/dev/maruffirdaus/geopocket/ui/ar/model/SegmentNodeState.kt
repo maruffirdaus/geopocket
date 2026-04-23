@@ -19,22 +19,22 @@ data class SegmentNodeState(
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
     val scale: Scale = Scale(),
-    val startMarkerId: String? = null,
-    val endMarkerId: String? = null,
+    val startPointId: String? = null,
+    val endPointId: String? = null,
     val length: Float = 0f,
 ) {
     constructor(
         startPos: Position,
         endPos: Position,
         camPos: Position,
-        startMarkerId: String? = null,
-        endMarkerId: String? = null
+        startPointId: String? = null,
+        endPointId: String? = null
     ) : this(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
         scale = Float3(length(endPos - startPos), 1f, 1f),
-        startMarkerId = startMarkerId,
-        endMarkerId = endMarkerId,
+        startPointId = startPointId,
+        endPointId = endPointId,
         length = length(endPos - startPos)
     )
 

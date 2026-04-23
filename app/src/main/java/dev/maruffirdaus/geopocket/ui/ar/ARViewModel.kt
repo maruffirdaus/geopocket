@@ -3,9 +3,10 @@ package dev.maruffirdaus.geopocket.ui.ar
 import androidx.lifecycle.ViewModel
 import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.arcore.position
@@ -47,9 +48,9 @@ class ARViewModel(
         _uiState.update { state ->
             val correction = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
             val previewSegment = if (isPreviewSegmentEnabled) {
-                state.points.values.lastOrNull()?.let { lastMarker ->
+                state.points.values.lastOrNull()?.let { lastPoint ->
                     SegmentNodeState(
-                        startPos = lastMarker.worldPosition,
+                        startPos = lastPoint.worldPosition,
                         endPos = pose.position,
                         camPos = camPos
                     )
@@ -73,67 +74,120 @@ class ARViewModel(
         val pose = currentPose ?: return
         val camPos = currentCamPos ?: return
 
-        var marker = PointNodeState(
+        var point = PointNodeState(
             worldPosition = pose.position,
             quaternion = pose.quaternion,
             label = ('A' + uiState.value.points.size).toString()
         )
-        val lastMarker = uiState.value.points.values.lastOrNull()
+        val lastPoint = uiState.value.points.values.lastOrNull()
 
-        if (lastMarker != null) {
-            val line = SegmentNodeState(
-                startPos = lastMarker.worldPosition,
-                endPos = marker.worldPosition,
+        if (lastPoint != null) {
+            val segment = SegmentNodeState(
+                startPos = lastPoint.worldPosition,
+                endPos = point.worldPosition,
                 camPos = camPos,
-                startMarkerId = lastMarker.id,
-                endMarkerId = marker.id
+                startPointId = lastPoint.id,
+                endPointId = point.id
             )
-            marker = marker.copy(connectedLineIds = listOf(line.id))
+            point = point.copy(connectedSegmentIds = listOf(segment.id))
+
+            val angle = if (uiState.value.points.size > 1) {
+                val startPointId = uiState.value.segments.values
+                    .firstOrNull { it.endPointId == lastPoint.id }?.startPointId
+                val startPoint = uiState.value.points[startPointId]
+                startPoint?.let {
+                    AngleNodeState(
+                        id = lastPoint.id,
+                        worldPosition = lastPoint.angleBisectorPosition(startPoint, point),
+                        quaternion = lastPoint.quaternion,
+                        degree = lastPoint.angleBetween(startPoint, point)
+                    )
+                }
+            } else null
 
             _uiState.update {
-                val updatedMarkers = mapOf(
-                    lastMarker.id to lastMarker.copy(connectedLineIds = lastMarker.connectedLineIds + line.id),
-                    marker.id to marker
+                val updatedPoints = mapOf(
+                    lastPoint.id to lastPoint.copy(connectedSegmentIds = lastPoint.connectedSegmentIds + segment.id),
+                    point.id to point
                 )
                 it.copy(
-                    points = it.points + updatedMarkers,
-                    segments = it.segments + (line.id to line)
+                    points = it.points + updatedPoints,
+                    segments = it.segments + (segment.id to segment),
+                    angles = if (angle != null) it.angles + (angle.id to angle) else it.angles
                 )
             }
         } else {
             _uiState.update {
-                it.copy(points = it.points + (marker.id to marker))
+                it.copy(points = it.points + (point.id to point))
             }
         }
     }
 
     private fun onPointMoved(id: String, pose: Pose) {
-        val marker = uiState.value.points[id] ?: return
+        val point = uiState.value.points[id] ?: return
         val camPos = currentCamPos ?: return
 
-        val updatedLines = mutableMapOf<String, SegmentNodeState>()
+        val updatedSegments = mutableMapOf<String, SegmentNodeState>()
 
-        marker.connectedLineIds.forEach { lineId ->
-            val line = uiState.value.segments[lineId] ?: return@forEach
-            val isStart = line.startMarkerId == id
+        point.connectedSegmentIds.forEach { segmentId ->
+            val segment = uiState.value.segments[segmentId] ?: return@forEach
+            val isStart = segment.startPointId == id
             val startPos = if (isStart) {
                 pose.position
             } else {
-                uiState.value.points[line.startMarkerId]?.worldPosition ?: return@forEach
+                uiState.value.points[segment.startPointId]?.worldPosition ?: return@forEach
             }
             val endPos = if (isStart) {
-                uiState.value.points[line.endMarkerId]?.worldPosition ?: return@forEach
+                uiState.value.points[segment.endPointId]?.worldPosition ?: return@forEach
             } else {
                 pose.position
             }
 
-            updatedLines[lineId] = line.copy(startPos = startPos, endPos = endPos, camPos = camPos)
+            updatedSegments[segmentId] = segment.copy(startPos = startPos, endPos = endPos, camPos = camPos)
+        }
+
+        val updatedPoints = uiState.value.points + (id to point.copy(worldPosition = pose.position))
+        val affectedPointIds = buildSet {
+            add(id)
+            uiState.value.segments.values
+                .filter { it.startPointId == id || it.endPointId == id }
+                .forEach { segment ->
+                    segment.startPointId?.let { add(it) }
+                    segment.endPointId?.let { add(it) }
+                }
+        }
+
+        val updatedAngles = mutableMapOf<String, AngleNodeState>()
+
+        affectedPointIds.forEach { pointId ->
+            val angle = uiState.value.angles[pointId] ?: return@forEach
+            val centerPoint = updatedPoints[pointId] ?: return@forEach
+
+            val connectedSegments = uiState.value.segments.values
+                .filter { it.startPointId == pointId || it.endPointId == pointId }
+            if (connectedSegments.size < 2) return@forEach
+
+            val startPointId = connectedSegments[0].let {
+                if (it.startPointId == pointId) it.endPointId else it.startPointId
+            }
+            val endPointId = connectedSegments[1].let {
+                if (it.startPointId == pointId) it.endPointId else it.startPointId
+            }
+
+            val startPoint = updatedPoints[startPointId] ?: return@forEach
+            val endPoint = updatedPoints[endPointId] ?: return@forEach
+
+            updatedAngles[pointId] = angle.copy(
+                worldPosition = centerPoint.angleBisectorPosition(startPoint, endPoint),
+                degree = centerPoint.angleBetween(startPoint, endPoint)
+            )
         }
 
         _uiState.update {
             it.copy(
-                points = it.points + (id to marker.copy(worldPosition = pose.position)),
-                segments = it.segments + updatedLines
+                points = it.points + (id to point.copy(worldPosition = pose.position)),
+                segments = it.segments + updatedSegments,
+                angles = it.angles + updatedAngles
             )
         }
     }
