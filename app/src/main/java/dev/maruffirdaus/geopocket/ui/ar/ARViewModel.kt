@@ -113,7 +113,7 @@ class ARViewModel(
 
             var firstPoint: PointNodeState? = null
 
-            if (isClosingPoint) {
+            if (isClosingPoint && subtopic.constraint.closedShape) {
                 firstPoint = uiState.value.points.values.first { it.label == "A" }
                 closingSegment = SegmentNodeState(
                     startPos = point.worldPosition,
