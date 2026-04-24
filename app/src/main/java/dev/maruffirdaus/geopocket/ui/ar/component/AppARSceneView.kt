@@ -35,7 +35,8 @@ private const val HIT_TEST_INTERVAL_MS = 100L
 @Composable
 fun AppARSceneView(
     reticle: ReticleNodeState?,
-    previewSegment: SegmentNodeState?,
+    segmentPreview: SegmentNodeState?,
+    anglePreview: AngleNodeState?,
     points: Map<String, PointNodeState>,
     segments: Map<String, SegmentNodeState>,
     angles: Map<String, AngleNodeState>,
@@ -147,10 +148,18 @@ fun AppARSceneView(
                 )
             }
         }
-        previewSegment?.let {
-            key("previewSegment") {
+        segmentPreview?.let {
+            key("segmentPreview") {
                 SegmentNode(
                     state = it,
+                    windowManager = windowManager
+                )
+            }
+        }
+        anglePreview?.let { angle ->
+            key("anglePreview") {
+                AngleNode(
+                    state = angle,
                     windowManager = windowManager
                 )
             }

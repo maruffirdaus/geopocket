@@ -55,7 +55,8 @@ fun ARScreen(
     ) {
         AppARSceneView(
             reticle = uiState.reticle,
-            previewSegment = uiState.previewSegment,
+            segmentPreview = uiState.segmentPreview,
+            anglePreview = uiState.anglePreview,
             points = uiState.points,
             segments = uiState.segments,
             angles = uiState.angles,

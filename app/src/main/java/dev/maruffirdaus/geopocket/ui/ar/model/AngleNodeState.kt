@@ -13,21 +13,25 @@ data class AngleNodeState(
     val degree: Float = 0f
 ) {
     constructor(
-        start: PointNodeState,
-        center: PointNodeState,
-        end: PointNodeState,
+        centerPoint: PointNodeState,
+        startPos: Position,
+        endPos: Position,
         id: String = Uuid.random().toString()
     ) : this(
         id = id,
-        worldPosition = center.angleBisectorPosition(start, end),
-        quaternion = center.quaternion,
-        degree = center.angleBetween(start, end)
+        worldPosition = centerPoint.angleBisectorPosition(startPos, endPos),
+        quaternion = centerPoint.quaternion,
+        degree = centerPoint.angleBetween(startPos, endPos)
     )
 
-    fun copy(start: PointNodeState, center: PointNodeState, end: PointNodeState): AngleNodeState =
+    fun copy(
+        centerPoint: PointNodeState,
+        startPos: Position,
+        endPos: Position
+    ): AngleNodeState =
         this.copy(
-            worldPosition = center.angleBisectorPosition(start, end),
-            quaternion = center.quaternion,
-            degree = center.angleBetween(start, end)
+            worldPosition = centerPoint.angleBisectorPosition(startPos, endPos),
+            quaternion = centerPoint.quaternion,
+            degree = centerPoint.angleBetween(startPos, endPos)
         )
 }

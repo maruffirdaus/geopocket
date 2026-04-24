@@ -7,7 +7,8 @@ import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
 
 data class ARUiState(
     val reticle: ReticleNodeState? = null,
-    val previewSegment: SegmentNodeState? = null,
+    val segmentPreview: SegmentNodeState? = null,
+    val anglePreview: AngleNodeState? = null,
     val points: Map<String, PointNodeState> = mapOf(),
     val segments: Map<String, SegmentNodeState> = mapOf(),
     val angles: Map<String, AngleNodeState> = mapOf(),

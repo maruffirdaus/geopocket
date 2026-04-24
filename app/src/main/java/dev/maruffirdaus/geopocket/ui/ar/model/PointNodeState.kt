@@ -18,13 +18,11 @@ data class PointNodeState(
     val label: String = "A",
     val connectedSegmentIds: Set<String> = setOf()
 ) {
-    fun angleBetween(start: PointNodeState, end: PointNodeState): Float {
-        val posA = start.worldPosition
-        val posB = worldPosition
-        val posC = end.worldPosition
+    fun angleBetween(startPos: Position, endPos: Position): Float {
+        val centerPos = worldPosition
 
-        val ba = posA - posB
-        val bc = posC - posB
+        val ba = startPos - centerPos
+        val bc = endPos - centerPos
 
         val dotProduct = dot(ba, bc)
         val magnitudes = length(ba) * length(bc)
@@ -35,23 +33,23 @@ data class PointNodeState(
     }
 
     fun angleBisectorPosition(
-        start: PointNodeState,
-        end: PointNodeState,
+        startPos: Position,
+        endPos: Position,
         offset: Float = 0.05f
     ): Position {
-        val posB = worldPosition
+        val centerPos = worldPosition
 
         val dirA =
-            normalize(Position(start.worldPosition.x - posB.x, 0f, start.worldPosition.z - posB.z))
+            normalize(Position(startPos.x - centerPos.x, 0f, startPos.z - centerPos.z))
         val dirC =
-            normalize(Position(end.worldPosition.x - posB.x, 0f, end.worldPosition.z - posB.z))
+            normalize(Position(endPos.x - centerPos.x, 0f, endPos.z - centerPos.z))
 
         val bisector = normalize(dirA + dirC)
 
         return Position(
-            posB.x + bisector.x * offset,
-            posB.y,
-            posB.z + bisector.z * offset
+            centerPos.x + bisector.x * offset,
+            centerPos.y,
+            centerPos.z + bisector.z * offset
         )
     }
 }
