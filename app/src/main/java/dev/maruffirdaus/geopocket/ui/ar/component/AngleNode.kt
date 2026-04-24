@@ -60,6 +60,6 @@ private fun AngleNodeContent(
 @Preview
 private fun AngleNodePreview() {
     GeoPocketTheme {
-        AngleNodeContent("90°")
+        AngleNodeContent("179°")
     }
 }

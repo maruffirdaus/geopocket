@@ -16,7 +16,7 @@ data class PointNodeState(
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
     val label: String = "A",
-    val connectedSegmentIds: List<String> = listOf()
+    val connectedSegmentIds: Set<String> = setOf()
 ) {
     fun angleBetween(start: PointNodeState, end: PointNodeState): Float {
         val posA = start.worldPosition

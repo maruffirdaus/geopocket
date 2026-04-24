@@ -11,4 +11,23 @@ data class AngleNodeState(
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
     val degree: Float = 0f
-)
+) {
+    constructor(
+        start: PointNodeState,
+        center: PointNodeState,
+        end: PointNodeState,
+        id: String = Uuid.random().toString()
+    ) : this(
+        id = id,
+        worldPosition = center.angleBisectorPosition(start, end),
+        quaternion = center.quaternion,
+        degree = center.angleBetween(start, end)
+    )
+
+    fun copy(start: PointNodeState, center: PointNodeState, end: PointNodeState): AngleNodeState =
+        this.copy(
+            worldPosition = center.angleBisectorPosition(start, end),
+            quaternion = center.quaternion,
+            degree = center.angleBetween(start, end)
+        )
+}
