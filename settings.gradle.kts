@@ -11,6 +11,11 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+includeBuild("../sceneview") {
+    dependencySubstitution {
+        substitute(module("io.github.sceneview:arsceneview")).using(project(":arsceneview"))
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
