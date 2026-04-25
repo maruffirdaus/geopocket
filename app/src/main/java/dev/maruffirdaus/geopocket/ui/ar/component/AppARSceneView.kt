@@ -19,6 +19,7 @@ import com.google.ar.core.Config
 import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
 import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
 import io.github.sceneview.ar.ARSceneView
@@ -35,10 +36,7 @@ private const val HIT_TEST_INTERVAL_MS = 100L
 @Composable
 fun AppARSceneView(
     reticle: ReticleNodeState?,
-    segmentPreview: SegmentNodeState?,
-    closingSegmentPreview: SegmentNodeState?,
-    anglePreview: AngleNodeState?,
-    closingAnglePreview: AngleNodeState?,
+    preview: PreviewState?,
     points: Map<String, PointNodeState>,
     segments: Map<String, SegmentNodeState>,
     angles: Map<String, AngleNodeState>,
@@ -150,7 +148,7 @@ fun AppARSceneView(
                 )
             }
         }
-        segmentPreview?.let {
+        preview?.segment?.let {
             key("segmentPreview") {
                 SegmentNode(
                     state = it,
@@ -158,7 +156,7 @@ fun AppARSceneView(
                 )
             }
         }
-        closingSegmentPreview?.let {
+        preview?.closingSegment?.let {
             key("closingSegmentPreview") {
                 SegmentNode(
                     state = it,
@@ -166,18 +164,18 @@ fun AppARSceneView(
                 )
             }
         }
-        anglePreview?.let { angle ->
+        preview?.angle?.let {
             key("anglePreview") {
                 AngleNode(
-                    state = angle,
+                    state = it,
                     windowManager = windowManager
                 )
             }
         }
-        closingAnglePreview?.let { angle ->
+        preview?.closingAngle?.let {
             key("closingAnglePreview") {
                 AngleNode(
-                    state = angle,
+                    state = it,
                     windowManager = windowManager
                 )
             }

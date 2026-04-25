@@ -5,6 +5,7 @@ import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
 import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
 import dev.romainguy.kotlin.math.Float3
@@ -44,6 +45,8 @@ class ARViewModel(
             val correction = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
             val segmentPreview = state.points.values.lastOrNull()?.let { lastPoint ->
                 SegmentNodeState(
+                    startPointId = lastPoint.id,
+                    endPointId = "Z",
                     startPos = lastPoint.worldPosition,
                     endPos = pose.position,
                     camPos = camPos
@@ -53,29 +56,44 @@ class ARViewModel(
             var anglePreview: AngleNodeState? = null
             var closingAnglePreview: AngleNodeState? = null
 
-            if (state.points.size > 1) {
-                anglePreview = AngleNodeState(
-                    state.points.values.first {
-                        it.label.first() == 'A' + state.points.size - 1
-                    },
-                    state.points.values.first {
-                        it.label.first() == 'A' + state.points.size - 2
-                    }.worldPosition,
-                    pose.position,
-                )
+            val size = state.points.size
 
-                if (state.points.size + 1 == subtopic.constraint.pointCount) {
+            if (size > 1) {
+                val lastPoint = state.points[('A' + size - 1).toString()]
+                val prevPoint = state.points[('A' + size - 2).toString()]
+
+                if (lastPoint != null && prevPoint != null) {
+                    anglePreview = AngleNodeState(
+                        centerPoint = lastPoint,
+                        startPos = prevPoint.worldPosition,
+                        endPos = pose.position
+                    )
+                }
+
+                val isClosing =
+                    size + 1 == subtopic.constraint.pointCount && subtopic.constraint.closedShape
+                val firstWorldPos = state.points["A"]?.worldPosition
+
+                if (isClosing && firstWorldPos != null) {
                     closingSegmentPreview = SegmentNodeState(
+                        startPointId = "Z",
+                        endPointId = "A",
                         startPos = pose.position,
-                        endPos = state.points.values.first { it.label == "A" }.worldPosition,
+                        endPos = firstWorldPos,
                         camPos = camPos
                     )
-                    closingAnglePreview = AngleNodeState(
-                        state.points.values.last().worldPosition,
-                        pose.position,
-                        state.points.values.first { it.label == "A" }.worldPosition,
-                        pose.quaternion * correction
-                    )
+
+                    val lastWorldPos = state.points.values.lastOrNull()?.worldPosition
+
+                    if (lastWorldPos != null) {
+                        closingAnglePreview = AngleNodeState(
+                            id = "Z",
+                            startPos = lastWorldPos,
+                            centerPos = pose.position,
+                            endPos = firstWorldPos,
+                            quaternion = pose.quaternion * correction
+                        )
+                    }
                 }
             }
 
@@ -84,10 +102,12 @@ class ARViewModel(
                     worldPosition = pose.position,
                     quaternion = pose.quaternion * correction
                 ),
-                segmentPreview = segmentPreview,
-                closingSegmentPreview = closingSegmentPreview,
-                anglePreview = anglePreview,
-                closingAnglePreview = closingAnglePreview
+                preview = PreviewState(
+                    segment = segmentPreview,
+                    closingSegment = closingSegmentPreview,
+                    angle = anglePreview,
+                    closingAngle = closingAnglePreview
+                )
             )
         }
 
@@ -102,35 +122,34 @@ class ARViewModel(
         val camPos = currentCamPos ?: return
 
         var point = PointNodeState(
+            id = ('A' + uiState.value.points.size).toString(),
             worldPosition = pose.position,
             quaternion = pose.quaternion,
-            label = ('A' + uiState.value.points.size).toString()
         )
         var lastPoint = uiState.value.points.values.lastOrNull()
 
         if (lastPoint != null) {
             val segment = SegmentNodeState(
+                startPointId = lastPoint.id,
+                endPointId = point.id,
                 startPos = lastPoint.worldPosition,
                 endPos = point.worldPosition,
                 camPos = camPos,
-                startPointId = lastPoint.id,
-                endPointId = point.id,
-                constraint = subtopic.constraint.segments.getOrNull(lastPoint.label.first() - 'A')
+                constraint = subtopic.constraint.segments.getOrNull(lastPoint.id.first() - 'A')
             )
             point = point.copy(connectedSegmentIds = setOf(segment.id))
-            lastPoint =
-                lastPoint.copy(connectedSegmentIds = lastPoint.connectedSegmentIds + segment.id)
+            lastPoint = lastPoint.copy(
+                connectedSegmentIds = lastPoint.connectedSegmentIds + segment.id
+            )
 
             val angle = if (uiState.value.points.size > 1) {
-                val startPoint = uiState.value.points.values.firstOrNull {
-                    it.label.first() == lastPoint.label.first() - 1
-                }
+                val startPoint = uiState.value.points[(lastPoint.id.first() - 1).toString()]
                 startPoint?.let {
                     AngleNodeState(
-                        lastPoint,
-                        startPoint.worldPosition,
-                        point.worldPosition,
-                        subtopic.constraint.angles.getOrNull(lastPoint.label.first() - 'B')
+                        centerPoint = lastPoint,
+                        startPos = startPoint.worldPosition,
+                        endPos = point.worldPosition,
+                        constraint = subtopic.constraint.angles.getOrNull(lastPoint.id.first() - 'B')
                     )
                 }
             } else null
@@ -138,67 +157,61 @@ class ARViewModel(
             var closingSegment: SegmentNodeState? = null
             val closingAngles: MutableList<AngleNodeState> = mutableListOf()
 
-            val isClosingPoint = uiState.value.points.size + 1 == subtopic.constraint.pointCount
+            val isPointCountReached =
+                uiState.value.points.size + 1 == subtopic.constraint.pointCount
+            val isClosing = isPointCountReached && subtopic.constraint.closedShape
 
-            var firstPoint: PointNodeState? = null
+            var firstPoint = uiState.value.points["A"]
 
-            if (isClosingPoint && subtopic.constraint.closedShape) {
-                firstPoint = uiState.value.points.values.first { it.label == "A" }
+            if (isClosing && firstPoint != null) {
                 closingSegment = SegmentNodeState(
+                    startPointId = point.id,
+                    endPointId = firstPoint.id,
                     startPos = point.worldPosition,
                     endPos = firstPoint.worldPosition,
                     camPos = camPos,
-                    startPointId = point.id,
-                    endPointId = firstPoint.id,
                     constraint = subtopic.constraint.segments.lastOrNull()
                 )
-                point =
-                    point.copy(connectedSegmentIds = point.connectedSegmentIds + closingSegment.id)
-                firstPoint =
-                    firstPoint.copy(connectedSegmentIds = firstPoint.connectedSegmentIds + closingSegment.id)
-                closingAngles += AngleNodeState(
-                    point,
-                    lastPoint.worldPosition,
-                    firstPoint.worldPosition,
-                    subtopic.constraint.angles.getOrNull(point.label.first() - 'B')
+                point = point.copy(
+                    connectedSegmentIds = point.connectedSegmentIds + closingSegment.id
                 )
-                val secondPoint = uiState.value.points.values.first { it.label == "B" }
-                closingAngles += AngleNodeState(
-                    firstPoint,
-                    point.worldPosition,
-                    secondPoint.worldPosition,
-                    subtopic.constraint.angles.lastOrNull()
+                firstPoint = firstPoint.copy(
+                    connectedSegmentIds = firstPoint.connectedSegmentIds + closingSegment.id
                 )
+
+                closingAngles += AngleNodeState(
+                    centerPoint = point,
+                    startPos = lastPoint.worldPosition,
+                    endPos = firstPoint.worldPosition,
+                    constraint = subtopic.constraint.angles.getOrNull(point.id.first() - 'B')
+                )
+                uiState.value.points["B"]?.let { secondPoint ->
+                    closingAngles += AngleNodeState(
+                        centerPoint = firstPoint,
+                        startPos = point.worldPosition,
+                        endPos = secondPoint.worldPosition,
+                        constraint = subtopic.constraint.angles.lastOrNull()
+                    )
+                }
             }
 
             _uiState.update { state ->
                 val updatedPoints = buildMap {
                     put(lastPoint.id, lastPoint)
                     put(point.id, point)
-                    firstPoint?.let {
-                        put(it.id, it)
-                    }
+                    firstPoint?.let { put(it.id, it) }
                 }
                 val updatedSegments = buildMap {
                     put(segment.id, segment)
-                    closingSegment?.let {
-                        put(it.id, it)
-                    }
+                    closingSegment?.let { put(it.id, it) }
                 }
                 val updatedAngles = buildMap {
-                    angle?.let {
-                        put(it.id, it)
-                    }
-                    closingAngles.forEach {
-                        put(it.id, it)
-                    }
+                    angle?.let { put(it.id, it) }
+                    closingAngles.forEach { put(it.id, it) }
                 }
                 state.copy(
-                    reticle = if (isClosingPoint) null else state.reticle,
-                    segmentPreview = if (isClosingPoint) null else state.segmentPreview,
-                    closingSegmentPreview = if (isClosingPoint) null else state.closingSegmentPreview,
-                    anglePreview = if (isClosingPoint) null else state.anglePreview,
-                    closingAnglePreview = if (isClosingPoint) null else state.closingAnglePreview,
+                    reticle = if (isPointCountReached) null else state.reticle,
+                    preview = if (isPointCountReached) null else state.preview,
                     points = state.points + updatedPoints,
                     segments = state.segments + updatedSegments,
                     angles = state.angles + updatedAngles
@@ -242,8 +255,8 @@ class ARViewModel(
             uiState.value.segments.values
                 .filter { it.startPointId == id || it.endPointId == id }
                 .forEach { segment ->
-                    segment.startPointId?.let { add(it) }
-                    segment.endPointId?.let { add(it) }
+                    add(segment.startPointId)
+                    add(segment.endPointId)
                 }
         }
 
@@ -287,7 +300,7 @@ class ARViewModel(
     private fun onClearPoints() {
         _uiState.update {
             it.copy(
-                segmentPreview = null,
+                preview = null,
                 points = mapOf(),
                 segments = mapOf(),
                 angles = mapOf()

@@ -12,34 +12,31 @@ import dev.romainguy.kotlin.math.normalize
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Scale
 import kotlin.math.abs
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 data class SegmentNodeState(
-    val id: String = Uuid.random().toString(),
+    val startPointId: String,
+    val endPointId: String,
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
     val scale: Scale = Scale(),
-    val startPointId: String? = null,
-    val endPointId: String? = null,
     val length: Float = 0f,
 ) {
+    val id = startPointId + endPointId
     private var constraint: SegmentConstraint? = null
 
     constructor(
+        startPointId: String,
+        endPointId: String,
         startPos: Position,
         endPos: Position,
         camPos: Position,
-        startPointId: String? = null,
-        endPointId: String? = null,
         constraint: SegmentConstraint? = null
     ) : this(
+        startPointId = startPointId,
+        endPointId = endPointId,
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
         scale = Float3(length(endPos - startPos), 1f, 1f),
-        startPointId = startPointId,
-        endPointId = endPointId,
         length = snapLengthToTarget(length(endPos - startPos), constraint)
     ) {
         this.constraint = constraint
@@ -50,11 +47,11 @@ data class SegmentNodeState(
         endPos: Position,
         camPos: Position
     ): SegmentNodeState = SegmentNodeState(
+        startPointId = startPointId,
+        endPointId = endPointId,
         startPos = startPos,
         endPos = endPos,
         camPos = camPos,
-        startPointId = startPointId,
-        endPointId = endPointId,
         constraint = constraint
     )
 

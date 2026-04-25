@@ -6,12 +6,9 @@ import dev.maruffirdaus.geopocket.ui.ar.extension.angleBisectorPosition
 import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.math.Position
 import kotlin.math.abs
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 data class AngleNodeState(
-    val id: String = Uuid.random().toString(),
+    val id: String,
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
     val degree: Float = 0f
@@ -19,11 +16,11 @@ data class AngleNodeState(
     private var constraint: AngleConstraint? = null
 
     constructor(
+        id: String,
         startPos: Position,
         centerPos: Position,
         endPos: Position,
         quaternion: Quaternion,
-        id: String = Uuid.random().toString(),
         constraint: AngleConstraint? = null
     ) : this(
         id = id,
@@ -56,11 +53,11 @@ data class AngleNodeState(
         centerPos: Position,
         endPos: Position
     ): AngleNodeState = AngleNodeState(
+        id = id,
         startPos = startPos,
         centerPos = centerPos,
         endPos = endPos,
         quaternion = quaternion,
-        id = id,
         constraint = constraint
     )
 

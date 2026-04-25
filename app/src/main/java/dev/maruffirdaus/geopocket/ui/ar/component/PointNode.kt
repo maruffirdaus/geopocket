@@ -46,7 +46,7 @@ fun ARSceneScope.PointNode(
             rotation = rotation.toRotation(),
             collisionShape = Sphere(0.1f)
         ) {
-            PointNodeContent(state.label)
+            PointNodeContent(state.id)
         }
     }
 }

@@ -2,14 +2,10 @@ package dev.maruffirdaus.geopocket.ui.ar.model
 
 import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.math.Position
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 data class PointNodeState(
-    val id: String = Uuid.random().toString(),
+    val id: String,
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
-    val label: String = "A",
     val connectedSegmentIds: Set<String> = setOf()
 )
