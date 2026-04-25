@@ -21,6 +21,7 @@ navigation3 = "1.1.1"
 phosphorIcon = "1.0.0"
 room = "2.8.4"
 sonarqube = "7.2.3.7755"
+telephoto = "0.19.0"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -61,6 +62,7 @@ koin-compose-viewmodel-navigation = { group = "io.insert-koin", name = "koin-com
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 materialKolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
 phosphorIcon = { group = "com.adamglin", name = "phosphor-icon", version.ref = "phosphorIcon" }
+telephoto = { group = "me.saket.telephoto", name = "zoomable-image-coil3", version.ref = "telephoto" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

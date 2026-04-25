@@ -20,7 +20,7 @@ enum class Subtopic(
         description = "Ruas garis adalah garis lurus yang memiliki dua titik ujung.",
         constraint = Constraint(
             pointCount = 2,
-            segments = listOf(SegmentConstraint(1f, 1f))
+            segments = listOf(SegmentConstraint(0.4f, 0.4f))
         )
     ),
 
@@ -80,9 +80,9 @@ enum class Subtopic(
             pointCount = 3,
             closedShape = true,
             angles = listOf(
-                AngleConstraint(50f, 50f),
-                AngleConstraint(50f, 50f),
-                AngleConstraint(80f, 80f)
+                AngleConstraint(70f, 70f),
+                AngleConstraint(70f, 70f),
+                AngleConstraint(40f, 40f)
             )
         )
     ),
@@ -96,9 +96,9 @@ enum class Subtopic(
             pointCount = 3,
             closedShape = true,
             angles = listOf(
-                AngleConstraint(30f, 30f),
+                AngleConstraint(40f, 40f),
                 AngleConstraint(60f, 60f),
-                AngleConstraint(90f, 90f)
+                AngleConstraint(80f, 80f)
             )
         )
     ),
@@ -126,7 +126,7 @@ enum class Subtopic(
             pointCount = 4,
             closedShape = true,
             segments = List(4) {
-                if (it % 2 == 0) SegmentConstraint(0.25f, 0.25f) else SegmentConstraint(0.5f, 0.5f)
+                if (it % 2 == 0) SegmentConstraint(0.25f, 0.25f) else SegmentConstraint(0.35f, 0.35f)
             },
             angles = List(4) { AngleConstraint(90f, 90f) }
         )

@@ -22,6 +22,7 @@ import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
 import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import io.github.sceneview.SurfaceType
 import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.arcore.isValid
 import io.github.sceneview.ar.rememberARCameraNode
@@ -85,6 +86,7 @@ fun AppARSceneView(
             width = layoutCoordinates.size.width
             height = layoutCoordinates.size.height
         },
+        surfaceType = SurfaceType.TextureSurface,
         engine = engine,
         materialLoader = materialLoader,
         sessionConfiguration = { session, config ->
