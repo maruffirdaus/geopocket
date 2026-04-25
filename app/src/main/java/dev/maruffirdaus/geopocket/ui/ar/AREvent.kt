@@ -8,5 +8,4 @@ sealed interface AREvent {
     object OnAddPoint : AREvent
     data class OnPointMoved(val id: String, val pose: Pose) : AREvent
     object OnClearPoints : AREvent
-    data class OnUpdateErrorMessage(val message: String?) : AREvent
 }

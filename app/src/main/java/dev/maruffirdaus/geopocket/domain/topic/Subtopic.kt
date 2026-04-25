@@ -112,7 +112,7 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 4,
             closedShape = true,
-            segments = List(4) { SegmentConstraint(1f, 1f) },
+            segments = List(4) { SegmentConstraint(0.25f, 0.25f) },
             angles = List(4) { AngleConstraint(90f, 90f) }
         )
     ),
@@ -126,7 +126,7 @@ enum class Subtopic(
             pointCount = 4,
             closedShape = true,
             segments = List(4) {
-                if (it % 2 == 0) SegmentConstraint(1f, 1f) else SegmentConstraint(2f, 2f)
+                if (it % 2 == 0) SegmentConstraint(0.25f, 0.25f) else SegmentConstraint(0.5f, 0.5f)
             },
             angles = List(4) { AngleConstraint(90f, 90f) }
         )

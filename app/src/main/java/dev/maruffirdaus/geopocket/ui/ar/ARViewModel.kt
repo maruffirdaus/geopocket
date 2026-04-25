@@ -30,15 +30,10 @@ class ARViewModel(
 
     fun onEvent(event: AREvent) {
         when (event) {
-            is AREvent.OnUpdateReticle -> onUpdateReticle(
-                event.pose,
-                event.camPos
-            )
-
+            is AREvent.OnUpdateReticle -> onUpdateReticle(event.pose, event.camPos)
             AREvent.OnAddPoint -> onAddPoint()
             is AREvent.OnPointMoved -> onPointMoved(event.id, event.pose)
             AREvent.OnClearPoints -> onClearPoints()
-            is AREvent.OnUpdateErrorMessage -> onUpdateErrorMessage(event.message)
         }
     }
 
@@ -54,21 +49,34 @@ class ARViewModel(
                     camPos = camPos
                 )
             }
-
+            var closingSegmentPreview: SegmentNodeState? = null
             var anglePreview: AngleNodeState? = null
+            var closingAnglePreview: AngleNodeState? = null
 
             if (state.points.size > 1) {
-                val centerPoint = state.points.values.first {
-                    it.label.first() == 'A' + state.points.size - 1
-                }
-                val startPoint = state.points.values.first {
-                    it.label.first() == 'A' + state.points.size - 2
-                }
                 anglePreview = AngleNodeState(
-                    centerPoint,
-                    startPoint.worldPosition,
-                    pose.position
+                    state.points.values.first {
+                        it.label.first() == 'A' + state.points.size - 1
+                    },
+                    state.points.values.first {
+                        it.label.first() == 'A' + state.points.size - 2
+                    }.worldPosition,
+                    pose.position,
                 )
+
+                if (state.points.size + 1 == subtopic.constraint.pointCount) {
+                    closingSegmentPreview = SegmentNodeState(
+                        startPos = pose.position,
+                        endPos = state.points.values.first { it.label == "A" }.worldPosition,
+                        camPos = camPos
+                    )
+                    closingAnglePreview = AngleNodeState(
+                        state.points.values.last().worldPosition,
+                        pose.position,
+                        state.points.values.first { it.label == "A" }.worldPosition,
+                        pose.quaternion * correction
+                    )
+                }
             }
 
             state.copy(
@@ -77,7 +85,9 @@ class ARViewModel(
                     quaternion = pose.quaternion * correction
                 ),
                 segmentPreview = segmentPreview,
-                anglePreview = anglePreview
+                closingSegmentPreview = closingSegmentPreview,
+                anglePreview = anglePreview,
+                closingAnglePreview = closingAnglePreview
             )
         }
 
@@ -104,7 +114,8 @@ class ARViewModel(
                 endPos = point.worldPosition,
                 camPos = camPos,
                 startPointId = lastPoint.id,
-                endPointId = point.id
+                endPointId = point.id,
+                constraint = subtopic.constraint.segments.getOrNull(lastPoint.label.first() - 'A')
             )
             point = point.copy(connectedSegmentIds = setOf(segment.id))
             lastPoint =
@@ -119,7 +130,7 @@ class ARViewModel(
                         lastPoint,
                         startPoint.worldPosition,
                         point.worldPosition,
-                        lastPoint.id
+                        subtopic.constraint.angles.getOrNull(lastPoint.label.first() - 'B')
                     )
                 }
             } else null
@@ -138,7 +149,8 @@ class ARViewModel(
                     endPos = firstPoint.worldPosition,
                     camPos = camPos,
                     startPointId = point.id,
-                    endPointId = firstPoint.id
+                    endPointId = firstPoint.id,
+                    constraint = subtopic.constraint.segments.lastOrNull()
                 )
                 point =
                     point.copy(connectedSegmentIds = point.connectedSegmentIds + closingSegment.id)
@@ -148,14 +160,14 @@ class ARViewModel(
                     point,
                     lastPoint.worldPosition,
                     firstPoint.worldPosition,
-                    point.id
+                    subtopic.constraint.angles.getOrNull(point.label.first() - 'B')
                 )
                 val secondPoint = uiState.value.points.values.first { it.label == "B" }
                 closingAngles += AngleNodeState(
                     firstPoint,
                     point.worldPosition,
                     secondPoint.worldPosition,
-                    firstPoint.id
+                    subtopic.constraint.angles.lastOrNull()
                 )
             }
 
@@ -184,7 +196,9 @@ class ARViewModel(
                 state.copy(
                     reticle = if (isClosingPoint) null else state.reticle,
                     segmentPreview = if (isClosingPoint) null else state.segmentPreview,
+                    closingSegmentPreview = if (isClosingPoint) null else state.closingSegmentPreview,
                     anglePreview = if (isClosingPoint) null else state.anglePreview,
+                    closingAnglePreview = if (isClosingPoint) null else state.closingAnglePreview,
                     points = state.points + updatedPoints,
                     segments = state.segments + updatedSegments,
                     angles = state.angles + updatedAngles
@@ -255,8 +269,8 @@ class ARViewModel(
 
             updatedAngles[pointId] =
                 angle.copy(
-                    centerPoint = centerPoint,
                     startPos = startPoint.worldPosition,
+                    centerPos = centerPoint.worldPosition,
                     endPos = endPoint.worldPosition
                 )
         }
@@ -278,12 +292,6 @@ class ARViewModel(
                 segments = mapOf(),
                 angles = mapOf()
             )
-        }
-    }
-
-    private fun onUpdateErrorMessage(message: String?) {
-        _uiState.update {
-            it.copy(errorMessage = message)
         }
     }
 }

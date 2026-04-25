@@ -1,5 +1,6 @@
 package dev.maruffirdaus.geopocket.ui.ar.model
 
+import dev.maruffirdaus.geopocket.domain.topic.constraint.SegmentConstraint
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.Float4
 import dev.romainguy.kotlin.math.Mat4
@@ -10,6 +11,7 @@ import dev.romainguy.kotlin.math.length
 import dev.romainguy.kotlin.math.normalize
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Scale
+import kotlin.math.abs
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -23,26 +25,37 @@ data class SegmentNodeState(
     val endPointId: String? = null,
     val length: Float = 0f,
 ) {
+    private var constraint: SegmentConstraint? = null
+
     constructor(
         startPos: Position,
         endPos: Position,
         camPos: Position,
         startPointId: String? = null,
-        endPointId: String? = null
+        endPointId: String? = null,
+        constraint: SegmentConstraint? = null
     ) : this(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
         scale = Float3(length(endPos - startPos), 1f, 1f),
         startPointId = startPointId,
         endPointId = endPointId,
-        length = length(endPos - startPos)
-    )
+        length = snapLengthToTarget(length(endPos - startPos), constraint)
+    ) {
+        this.constraint = constraint
+    }
 
-    fun copy(startPos: Position, endPos: Position, camPos: Position): SegmentNodeState = this.copy(
-        worldPosition = (startPos + endPos) / 2f,
-        quaternion = calculateQuaternion(startPos, endPos, camPos),
-        scale = Float3(length(endPos - startPos), 1f, 1f),
-        length = length(endPos - startPos)
+    fun copy(
+        startPos: Position,
+        endPos: Position,
+        camPos: Position
+    ): SegmentNodeState = SegmentNodeState(
+        startPos = startPos,
+        endPos = endPos,
+        camPos = camPos,
+        startPointId = startPointId,
+        endPointId = endPointId,
+        constraint = constraint
     )
 
     companion object {
@@ -78,6 +91,14 @@ data class SegmentNodeState(
             )
 
             return rotationMatrix.toQuaternion()
+        }
+
+        private fun snapLengthToTarget(length: Float, constraint: SegmentConstraint?): Float {
+            val snappedToMin =
+                constraint?.minLength?.takeIf { abs(length - it) <= constraint.tolerance }
+            val snappedToMax =
+                constraint?.maxLength?.takeIf { abs(length - it) <= constraint.tolerance }
+            return snappedToMin ?: snappedToMax ?: length
         }
     }
 }

@@ -18,13 +18,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +52,9 @@ fun ARScreen(
         AppARSceneView(
             reticle = uiState.reticle,
             segmentPreview = uiState.segmentPreview,
+            closingSegmentPreview = uiState.closingSegmentPreview,
             anglePreview = uiState.anglePreview,
+            closingAnglePreview = uiState.closingAnglePreview,
             points = uiState.points,
             segments = uiState.segments,
             angles = uiState.angles,
@@ -78,19 +76,7 @@ fun ARScreenContent(
     navHandler: NavHandler,
     arContent: @Composable () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(uiState.errorMessage) {
-        if (uiState.errorMessage != null) {
-            snackbarHostState.showSnackbar(uiState.errorMessage)
-            onEvent(AREvent.OnUpdateErrorMessage(null))
-        }
-    }
-
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackbarHostState)
-        },
         floatingActionButton = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HorizontalFloatingToolbar(
