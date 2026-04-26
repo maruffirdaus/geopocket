@@ -135,7 +135,7 @@ fun InstructionsScreenContent(
             )
             Button(
                 onClick = {
-                    navHandler.push(AppNavKey.AR(uiState.subtopic.name))
+                    navHandler.replace(AppNavKey.AR(uiState.subtopic.name))
                 },
                 modifier = Modifier
                     .fillMaxWidth()

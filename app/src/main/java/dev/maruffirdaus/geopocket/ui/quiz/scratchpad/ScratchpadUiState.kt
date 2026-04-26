@@ -3,5 +3,6 @@ package dev.maruffirdaus.geopocket.ui.quiz.scratchpad
 import androidx.ink.strokes.Stroke
 
 data class ScratchpadUiState(
-    val strokes: List<Stroke> = listOf()
+    val strokes: List<Stroke> = listOf(),
+    val selectedBrushColorIndex: Int = 0
 )

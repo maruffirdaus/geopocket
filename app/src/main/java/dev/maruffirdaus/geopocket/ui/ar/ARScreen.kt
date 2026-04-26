@@ -150,17 +150,6 @@ fun ARScreenContent(
                 ) {
                     IconButton(
                         onClick = {
-                            onEvent(AREvent.OnClearPoints)
-                        },
-                        enabled = uiState.points.isNotEmpty()
-                    ) {
-                        Icon(
-                            imageVector = PhosphorIcons.Regular.Trash,
-                            contentDescription = "Clear"
-                        )
-                    }
-                    IconButton(
-                        onClick = {
                             onEvent(AREvent.OnEnablePreview)
                         },
                         colors = if (uiState.previewEnabled) {
@@ -172,6 +161,17 @@ fun ARScreenContent(
                         Icon(
                             imageVector = PhosphorIcons.Regular.LineSegment,
                             contentDescription = "Enable preview"
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            onEvent(AREvent.OnClearPoints)
+                        },
+                        enabled = uiState.points.isNotEmpty()
+                    ) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.Trash,
+                            contentDescription = "Clear"
                         )
                     }
                 }

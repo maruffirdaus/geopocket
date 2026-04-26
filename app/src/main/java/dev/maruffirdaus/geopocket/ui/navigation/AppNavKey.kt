@@ -34,8 +34,5 @@ sealed interface AppNavKey : NavKey {
     ) : AppNavKey
 
     @Serializable
-    object Achievement : AppNavKey
-
-    @Serializable
     object Settings : AppNavKey
 }

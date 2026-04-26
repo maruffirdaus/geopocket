@@ -7,7 +7,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.Topic
-import dev.maruffirdaus.geopocket.ui.achievement.AchievementScreen
 import dev.maruffirdaus.geopocket.ui.ar.ARScreen
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 import dev.maruffirdaus.geopocket.ui.instructions.InstructionsScreen
@@ -59,9 +58,6 @@ fun AppNavDisplay(
                     segments = key.segments,
                     angles = key.angles
                 )
-            }
-            entry<AppNavKey.Achievement> {
-                AchievementScreen()
             }
             entry<AppNavKey.Settings> {
                 SettingsScreen()

@@ -13,14 +13,28 @@ class ScratchpadViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
 
     fun onEvent(event: ScratchpadEvent) {
-        when(event) {
+        when (event) {
             is ScratchpadEvent.OnStrokesFinished -> onStrokesFinished(event.strokes)
+            is ScratchpadEvent.OnSelectBrushColor -> onSelectBrushColor(event.index)
+            ScratchpadEvent.OnClearStrokes -> onClearStrokes()
         }
     }
 
     private fun onStrokesFinished(strokes: List<Stroke>) {
         _uiState.update {
             it.copy(strokes = it.strokes + strokes)
+        }
+    }
+
+    private fun onSelectBrushColor(index: Int) {
+        _uiState.update {
+            it.copy(selectedBrushColorIndex = index)
+        }
+    }
+
+    private fun onClearStrokes() {
+        _uiState.update {
+            it.copy(strokes = emptyList())
         }
     }
 }
