@@ -20,7 +20,7 @@ enum class Subtopic(
         description = "Ruas garis adalah garis lurus yang memiliki dua titik ujung.",
         constraint = Constraint(
             pointCount = 2,
-            segments = listOf(SegmentConstraint(0.4f, 0.4f))
+            segments = mapOf("AB" to SegmentConstraint("AB", 0.4f, 0.4f))
         )
     ),
 
@@ -32,7 +32,7 @@ enum class Subtopic(
         description = "Sudut yang besarnya kurang dari 90°.",
         constraint = Constraint(
             pointCount = 3,
-            angles = listOf(AngleConstraint(1f, 89f))
+            angles = mapOf("ABC" to AngleConstraint("ABC", 1f, 89f))
         )
     ),
     ANGLE_RIGHT(
@@ -43,7 +43,7 @@ enum class Subtopic(
         description = "Sudut yang besarnya tepat 90°.",
         constraint = Constraint(
             pointCount = 3,
-            angles = listOf(AngleConstraint(90f, 90f))
+            angles = mapOf("ABC" to AngleConstraint("ABC", 90f, 90f)),
         )
     ),
     ANGLE_OBTUSE(
@@ -54,7 +54,7 @@ enum class Subtopic(
         description = "Sudut yang besarnya lebih dari 90°.",
         constraint = Constraint(
             pointCount = 3,
-            angles = listOf(AngleConstraint(91f, 179f))
+            angles = mapOf("ABC" to AngleConstraint("ABC", 91f, 179f))
         )
     ),
 
@@ -67,7 +67,18 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 3,
             closedShape = true,
-            angles = List(3) { AngleConstraint(60f, 60f) }
+            angles = buildMap {
+                val pointCount = 3
+                repeat(pointCount) { index ->
+                    val id = buildString {
+                        val a = ('A' + index % pointCount).toString()
+                        val b = ('A' + (index + 1) % pointCount).toString()
+                        val c = ('A' + (index + 2) % pointCount).toString()
+                        append("$a$b$c")
+                    }
+                    put(id, AngleConstraint(id, 60f, 60f))
+                }
+            }
         )
     ),
     TRIANGLE_ISOSCELES(
@@ -79,10 +90,10 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 3,
             closedShape = true,
-            angles = listOf(
-                AngleConstraint(70f, 70f),
-                AngleConstraint(70f, 70f),
-                AngleConstraint(40f, 40f)
+            angles = mapOf(
+                "ABC" to AngleConstraint("ABC", 70f, 70f),
+                "BCA" to AngleConstraint("BCA", 70f, 70f),
+                "CAB" to AngleConstraint("CAB", 40f, 40f)
             )
         )
     ),
@@ -95,10 +106,10 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 3,
             closedShape = true,
-            angles = listOf(
-                AngleConstraint(40f, 40f),
-                AngleConstraint(60f, 60f),
-                AngleConstraint(80f, 80f)
+            angles = mapOf(
+                "ABC" to AngleConstraint("ABC", 40f, 40f),
+                "BCA" to AngleConstraint("BCA", 60f, 60f),
+                "CAB" to AngleConstraint("CAB", 80f, 80f)
             )
         )
     ),
@@ -112,8 +123,28 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 4,
             closedShape = true,
-            segments = List(4) { SegmentConstraint(0.25f, 0.25f) },
-            angles = List(4) { AngleConstraint(90f, 90f) }
+            segments = buildMap {
+                val pointCount = 4
+                repeat(pointCount) { index ->
+                    val id = buildString {
+                        append('A' + index)
+                        append('A' + (index + 1) % pointCount)
+                    }
+                    put(id, SegmentConstraint(id, 0.25f, 0.25f))
+                }
+            },
+            angles = buildMap {
+                val pointCount = 4
+                repeat(4) { index ->
+                    val id = buildString {
+                        val a = ('A' + index % pointCount).toString()
+                        val b = ('A' + (index + 1) % pointCount).toString()
+                        val c = ('A' + (index + 2) % pointCount).toString()
+                        append("$a$b$c")
+                    }
+                    put(id, AngleConstraint(id, 90f, 90f))
+                }
+            }
         )
     ),
     QUADRILATERAL_RECTANGLE(
@@ -125,10 +156,32 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 4,
             closedShape = true,
-            segments = List(4) {
-                if (it % 2 == 0) SegmentConstraint(0.25f, 0.25f) else SegmentConstraint(0.35f, 0.35f)
+            segments = buildMap {
+                val pointCount = 4
+                repeat(pointCount) { index ->
+                    val id = buildString {
+                        append('A' + index)
+                        append('A' + (index + 1) % pointCount)
+                    }
+                    if (index % 2 == 0) {
+                        put(id, SegmentConstraint(id, 0.25f, 0.25f))
+                    } else {
+                        put(id, SegmentConstraint(id, 0.35f, 0.35f))
+                    }
+                }
             },
-            angles = List(4) { AngleConstraint(90f, 90f) }
+            angles = buildMap {
+                val pointCount = 4
+                repeat(4) { index ->
+                    val id = buildString {
+                        val a = ('A' + index % pointCount).toString()
+                        val b = ('A' + (index + 1) % pointCount).toString()
+                        val c = ('A' + (index + 2) % pointCount).toString()
+                        append("$a$b$c")
+                    }
+                    put(id, AngleConstraint(id, 90f, 90f))
+                }
+            }
         )
     );
 
@@ -139,35 +192,36 @@ enum class Subtopic(
             steps.add("Tempatkan titik ${('A' + index)}")
         }
 
-        constraint.segments.forEachIndexed { index, line ->
-            val from = ('A' + index % constraint.pointCount)
-            val to = ('A' + (index + 1) % constraint.pointCount)
-            val minLength = line.minLength?.times(100)?.toInt()
-            val maxLength = line.maxLength?.times(100)?.toInt()
+        constraint.segments.values.forEach { segment ->
+            val minLength = segment.minLength?.times(100)?.toInt()
+            val maxLength = segment.maxLength?.times(100)?.toInt()
             val lengthHint = when {
-                minLength != null && maxLength != null && minLength == maxLength -> "tepat $minLength cm"
-                minLength != null && maxLength != null -> "antara ${line.minLength}m dan $maxLength cm"
+                minLength != null && maxLength != null && minLength == maxLength ->
+                    "tepat $minLength cm"
+
+                minLength != null && maxLength != null ->
+                    "antara ${segment.minLength} cm dan $maxLength cm"
+
                 minLength != null -> "minimal $minLength cm"
                 maxLength != null -> "maksimal $maxLength cm"
                 else -> ""
             }
-            if (lengthHint.isNotEmpty()) steps.add("Pastikan panjang garis $from$to $lengthHint")
+            if (lengthHint.isNotEmpty()) steps.add("Pastikan panjang garis ${segment.id} $lengthHint")
         }
 
-        constraint.angles.forEachIndexed { index, angle ->
-            val a = ('A' + index % constraint.pointCount)
-            val b = ('A' + (index + 1) % constraint.pointCount)
-            val c = ('A' + (index + 2) % constraint.pointCount)
+        constraint.angles.values.forEach { angle ->
             val minDegree = angle.minDegree?.toInt()
             val maxDegree = angle.maxDegree?.toInt()
             val angleHint = when {
-                minDegree != null && maxDegree != null && minDegree == maxDegree -> "tepat $minDegree°"
+                minDegree != null && maxDegree != null && minDegree == maxDegree ->
+                    "tepat $minDegree°"
+
                 minDegree != null && maxDegree != null -> "antara $minDegree° dan $maxDegree°"
                 minDegree != null -> "lebih dari $minDegree°"
                 maxDegree != null -> "kurang dari $maxDegree°"
                 else -> ""
             }
-            if (angleHint.isNotEmpty()) steps.add("Pastikan sudut $a$b$c $angleHint")
+            if (angleHint.isNotEmpty()) steps.add("Pastikan sudut ${angle.id} $angleHint")
         }
 
         return steps

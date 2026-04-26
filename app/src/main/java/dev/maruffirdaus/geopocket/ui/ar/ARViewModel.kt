@@ -23,7 +23,7 @@ import org.koin.core.annotation.KoinViewModel
 class ARViewModel(
     @InjectedParam private val subtopic: Subtopic
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ARUiState())
+    private val _uiState = MutableStateFlow(ARUiState(subtopic = subtopic))
     val uiState = _uiState.asStateFlow()
 
     private var currentPose: Pose? = null
@@ -68,9 +68,11 @@ class ARViewModel(
 
                 if (lastPoint != null && prevPoint != null) {
                     anglePreview = AngleNodeState(
-                        centerPoint = lastPoint,
+                        id = lastPoint.id,
                         startPos = prevPoint.worldPosition,
-                        endPos = pose.position
+                        centerPos = lastPoint.worldPosition,
+                        endPos = pose.position,
+                        quaternion = lastPoint.quaternion
                     )
                 }
 
@@ -139,7 +141,7 @@ class ARViewModel(
                 startPos = lastPoint.worldPosition,
                 endPos = point.worldPosition,
                 camPos = camPos,
-                constraint = subtopic.constraint.segments.getOrNull(lastPoint.id.first() - 'A')
+                constraint = subtopic.constraint.segments["${lastPoint.id}${point.id}"]
             )
             point = point.copy(connectedSegmentIds = setOf(segment.id))
             lastPoint = lastPoint.copy(
@@ -150,10 +152,10 @@ class ARViewModel(
                 val startPoint = uiState.value.points[(lastPoint.id.first() - 1).toString()]
                 startPoint?.let {
                     AngleNodeState(
+                        startPoint = startPoint,
                         centerPoint = lastPoint,
-                        startPos = startPoint.worldPosition,
-                        endPos = point.worldPosition,
-                        constraint = subtopic.constraint.angles.getOrNull(lastPoint.id.first() - 'B')
+                        endPoint = point,
+                        constraint = subtopic.constraint.angles["${startPoint.id}${lastPoint.id}${point.id}"]
                     )
                 }
             } else null
@@ -174,7 +176,7 @@ class ARViewModel(
                     startPos = point.worldPosition,
                     endPos = firstPoint.worldPosition,
                     camPos = camPos,
-                    constraint = subtopic.constraint.segments.lastOrNull()
+                    constraint = subtopic.constraint.segments["${point.id}${firstPoint.id}"]
                 )
                 point = point.copy(
                     connectedSegmentIds = point.connectedSegmentIds + closingSegment.id
@@ -184,17 +186,17 @@ class ARViewModel(
                 )
 
                 closingAngles += AngleNodeState(
+                    startPoint = lastPoint,
                     centerPoint = point,
-                    startPos = lastPoint.worldPosition,
-                    endPos = firstPoint.worldPosition,
-                    constraint = subtopic.constraint.angles.getOrNull(point.id.first() - 'B')
+                    endPoint = firstPoint,
+                    constraint = subtopic.constraint.angles["${lastPoint.id}${point.id}${firstPoint.id}"]
                 )
                 uiState.value.points["B"]?.let { secondPoint ->
                     closingAngles += AngleNodeState(
+                        startPoint = point,
                         centerPoint = firstPoint,
-                        startPos = point.worldPosition,
-                        endPos = secondPoint.worldPosition,
-                        constraint = subtopic.constraint.angles.lastOrNull()
+                        endPoint = secondPoint,
+                        constraint = subtopic.constraint.angles["${point.id}${firstPoint.id}${secondPoint.id}"]
                     )
                 }
             }
@@ -311,24 +313,18 @@ class ARViewModel(
 
         val segments = uiState.value.segments
         val angles = uiState.value.angles
-        val pointCount = constraint.pointCount
 
-        val areSegmentsValid = constraint.segments.indices.all { index ->
-            val start = ('A' + index % pointCount).toString()
-            val end = ('A' + (index + 1) % pointCount).toString()
-            val segment = segments["$start$end"] ?: return
-            val segmentConstraint = constraint.segments[index]
-            val minLength = segmentConstraint.minLength ?: 0f
-            val maxLength = segmentConstraint.maxLength ?: Float.MAX_VALUE
+        val areSegmentsValid = constraint.segments.all { entry ->
+            val segment = segments[entry.key] ?: return
+            val minLength = entry.value.minLength ?: 0f
+            val maxLength = entry.value.maxLength ?: Float.MAX_VALUE
             segment.length in minLength..maxLength
         }
 
-        val areAnglesValid = constraint.angles.indices.all { index ->
-            val center = ('A' + (index + 1) % pointCount).toString()
-            val angle = angles[center] ?: return
-            val angleConstraint = constraint.angles[index]
-            val minDegree = angleConstraint.minDegree ?: 0f
-            val maxDegree = angleConstraint.maxDegree ?: Float.MAX_VALUE
+        val areAnglesValid = constraint.angles.all { entry ->
+            val angle = angles[entry.key] ?: return
+            val minDegree = entry.value.minDegree ?: 0f
+            val maxDegree = entry.value.maxDegree ?: Float.MAX_VALUE
             angle.degree in minDegree..maxDegree
         }
 

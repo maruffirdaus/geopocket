@@ -1,20 +1,14 @@
 package dev.maruffirdaus.geopocket.ui.instructions
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -29,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import dev.maruffirdaus.geopocket.ui.common.component.PageIndicator
 import dev.maruffirdaus.geopocket.ui.instructions.component.InstructionsAnimationCanvas
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
@@ -129,35 +123,16 @@ fun InstructionsScreenContent(
                     )
                 }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .clip(CircleShape),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                repeat(steps.size) { index ->
-                    val isCurrentPage = index == pagerState.currentPage
-                    val color = if (isCurrentPage) {
-                        MaterialTheme.colorScheme.secondary
-                    } else {
-                        MaterialTheme.colorScheme.surfaceContainer
+            PageIndicator(
+                size = steps.size,
+                currentIndex = pagerState.currentPage,
+                onClick = { index ->
+                    scope.launch {
+                        pagerState.animateScrollToPage(index)
                     }
-
-                    Box(
-                        modifier = Modifier
-                            .height(12.dp)
-                            .weight(1f)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(color)
-                            .clickable {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            }
-                    )
-                }
-            }
+                },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
             Button(
                 onClick = {
                     navHandler.push(AppNavKey.AR(uiState.subtopic.name))

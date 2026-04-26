@@ -32,16 +32,22 @@ data class AngleNodeState(
     }
 
     constructor(
+        startPoint: PointNodeState,
         centerPoint: PointNodeState,
-        startPos: Position,
-        endPos: Position,
+        endPoint: PointNodeState,
         constraint: AngleConstraint? = null
     ) : this(
-        id = centerPoint.id,
-        worldPosition = centerPoint.worldPosition.angleBisectorPosition(startPos, endPos),
+        id = "${startPoint.id}${centerPoint.id}${endPoint.id}",
+        worldPosition = centerPoint.worldPosition.angleBisectorPosition(
+            startPoint.worldPosition,
+            endPoint.worldPosition
+        ),
         quaternion = centerPoint.quaternion,
         degree = snapDegreeToTarget(
-            centerPoint.worldPosition.angleBetween(startPos, endPos),
+            centerPoint.worldPosition.angleBetween(
+                startPoint.worldPosition,
+                endPoint.worldPosition
+            ),
             constraint
         )
     ) {

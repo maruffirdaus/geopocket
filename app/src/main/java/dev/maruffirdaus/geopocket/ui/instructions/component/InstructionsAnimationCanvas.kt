@@ -58,6 +58,8 @@ fun InstructionsAnimationCanvas(
     val density = LocalDensity.current
 
     val constraint = subtopic.constraint
+    val segmentConstraints = constraint.segments.values.sortedBy { it.id }
+    val angleConstraints = constraint.angles.values.sortedBy { it.id }
 
     val pointRadiusPx = with(density) { pointRadius.toPx() }
     val pointHaloPaddingPx = with(density) { pointHaloPadding.toPx() }
@@ -132,7 +134,7 @@ fun InstructionsAnimationCanvas(
             val segmentStart = pointTargetPositions[fromPointIndex]
             val segmentEnd = pointTargetPositions[toPointIndex]
             val segmentMidpoint = segmentStart.midpoint(segmentEnd)
-            val segmentConstraint = constraint.segments.getOrNull(segmentIndex)
+            val segmentConstraint = segmentConstraints.getOrNull(segmentIndex)
             val lengthLabel = segmentConstraint?.formatString()
 
             drawLine(
@@ -157,7 +159,7 @@ fun InstructionsAnimationCanvas(
                 completedSegments.firstOrNull { it.second == pointIndex } ?: return@forEachIndexed
                 completedSegments.firstOrNull { it.first == pointIndex } ?: return@forEachIndexed
                 val angleConstraint =
-                    constraint.angles.getOrNull(pointIndex - 1) ?: constraint.angles.lastOrNull()
+                    angleConstraints.getOrNull(pointIndex - 1) ?: angleConstraints.lastOrNull()
                 val angleLabel = angleConstraint?.formatString()
 
                 angleLabel?.let {
@@ -187,7 +189,7 @@ fun InstructionsAnimationCanvas(
 
             if (segmentDrawProgress.value > LABEL_VISIBLE_THRESHOLD) {
                 val animatingSegmentMidpoint = segmentStart.midpoint(currentSegmentEnd)
-                val segmentConstraint = constraint.segments.getOrNull(completedSegments.size)
+                val segmentConstraint = segmentConstraints.getOrNull(completedSegments.size)
                 val lengthLabel = segmentConstraint?.formatString()
 
                 lengthLabel?.let {
