@@ -11,7 +11,7 @@ import dev.maruffirdaus.geopocket.ui.achievement.AchievementScreen
 import dev.maruffirdaus.geopocket.ui.ar.ARScreen
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 import dev.maruffirdaus.geopocket.ui.instructions.InstructionsScreen
-import dev.maruffirdaus.geopocket.ui.scratchpad.ScratchpadScreen
+import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavDisplay
 import dev.maruffirdaus.geopocket.ui.settings.SettingsScreen
 import dev.maruffirdaus.geopocket.ui.topic.TopicScreen
 import org.koin.androidx.compose.koinViewModel
@@ -23,7 +23,7 @@ fun AppNavDisplay(
     navHandler: NavHandler = koinInject()
 ) {
     NavDisplay(
-        backStack = navHandler.backStack,
+        backStack = navHandler.appBackStack,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
@@ -53,8 +53,12 @@ fun AppNavDisplay(
                     }
                 )
             }
-            entry<AppNavKey.Scratchpad> {
-                ScratchpadScreen()
+            entry<AppNavKey.Quiz> { key ->
+                QuizNavDisplay(
+                    subtopic = key.subtopic,
+                    segments = key.segments,
+                    angles = key.angles
+                )
             }
             entry<AppNavKey.Achievement> {
                 AchievementScreen()

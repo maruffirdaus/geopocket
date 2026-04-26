@@ -41,12 +41,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import com.adamglin.phosphoricons.regular.LineSegment
 import com.adamglin.phosphoricons.regular.Plus
 import com.adamglin.phosphoricons.regular.Trash
 import dev.maruffirdaus.geopocket.ui.ar.component.AppARSceneView
 import dev.maruffirdaus.geopocket.ui.ar.component.InstructionsCard
 import dev.maruffirdaus.geopocket.ui.ar.extension.capture
 import dev.maruffirdaus.geopocket.ui.ar.extension.saveToCache
+import dev.maruffirdaus.geopocket.ui.common.model.AngleResult
+import dev.maruffirdaus.geopocket.ui.common.model.SegmentResult
+import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import kotlinx.coroutines.launch
@@ -76,7 +80,7 @@ fun ARScreen(
                     }
                 },
                 onError = {
-                    navHandler.pop()
+                    navHandler.pop<AppNavKey>()
                 }
             )
         }
@@ -124,7 +128,7 @@ fun ARScreenContent(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navHandler.pop()
+                            navHandler.pop<AppNavKey>()
                         }
                     ) {
                         Icon(
@@ -153,6 +157,21 @@ fun ARScreenContent(
                         Icon(
                             imageVector = PhosphorIcons.Regular.Trash,
                             contentDescription = "Clear"
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            onEvent(AREvent.OnEnablePreview)
+                        },
+                        colors = if (uiState.previewEnabled) {
+                            IconButtonDefaults.filledTonalIconButtonColors()
+                        } else {
+                            IconButtonDefaults.iconButtonColors()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.LineSegment,
+                            contentDescription = "Enable preview"
                         )
                     }
                 }
@@ -191,7 +210,19 @@ fun ARScreenContent(
                 )
                 Spacer(Modifier.height(16.dp))
                 Button(
-                    onClick = {},
+                    onClick = {
+                        navHandler.replace(
+                            AppNavKey.Quiz(
+                                subtopic = uiState.subtopic,
+                                segments = uiState.segments.mapValues {
+                                    SegmentResult(it.value.id, it.value.length)
+                                },
+                                angles = uiState.angles.mapValues {
+                                    AngleResult(it.value.id, it.value.degree)
+                                }
+                            )
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Mulai kuis")
@@ -206,7 +237,7 @@ fun ARScreenContent(
         ) {
             FilledIconButton(
                 onClick = {
-                    navHandler.pop()
+                    navHandler.pop<AppNavKey>()
                 },
                 modifier = Modifier
                     .padding(horizontal = 4.dp, vertical = 8.dp)

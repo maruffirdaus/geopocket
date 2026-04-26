@@ -1,7 +1,8 @@
-package dev.maruffirdaus.geopocket.ui.scratchpad
+package dev.maruffirdaus.geopocket.ui.quiz.scratchpad
 
 import android.graphics.Matrix
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
@@ -32,6 +34,7 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
+import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavKey
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,7 +61,9 @@ fun ScratchpadScreenContent(
 ) {
     val density = LocalDensity.current
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,7 +71,7 @@ fun ScratchpadScreenContent(
         ) {
             val defaultBrush = Brush.createWithComposeColor(
                 family = StockBrushes.marker(),
-                color = MaterialTheme.colorScheme.primary,
+                color = if (isSystemInDarkTheme()) Color.White else Color.Black,
                 size = with(density) { 4.dp.toPx() },
                 epsilon = 0.1F
             )
@@ -90,7 +95,7 @@ fun ScratchpadScreenContent(
             }
             FilledIconButton(
                 onClick = {
-                    navHandler.pop()
+                    navHandler.pop<QuizNavKey>()
                 },
                 modifier = Modifier
                     .padding(innerPadding)

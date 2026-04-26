@@ -1,52 +1,46 @@
-package dev.maruffirdaus.geopocket.ui.achievement
+package dev.maruffirdaus.geopocket.ui.quiz.questions
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.plus
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import com.adamglin.phosphoricons.regular.Scribble
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
+import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavKey
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-// Not yet implemented
-
 @Composable
-fun AchievementScreen(
+fun QuestionsScreen(
+    viewModel: QuestionsViewModel = koinViewModel(),
     navHandler: NavHandler = koinInject()
 ) {
-    AchievementScreenContent(
+    QuestionsScreenContent(
         navHandler = navHandler
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AchievementScreenContent(
+fun QuestionsScreenContent(
     navHandler: NavHandler
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
     Scaffold(
         topBar = {
-            LargeFlexibleTopAppBar(
+            TopAppBar(
                 title = {
-                    Text("Pencapaian")
+                    Text("Kuis")
                 },
                 navigationIcon = {
                     IconButton(
@@ -60,25 +54,33 @@ fun AchievementScreenContent(
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior
+                actions = {
+                    FilledTonalButton(
+                        onClick = {
+                            navHandler.push(QuizNavKey.Scratchpad)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.Scribble,
+                            contentDescription = "Coretan"
+                        )
+                        Text("Coretan")
+                    }
+                }
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            contentPadding = innerPadding + PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-
-        }
+        Column(
+            modifier = Modifier.padding(innerPadding)
+        ) {}
     }
 }
 
 @Composable
 @Preview
-private fun AchievementScreenPreview() {
+private fun QuestionsScreenPreview() {
     GeoPocketTheme {
-        AchievementScreenContent(
+        QuestionsScreenContent(
             navHandler = NavHandler()
         )
     }

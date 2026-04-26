@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.compose.koinInject
@@ -48,7 +49,7 @@ fun SettingsScreenContent(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navHandler.pop()
+                            navHandler.pop<AppNavKey>()
                         }
                     ) {
                         Icon(

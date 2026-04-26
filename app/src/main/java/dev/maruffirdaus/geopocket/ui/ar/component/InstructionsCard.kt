@@ -53,6 +53,18 @@ fun InstructionsCard(
         val size = ceil(combinedConstraints.size / 2f).toInt()
         val pagerState = rememberPagerState { size }
 
+        if (size > 1) {
+            PageIndicator(
+                size = size,
+                currentIndex = pagerState.currentPage,
+                onClick = { index ->
+                    scope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+                },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxWidth()
@@ -89,18 +101,6 @@ fun InstructionsCard(
                     }
                 }
             }
-        }
-        if (size > 1) {
-            PageIndicator(
-                size = size,
-                currentIndex = pagerState.currentPage,
-                onClick = { index ->
-                    scope.launch {
-                        pagerState.animateScrollToPage(index)
-                    }
-                },
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
         }
     }
 }

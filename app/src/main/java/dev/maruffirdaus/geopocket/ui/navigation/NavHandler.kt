@@ -1,23 +1,33 @@
 package dev.maruffirdaus.geopocket.ui.navigation
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.navigation3.runtime.NavKey
+import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavKey
 import org.koin.core.annotation.Singleton
 
 @Singleton
 class NavHandler {
-    val backStack = mutableStateListOf<AppNavKey>(AppNavKey.Home)
-    private var pendingResult: ((Any) -> Unit)? = null
+    val appBackStack = mutableStateListOf<AppNavKey>(AppNavKey.Home)
+    val quizBackStack = mutableStateListOf<QuizNavKey>(QuizNavKey.Questions)
 
-    fun push(key: AppNavKey, onResult: ((Any) -> Unit)? = null) {
-        pendingResult = onResult
-        backStack.add(key)
+    fun push(key: NavKey) {
+        when (key) {
+            is AppNavKey -> appBackStack.add(key)
+            is QuizNavKey -> quizBackStack.add(key)
+        }
     }
 
-    fun pop(result: Any? = null) {
-        if (backStack.size > 1) {
-            result?.let { pendingResult?.invoke(it) }
-            pendingResult = null
-            backStack.removeLastOrNull()
+    fun replace(key: NavKey) {
+        when (key) {
+            is AppNavKey -> appBackStack[appBackStack.lastIndex] = key
+            is QuizNavKey -> quizBackStack[quizBackStack.lastIndex] = key
+        }
+    }
+
+    inline fun <reified T : NavKey> pop() {
+        when (T::class) {
+            AppNavKey::class -> if (appBackStack.size > 1) appBackStack.removeLastOrNull()
+            QuizNavKey::class -> if (quizBackStack.size > 1) quizBackStack.removeLastOrNull()
         }
     }
 }

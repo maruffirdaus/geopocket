@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.scratchpad
+package dev.maruffirdaus.geopocket.ui.quiz.scratchpad
 
 import androidx.ink.strokes.Stroke
 

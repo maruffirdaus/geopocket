@@ -11,6 +11,7 @@ data class ARUiState(
     val subtopic: Subtopic = Subtopic.LINE_SEGMENT,
     val reticle: ReticleNodeState? = null,
     val preview: PreviewState? = null,
+    val previewEnabled: Boolean = true,
     val points: Map<String, PointNodeState> = mapOf(),
     val segments: Map<String, SegmentNodeState> = mapOf(),
     val angles: Map<String, AngleNodeState> = mapOf(),

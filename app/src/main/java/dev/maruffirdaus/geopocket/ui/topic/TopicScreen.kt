@@ -61,7 +61,7 @@ fun TopicScreenContent(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navHandler.pop()
+                            navHandler.pop<AppNavKey>()
                         }
                     ) {
                         Icon(

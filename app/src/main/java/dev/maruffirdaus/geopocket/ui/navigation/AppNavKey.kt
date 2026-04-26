@@ -1,6 +1,9 @@
 package dev.maruffirdaus.geopocket.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
+import dev.maruffirdaus.geopocket.domain.topic.Subtopic
+import dev.maruffirdaus.geopocket.ui.common.model.AngleResult
+import dev.maruffirdaus.geopocket.ui.common.model.SegmentResult
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -24,7 +27,11 @@ sealed interface AppNavKey : NavKey {
     ) : AppNavKey
 
     @Serializable
-    object Scratchpad : AppNavKey
+    data class Quiz(
+        val subtopic: Subtopic,
+        val segments: Map<String, SegmentResult>,
+        val angles: Map<String, AngleResult>
+    ) : AppNavKey
 
     @Serializable
     object Achievement : AppNavKey

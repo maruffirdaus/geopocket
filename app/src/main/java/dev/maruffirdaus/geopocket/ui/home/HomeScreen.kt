@@ -24,7 +24,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.Gear
-import com.adamglin.phosphoricons.regular.Trophy
 import dev.maruffirdaus.geopocket.R
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.Topic
@@ -61,18 +60,6 @@ fun HomeScreenContent(
             LargeFlexibleTopAppBar(
                 title = {
                     Text(stringResource(R.string.app_name))
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navHandler.push(AppNavKey.Scratchpad)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = PhosphorIcons.Regular.Trophy,
-                            contentDescription = "Pencapaian"
-                        )
-                    }
                 },
                 actions = {
                     IconButton(

@@ -58,8 +58,6 @@ fun InstructionsAnimationCanvas(
     val density = LocalDensity.current
 
     val constraint = subtopic.constraint
-    val segmentConstraints = constraint.segments.values.sortedBy { it.id }
-    val angleConstraints = constraint.angles.values.sortedBy { it.id }
 
     val pointRadiusPx = with(density) { pointRadius.toPx() }
     val pointHaloPaddingPx = with(density) { pointHaloPadding.toPx() }
@@ -130,11 +128,12 @@ fun InstructionsAnimationCanvas(
     ) {
         if (canvasSize != size) canvasSize = size
 
-        completedSegments.forEachIndexed { segmentIndex, (fromPointIndex, toPointIndex) ->
+        completedSegments.forEach { (fromPointIndex, toPointIndex) ->
             val segmentStart = pointTargetPositions[fromPointIndex]
             val segmentEnd = pointTargetPositions[toPointIndex]
             val segmentMidpoint = segmentStart.midpoint(segmentEnd)
-            val segmentConstraint = segmentConstraints.getOrNull(segmentIndex)
+            val segmentId = "${'A' + fromPointIndex}${'A' + toPointIndex}"
+            val segmentConstraint = constraint.segments[segmentId]
             val lengthLabel = segmentConstraint?.formatString()
 
             drawLine(
@@ -156,10 +155,12 @@ fun InstructionsAnimationCanvas(
 
         if (completedSegments.size >= 2) {
             pointTargetPositions.forEachIndexed { pointIndex, pointPosition ->
-                completedSegments.firstOrNull { it.second == pointIndex } ?: return@forEachIndexed
-                completedSegments.firstOrNull { it.first == pointIndex } ?: return@forEachIndexed
-                val angleConstraint =
-                    angleConstraints.getOrNull(pointIndex - 1) ?: angleConstraints.lastOrNull()
+                val incomingSegment = completedSegments.firstOrNull { it.second == pointIndex }
+                    ?: return@forEachIndexed
+                val outgoingSegment = completedSegments.firstOrNull { it.first == pointIndex }
+                    ?: return@forEachIndexed
+                val angleId = "${'A' + incomingSegment.first}${'A' + pointIndex}${'A' + outgoingSegment.second}"
+                val angleConstraint = constraint.angles[angleId]
                 val angleLabel = angleConstraint?.formatString()
 
                 angleLabel?.let {
@@ -189,7 +190,8 @@ fun InstructionsAnimationCanvas(
 
             if (segmentDrawProgress.value > LABEL_VISIBLE_THRESHOLD) {
                 val animatingSegmentMidpoint = segmentStart.midpoint(currentSegmentEnd)
-                val segmentConstraint = segmentConstraints.getOrNull(completedSegments.size)
+                val segmentId = "${'A' + animatingFromIndex}${'A' + animatingToIndex}"
+                val segmentConstraint = constraint.segments[segmentId]
                 val lengthLabel = segmentConstraint?.formatString()
 
                 lengthLabel?.let {
