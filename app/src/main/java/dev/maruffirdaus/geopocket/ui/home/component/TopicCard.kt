@@ -29,6 +29,7 @@ import dev.maruffirdaus.geopocket.ui.common.model.TopicStatus
 import dev.maruffirdaus.geopocket.ui.home.extension.toIcon
 import dev.maruffirdaus.geopocket.ui.home.extension.toIconContainerShape
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import dev.maruffirdaus.geopocket.ui.theme.LocalExtendedColors
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -39,6 +40,14 @@ fun TopicCard(
     modifier: Modifier = Modifier,
     progress: Float = 0f
 ) {
+    val extendedColors = LocalExtendedColors.current
+    val colorRoles = when (topic) {
+        Topic.LINE -> extendedColors.line
+        Topic.ANGLE -> extendedColors.angle
+        Topic.TRIANGLE -> extendedColors.triangle
+        Topic.QUADRILATERAL -> extendedColors.quadrilateral
+    }
+
     Card(
         onClick = onClick,
         modifier = modifier,
@@ -57,7 +66,7 @@ fun TopicCard(
                         .size(64.dp)
                         .clip(topic.toIconContainerShape())
                         .background(
-                            color = MaterialTheme.colorScheme.primary.copy(
+                            color = colorRoles.color.copy(
                                 alpha = if (!unlocked) 0.38f else 1f
                             )
                         ),
@@ -67,7 +76,7 @@ fun TopicCard(
                         imageVector = topic.toIcon(),
                         contentDescription = topic.title,
                         modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary.copy(
+                        tint = colorRoles.onColor.copy(
                             alpha = if (!unlocked) 0.38f else 1f
                         )
                     )
