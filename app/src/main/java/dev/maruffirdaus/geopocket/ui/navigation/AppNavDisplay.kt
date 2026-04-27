@@ -10,6 +10,7 @@ import dev.maruffirdaus.geopocket.domain.topic.Topic
 import dev.maruffirdaus.geopocket.ui.ar.ARScreen
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 import dev.maruffirdaus.geopocket.ui.instructions.InstructionsScreen
+import dev.maruffirdaus.geopocket.ui.licenses.LicensesScreen
 import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavDisplay
 import dev.maruffirdaus.geopocket.ui.settings.SettingsScreen
 import dev.maruffirdaus.geopocket.ui.topic.TopicScreen
@@ -61,6 +62,9 @@ fun AppNavDisplay(
             }
             entry<AppNavKey.Settings> {
                 SettingsScreen()
+            }
+            entry<AppNavKey.Licenses> {
+                LicensesScreen()
             }
         }
     )

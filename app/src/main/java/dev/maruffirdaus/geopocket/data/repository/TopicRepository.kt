@@ -9,4 +9,5 @@ class TopicRepository(
     private val subtopicProgressDao: SubtopicProgressDao
 ) {
     suspend fun getSubtopicProgresses(): List<SubtopicProgress> = subtopicProgressDao.getAll()
+    suspend fun deleteSubtopicProgresses() = subtopicProgressDao.deleteAll()
 }

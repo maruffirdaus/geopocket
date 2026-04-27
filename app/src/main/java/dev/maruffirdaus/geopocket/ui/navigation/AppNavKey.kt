@@ -35,4 +35,7 @@ sealed interface AppNavKey : NavKey {
 
     @Serializable
     object Settings : AppNavKey
+
+    @Serializable
+    object Licenses : AppNavKey
 }
