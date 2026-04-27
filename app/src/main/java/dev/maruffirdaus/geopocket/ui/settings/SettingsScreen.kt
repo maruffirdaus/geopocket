@@ -107,7 +107,10 @@ fun SettingsScreenContent(
                     onDismissRequest = { isResetProgressDialogOpen = false },
                     confirmButton = {
                         TextButton(
-                            onClick = { onEvent(SettingsEvent.OnResetProgress) }
+                            onClick = {
+                                onEvent(SettingsEvent.OnResetProgress)
+                                isResetProgressDialogOpen = false
+                            }
                         ) {
                             Text("Konfirmasi")
                         }

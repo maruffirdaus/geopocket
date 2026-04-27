@@ -85,7 +85,7 @@ fun TopicScreenContent(
 
                 SubtopicCard(
                     subtopic = item,
-                    unlocked = true /*item.order == 0 || item.id in unlockedSubtopicIds*/,
+                    unlocked = item.order == 0 || item.id in unlockedSubtopicIds,
                     onClick = {
                         navHandler.push(AppNavKey.Instructions(item.name))
                     },
