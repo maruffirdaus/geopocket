@@ -15,6 +15,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Checkout Composite Build Dependency
+        uses: actions/checkout@v4
+        with:
+          repository: maruffirdaus/sceneview
+          path: ../sceneview
+
       - name: Set Up JDK 17
         uses: actions/setup-java@v4
         with:
