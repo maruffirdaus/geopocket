@@ -8,6 +8,12 @@ import org.koin.core.annotation.Singleton
 class TopicRepository(
     private val subtopicProgressDao: SubtopicProgressDao
 ) {
+    suspend fun save(subtopicProgress: SubtopicProgress) =
+        subtopicProgressDao.upsert(subtopicProgress)
+
     suspend fun getSubtopicProgresses(): List<SubtopicProgress> = subtopicProgressDao.getAll()
+    suspend fun getSubtopicProgress(id: String): SubtopicProgress? =
+        subtopicProgressDao.getById(id)
+
     suspend fun deleteSubtopicProgresses() = subtopicProgressDao.deleteAll()
 }

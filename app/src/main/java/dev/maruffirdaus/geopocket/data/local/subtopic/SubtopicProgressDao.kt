@@ -12,6 +12,9 @@ interface SubtopicProgressDao {
     @Query("SELECT * FROM subtopicprogress")
     suspend fun getAll(): List<SubtopicProgress>
 
+    @Query("SELECT * FROM subtopicprogress WHERE id = :id")
+    suspend fun getById(id: String): SubtopicProgress?
+
     @Query("DELETE FROM subtopicprogress")
     suspend fun deleteAll()
 }

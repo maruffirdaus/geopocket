@@ -20,7 +20,7 @@ class HomeViewModel(
         .onStart { refreshSubtopicProgresses() }
         .stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5000L),
+            SharingStarted.WhileSubscribed(1000L),
             HomeUiState()
         )
 

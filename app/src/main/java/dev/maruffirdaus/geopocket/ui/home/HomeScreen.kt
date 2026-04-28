@@ -85,6 +85,7 @@ fun HomeScreenContent(
             items(Topic.entries.sortedBy { it.order }) { item ->
                 val subtopicIds = Subtopic.entries.filter { it.topic == item }.map { it.id }.toSet()
                 val unlockedSubtopics = uiState.subtopicProgresses.filter { it.id in subtopicIds }
+                val completedSubtopic = unlockedSubtopics.filter { it.isCompleted }
 
                 TopicCard(
                     topic = item,
@@ -94,7 +95,7 @@ fun HomeScreenContent(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     progress = if (unlockedSubtopics.isEmpty()) 0f else {
-                        unlockedSubtopics.size.toFloat() / subtopicIds.size.toFloat()
+                        completedSubtopic.size.toFloat() / subtopicIds.size.toFloat()
                     }
                 )
             }

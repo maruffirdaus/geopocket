@@ -6,5 +6,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class SubtopicProgress(
     @PrimaryKey val id: String,
-    val highestScore: Int = 0
+    val highestScore: Int = 0,
+    val isCompleted: Boolean = false
 )

@@ -3,7 +3,6 @@ package dev.maruffirdaus.geopocket.ui.ar.component
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLocale
 import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
 import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.SceneScope
@@ -15,8 +14,6 @@ fun SceneScope.SegmentNode(
     state: SegmentNodeState,
     windowManager: ViewNode.WindowManager
 ) {
-    val locale = LocalLocale.current.platformLocale
-
     val localUp = state.quaternion * Float3(0f, 0f, 1f)
 
     val blackMaterial = remember(materialLoader) {
@@ -38,6 +35,7 @@ fun SceneScope.SegmentNode(
         position = state.worldPosition + localUp * cubeHeight,
         rotation = state.quaternion.toRotation()
     ) {
-        Label("${String.format(locale, "%.0f", state.length * 100)} cm")
+        val convertedLength = (state.length * 100).toInt()
+        Label("$convertedLength cm")
     }
 }

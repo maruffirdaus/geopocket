@@ -3,6 +3,10 @@ package dev.maruffirdaus.geopocket.domain.topic
 import dev.maruffirdaus.geopocket.domain.topic.constraint.AngleConstraint
 import dev.maruffirdaus.geopocket.domain.topic.constraint.Constraint
 import dev.maruffirdaus.geopocket.domain.topic.constraint.SegmentConstraint
+import dev.maruffirdaus.geopocket.domain.topic.question.Question
+import dev.maruffirdaus.geopocket.domain.topic.question.QuestionOption
+import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
+import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
 
 enum class Subtopic(
     val id: String,
@@ -10,7 +14,8 @@ enum class Subtopic(
     val order: Int,
     val title: String,
     val description: String,
-    val constraint: Constraint
+    val constraint: Constraint,
+    private val questions: List<Question>
 ) {
     LINE_SEGMENT(
         id = "line_segment",
@@ -21,7 +26,8 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 2,
             segments = mapOf("AB" to SegmentConstraint("AB", 0.4f, 0.4f))
-        )
+        ),
+        questions = listOf()
     ),
 
     ANGLE_ACUTE(
@@ -33,7 +39,8 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 3,
             angles = mapOf("ABC" to AngleConstraint("ABC", 1f, 89f))
-        )
+        ),
+        questions = listOf()
     ),
     ANGLE_RIGHT(
         id = "angle_right",
@@ -44,7 +51,8 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 3,
             angles = mapOf("ABC" to AngleConstraint("ABC", 90f, 90f)),
-        )
+        ),
+        questions = listOf()
     ),
     ANGLE_OBTUSE(
         id = "angle_obtuse",
@@ -55,7 +63,8 @@ enum class Subtopic(
         constraint = Constraint(
             pointCount = 3,
             angles = mapOf("ABC" to AngleConstraint("ABC", 91f, 179f))
-        )
+        ),
+        questions = listOf()
     ),
 
     TRIANGLE_EQUILATERAL(
@@ -79,7 +88,8 @@ enum class Subtopic(
                     put(id, AngleConstraint(id, 60f, 60f))
                 }
             }
-        )
+        ),
+        questions = listOf()
     ),
     TRIANGLE_ISOSCELES(
         id = "triangle_isosceles",
@@ -95,7 +105,8 @@ enum class Subtopic(
                 "BCA" to AngleConstraint("BCA", 70f, 70f),
                 "CAB" to AngleConstraint("CAB", 40f, 40f)
             )
-        )
+        ),
+        questions = listOf()
     ),
     TRIANGLE_SCALENE(
         id = "triangle_scalene",
@@ -111,7 +122,8 @@ enum class Subtopic(
                 "BCA" to AngleConstraint("BCA", 60f, 60f),
                 "CAB" to AngleConstraint("CAB", 80f, 80f)
             )
-        )
+        ),
+        questions = listOf()
     ),
 
     QUADRILATERAL_SQUARE(
@@ -145,7 +157,8 @@ enum class Subtopic(
                     put(id, AngleConstraint(id, 90f, 90f))
                 }
             }
-        )
+        ),
+        questions = listOf()
     ),
     QUADRILATERAL_RECTANGLE(
         id = "quadrilateral_rectangle",
@@ -182,7 +195,8 @@ enum class Subtopic(
                     put(id, AngleConstraint(id, 90f, 90f))
                 }
             }
-        )
+        ),
+        questions = listOf()
     );
 
     fun steps(): List<String> {
@@ -226,4 +240,117 @@ enum class Subtopic(
 
         return steps
     }
+
+    fun questions(segments: List<SegmentResult>, angles: List<AngleResult>): List<Question> =
+        (questions + generateQuestions(segments, angles))
+
+    private fun generateQuestions(
+        segments: List<SegmentResult>,
+        angles: List<AngleResult>
+    ): List<Question> = buildList {
+        if (topic != Topic.ANGLE) add(generatePointCountQuestion())
+        segments.randomOrNull()?.let { add(generateSegmentQuestion(it, segments)) }
+        angles.randomOrNull()?.let { add(generateAngleQuestion(it, angles)) }
+        if (constraint.closedShape) add(generatePerimeterQuestion(segments))
+        if (this@Subtopic == QUADRILATERAL_RECTANGLE || this@Subtopic == QUADRILATERAL_SQUARE) {
+            add(generateAreaQuestion(segments))
+        }
+    }.shuffled()
+
+    private fun generatePointCountQuestion(): Question {
+        val pointCount = constraint.pointCount
+        val correctOption = QuestionOption(id = "correct", text = "$pointCount titik")
+        val wrongOptions = listOf(pointCount - 1, pointCount + 1, pointCount + 2)
+            .map { it.coerceAtLeast(1) }
+            .mapIndexed { index, count ->
+                QuestionOption(id = "wrong_$index", text = "$count titik")
+            }
+        return Question(
+            text = "Berapa jumlah titik pada $title?",
+            options = (wrongOptions + correctOption).shuffled(),
+            correctOptionId = correctOption.id
+        )
+    }
+
+    private fun generateSegmentQuestion(
+        target: SegmentResult,
+        allSegments: List<SegmentResult>
+    ): Question {
+        val targetLength = (target.length * 100).toInt()
+        val correctOption = QuestionOption(id = "correct", text = "$targetLength cm")
+        val wrongOptions =
+            generateWrongLengthOptions(targetLength, allSegments.map { (it.length * 100).toInt() })
+        return Question(
+            text = "Berapa panjang garis ${target.id}?",
+            options = (wrongOptions + correctOption).shuffled(),
+            correctOptionId = correctOption.id
+        )
+    }
+
+    private fun generateAngleQuestion(
+        target: AngleResult,
+        allAngles: List<AngleResult>
+    ): Question {
+        val targetDegree = target.degree.toInt()
+        val correctOption = QuestionOption(id = "correct", text = "${targetDegree}°")
+        val wrongOptions =
+            generateWrongDegreeOptions(targetDegree, allAngles.map { it.degree.toInt() })
+        return Question(
+            text = "Berapa besar sudut ${target.id}?",
+            options = (wrongOptions + correctOption).shuffled(),
+            correctOptionId = correctOption.id
+        )
+    }
+
+    private fun generatePerimeterQuestion(segments: List<SegmentResult>): Question {
+        val perimeter = segments.sumOf { (it.length * 100).toInt() }
+        val correctOption = QuestionOption(id = "correct", text = "$perimeter cm")
+        val wrongOptions = generateWrongLengthOptions(perimeter, listOf(perimeter))
+        return Question(
+            text = "Berapa keliling $title yang kamu buat?",
+            options = (wrongOptions + correctOption).shuffled(),
+            correctOptionId = correctOption.id
+        )
+    }
+
+    private fun generateAreaQuestion(segments: List<SegmentResult>): Question {
+        val sideA = segments.getOrNull(0)?.length ?: 0f
+        val sideB = segments.getOrNull(1)?.length ?: 0f
+        val area = (sideA * sideB * 10000).toInt()
+        val correctOption = QuestionOption(id = "correct", text = "$area cm²")
+        val wrongOptions = generateWrongLengthOptions(area, listOf(area)).map {
+            it.copy(text = it.text + "²")
+        }
+        return Question(
+            text = "Berapa luas $title yang kamu buat?",
+            options = (wrongOptions + correctOption).shuffled(),
+            correctOptionId = correctOption.id
+        )
+    }
+
+    private fun generateWrongLengthOptions(
+        correct: Int,
+        existingLengths: List<Int>
+    ): List<QuestionOption> = listOf(5, 10, 15)
+        .map { offset ->
+            val wrongLength = correct + if (offset % 10 == 0) offset else -offset
+            if (wrongLength in existingLengths) correct + offset * 2 else wrongLength
+        }
+        .map { it.coerceAtLeast(1) }
+        .mapIndexed { index, length ->
+            QuestionOption(id = "wrong_$index", text = "$length cm")
+        }
+
+    private fun generateWrongDegreeOptions(
+        correct: Int,
+        existingDegrees: List<Int>
+    ): List<QuestionOption> = listOf(10, 20, 30)
+        .map { offset ->
+            val wrongDegree = correct + if (offset == 10) offset else -offset
+            if (wrongDegree in existingDegrees) correct + offset * 2 else wrongDegree
+        }
+        .map { it.coerceIn(1, 179) }
+        .mapIndexed { index, degree ->
+            QuestionOption(id = "wrong_$index", text = "$degree°")
+        }
 }

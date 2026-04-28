@@ -23,7 +23,7 @@ class TopicViewModel(
         .onStart { refreshSubtopicProgresses() }
         .stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5000L),
+            SharingStarted.WhileSubscribed(1000L),
             TopicUiState(topic = topic)
         )
 

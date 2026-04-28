@@ -48,8 +48,8 @@ import dev.maruffirdaus.geopocket.ui.ar.component.AppARSceneView
 import dev.maruffirdaus.geopocket.ui.ar.component.InstructionsCard
 import dev.maruffirdaus.geopocket.ui.ar.extension.capture
 import dev.maruffirdaus.geopocket.ui.ar.extension.saveToCache
-import dev.maruffirdaus.geopocket.ui.common.model.AngleResult
-import dev.maruffirdaus.geopocket.ui.common.model.SegmentResult
+import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
+import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme

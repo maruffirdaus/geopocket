@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.common.model
+package dev.maruffirdaus.geopocket.domain.topic.result
 
 import kotlinx.serialization.Serializable
 

@@ -6,8 +6,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.ui.common.model.AngleResult
-import dev.maruffirdaus.geopocket.ui.common.model.SegmentResult
+import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
+import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.quiz.questions.QuestionsScreen
 import dev.maruffirdaus.geopocket.ui.quiz.questions.QuestionsViewModel

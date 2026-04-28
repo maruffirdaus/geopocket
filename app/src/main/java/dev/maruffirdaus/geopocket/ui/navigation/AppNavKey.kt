@@ -2,8 +2,8 @@ package dev.maruffirdaus.geopocket.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.ui.common.model.AngleResult
-import dev.maruffirdaus.geopocket.ui.common.model.SegmentResult
+import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
+import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
 import kotlinx.serialization.Serializable
 
 @Serializable
