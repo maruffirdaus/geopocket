@@ -40,6 +40,8 @@ class ARViewModel(
             is AREvent.OnPointMoved -> onPointMoved(event.id, event.pose)
             AREvent.OnClearPoints -> onClearPoints()
             is AREvent.OnCompletionImageCaptured -> onCompletionImageCaptured(event.path)
+            AREvent.OnComposableReady -> onComposableReady()
+            AREvent.OnComposableDisposed -> onComposableDisposed()
         }
     }
 
@@ -147,6 +149,10 @@ class ARViewModel(
 
     private fun onAddPoint() {
         if (uiState.value.points.size >= subtopic.constraint.pointCount) return
+
+        _uiState.update {
+            it.copy(composableReady = false)
+        }
 
         val pose = currentPose ?: return
 
@@ -393,6 +399,18 @@ class ARViewModel(
     private fun onCompletionImageCaptured(path: String) {
         _uiState.update {
             it.copy(completionImage = path)
+        }
+    }
+
+    private fun onComposableReady() {
+        _uiState.update {
+            it.copy(composableReady = true)
+        }
+    }
+
+    private fun onComposableDisposed() {
+        _uiState.update {
+            it.copy(composableReady = false)
         }
     }
 }

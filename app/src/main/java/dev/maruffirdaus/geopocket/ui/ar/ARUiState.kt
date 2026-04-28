@@ -17,5 +17,6 @@ data class ARUiState(
     val segments: Map<String, SegmentNodeState> = mapOf(),
     val angles: Map<String, AngleNodeState> = mapOf(),
     val completed: Boolean = false,
-    val completionImage: String? = null
+    val completionImage: String? = null,
+    val composableReady: Boolean = false
 )

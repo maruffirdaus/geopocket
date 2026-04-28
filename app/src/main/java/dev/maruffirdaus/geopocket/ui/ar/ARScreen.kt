@@ -28,7 +28,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
@@ -89,6 +91,16 @@ fun ARScreen(
         }
     }
 
+    SideEffect {
+        viewModel.onEvent(AREvent.OnComposableReady)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.onEvent(AREvent.OnComposableDisposed)
+        }
+    }
+
     ARScreenContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
@@ -106,7 +118,8 @@ fun ARScreen(
             },
             onPointMoved = { id, pose ->
                 viewModel.onEvent(AREvent.OnPointMoved(id, pose))
-            }
+            },
+            composableReady = uiState.composableReady
         )
     }
 }
