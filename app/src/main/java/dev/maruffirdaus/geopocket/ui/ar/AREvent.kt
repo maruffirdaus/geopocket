@@ -11,6 +11,4 @@ sealed interface AREvent {
     data class OnPointMoved(val id: String, val pose: Pose) : AREvent
     object OnClearPoints : AREvent
     data class OnCompletionImageCaptured(val path: String) : AREvent
-    object OnComposableReady : AREvent
-    object OnComposableDisposed : AREvent
 }

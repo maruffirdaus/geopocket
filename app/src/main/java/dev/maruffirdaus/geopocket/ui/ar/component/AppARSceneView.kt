@@ -29,7 +29,7 @@ import io.github.sceneview.math.Position
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberViewNodeManager
 
-private val HIT_TEST_INTERVAL_MS = if (BuildConfig.DEBUG) 100L else 0L
+private val HIT_TEST_INTERVAL_MS = if (BuildConfig.DEBUG) 100L else 33L
 
 @Composable
 fun AppARSceneView(
@@ -40,8 +40,7 @@ fun AppARSceneView(
     segments: Map<String, SegmentNodeState>,
     angles: Map<String, AngleNodeState>,
     onUpdateReticle: (Pose, Position) -> Unit,
-    onPointMoved: (String, Pose) -> Unit,
-    composableReady: Boolean
+    onPointMoved: (String, Pose) -> Unit
 ) {
     var width by remember { mutableIntStateOf(0) }
     var height by remember { mutableIntStateOf(0) }
@@ -91,8 +90,6 @@ fun AppARSceneView(
         cameraNode = cameraNode,
         viewNodeWindowManager = windowManager,
         onSessionUpdated = { session, frame ->
-            if (!composableReady) return@ARSceneView
-
             val currentTimeMs = System.currentTimeMillis()
 
             if (currentTimeMs - lastHitTestMs >= HIT_TEST_INTERVAL_MS) {
