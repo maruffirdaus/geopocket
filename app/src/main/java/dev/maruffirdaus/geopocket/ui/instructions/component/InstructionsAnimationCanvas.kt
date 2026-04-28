@@ -19,11 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.constraint.AngleConstraint
@@ -42,28 +39,23 @@ private const val LABEL_VISIBLE_THRESHOLD = 0.4f
 @Composable
 fun InstructionsAnimationCanvas(
     subtopic: Subtopic,
-    modifier: Modifier = Modifier,
-    pointColor: Color = MaterialTheme.colorScheme.primary,
-    pointLabelColor: Color = MaterialTheme.colorScheme.onPrimary,
-    segmentColor: Color = MaterialTheme.colorScheme.primary,
-    labelColor: Color = MaterialTheme.colorScheme.onSurface,
-    pointRadius: Dp = 16.dp,
-    pointHaloPadding: Dp = 8.dp,
-    pointLabelTextSize: TextUnit = MaterialTheme.typography.titleMedium.fontSize,
-    labelTextSize: TextUnit = MaterialTheme.typography.labelLarge.fontSize,
-    labelOffsetAbove: Dp = 8.dp,
-    segmentStrokeWidth: Dp = 3.dp
+    modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
 
     val constraint = subtopic.constraint
 
-    val pointRadiusPx = with(density) { pointRadius.toPx() }
-    val pointHaloPaddingPx = with(density) { pointHaloPadding.toPx() }
-    val pointLabelTextSizePx = with(density) { pointLabelTextSize.toPx() }
-    val labelTextSizePx = with(density) { labelTextSize.toPx() }
-    val labelOffsetAbovePx = with(density) { labelOffsetAbove.toPx() }
-    val segmentStrokeWidthPx = with(density) { segmentStrokeWidth.toPx() }
+    val pointColor = MaterialTheme.colorScheme.primary
+    val pointLabelColor = MaterialTheme.colorScheme.onPrimary
+    val segmentColor = MaterialTheme.colorScheme.primary
+    val labelColor = MaterialTheme.colorScheme.onSurface
+
+    val pointRadiusPx = with(density) { 16.dp.toPx() }
+    val pointHaloPaddingPx = with(density) { 8.dp.toPx() }
+    val pointLabelTextSizePx = with(density) { MaterialTheme.typography.titleMedium.fontSize.toPx() }
+    val labelTextSizePx = with(density) { MaterialTheme.typography.labelLarge.fontSize.toPx() }
+    val labelOffsetAbovePx = with(density) { 8.dp.toPx() }
+    val segmentStrokeWidthPx = with(density) { 3.dp.toPx() }
 
     var canvasSize by remember { mutableStateOf(Size(400f, 400f)) }
     val pointTargetPositions by remember(canvasSize) {

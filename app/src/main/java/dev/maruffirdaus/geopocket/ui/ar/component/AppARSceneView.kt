@@ -12,8 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
-import com.google.android.filament.ColorGrading
-import com.google.android.filament.ToneMapper
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Pose
@@ -29,16 +27,15 @@ import io.github.sceneview.ar.arcore.isValid
 import io.github.sceneview.ar.rememberARCameraNode
 import io.github.sceneview.math.Position
 import io.github.sceneview.rememberEngine
-import io.github.sceneview.rememberMaterialLoader
-import io.github.sceneview.rememberView
 import io.github.sceneview.rememberViewNodeManager
 
-private val HIT_TEST_INTERVAL_MS = if (BuildConfig.DEBUG) 100L else 0L
+private val HIT_TEST_INTERVAL_MS = if (BuildConfig.DEBUG) 100L else 50L
 
 @Composable
 fun AppARSceneView(
     reticle: ReticleNodeState?,
     preview: PreviewState?,
+    planeRenderer: Boolean,
     points: Map<String, PointNodeState>,
     segments: Map<String, SegmentNodeState>,
     angles: Map<String, AngleNodeState>,
@@ -49,16 +46,6 @@ fun AppARSceneView(
     var height by remember { mutableIntStateOf(0) }
 
     val engine = rememberEngine()
-    val materialLoader = rememberMaterialLoader(engine)
-
-    val colorGrading = remember(engine) {
-        ColorGrading.Builder()
-            .toneMapper(ToneMapper.Linear())
-            .build(engine)
-    }
-    val view = rememberView(engine).apply {
-        this.colorGrading = colorGrading
-    }
 
     val cameraNode = rememberARCameraNode(engine)
     val windowManager = rememberViewNodeManager()
@@ -89,7 +76,6 @@ fun AppARSceneView(
         },
         surfaceType = SurfaceType.TextureSurface,
         engine = engine,
-        materialLoader = materialLoader,
         sessionConfiguration = { session, config ->
             config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
             config.depthMode =
@@ -100,8 +86,7 @@ fun AppARSceneView(
             config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
             config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
         },
-        planeRenderer = false,
-        view = view,
+        planeRenderer = planeRenderer,
         cameraNode = cameraNode,
         viewNodeWindowManager = windowManager,
         onSessionUpdated = { session, frame ->

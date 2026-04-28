@@ -1,6 +1,7 @@
 package dev.maruffirdaus.geopocket.ui.ar
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +35,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,15 +43,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
-import com.adamglin.phosphoricons.regular.LineSegment
+import com.adamglin.phosphoricons.regular.DotsNine
+import com.adamglin.phosphoricons.regular.Eye
 import com.adamglin.phosphoricons.regular.Plus
 import com.adamglin.phosphoricons.regular.Trash
+import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
+import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
 import dev.maruffirdaus.geopocket.ui.ar.component.AppARSceneView
 import dev.maruffirdaus.geopocket.ui.ar.component.InstructionsCard
 import dev.maruffirdaus.geopocket.ui.ar.extension.capture
 import dev.maruffirdaus.geopocket.ui.ar.extension.saveToCache
-import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
-import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
@@ -94,6 +97,7 @@ fun ARScreen(
         AppARSceneView(
             reticle = uiState.reticle,
             preview = uiState.preview,
+            planeRenderer = uiState.planeRendererEnabled,
             points = uiState.points,
             segments = uiState.segments,
             angles = uiState.angles,
@@ -159,8 +163,23 @@ fun ARScreenContent(
                         }
                     ) {
                         Icon(
-                            imageVector = PhosphorIcons.Regular.LineSegment,
+                            imageVector = PhosphorIcons.Regular.Eye,
                             contentDescription = "Enable preview"
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            onEvent(AREvent.OnEnablePlaneRenderer)
+                        },
+                        colors = if (uiState.planeRendererEnabled) {
+                            IconButtonDefaults.filledTonalIconButtonColors()
+                        } else {
+                            IconButtonDefaults.iconButtonColors()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.DotsNine,
+                            contentDescription = "Enable plane renderer"
                         )
                     }
                     IconButton(
@@ -232,6 +251,23 @@ fun ARScreenContent(
         }
         arContent()
         if (uiState.completed) return@Scaffold
+        if (uiState.reticle == null && uiState.points.size < uiState.subtopic.constraint.pointCount)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Memindai lingkungan",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White.copy(alpha = 0.9f)
+                )
+                Text(
+                    text = "Arahkan kamera ke permukaan datar",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.5f)
+                )
+            }
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {

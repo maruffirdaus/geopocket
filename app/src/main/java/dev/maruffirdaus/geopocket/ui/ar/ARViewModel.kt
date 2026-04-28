@@ -35,6 +35,7 @@ class ARViewModel(
         when (event) {
             is AREvent.OnUpdateReticle -> onUpdateReticle(event.pose, event.camPos)
             AREvent.OnEnablePreview -> onEnablePreview()
+            AREvent.OnEnablePlaneRenderer -> onEnablePlaneRenderer()
             AREvent.OnAddPoint -> onAddPoint()
             is AREvent.OnPointMoved -> onPointMoved(event.id, event.pose)
             AREvent.OnClearPoints -> onClearPoints()
@@ -135,6 +136,12 @@ class ARViewModel(
                 previewEnabled = !it.previewEnabled,
                 preview = null
             )
+        }
+    }
+
+    private fun onEnablePlaneRenderer() {
+        _uiState.update {
+            it.copy(planeRendererEnabled = !it.planeRendererEnabled)
         }
     }
 
