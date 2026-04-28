@@ -17,6 +17,7 @@ import com.google.android.filament.ToneMapper
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Pose
+import dev.maruffirdaus.geopocket.BuildConfig
 import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
@@ -32,7 +33,7 @@ import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.rememberView
 import io.github.sceneview.rememberViewNodeManager
 
-private const val HIT_TEST_INTERVAL_MS = 100L
+private val HIT_TEST_INTERVAL_MS = if (BuildConfig.DEBUG) 100L else 0L
 
 @Composable
 fun AppARSceneView(
