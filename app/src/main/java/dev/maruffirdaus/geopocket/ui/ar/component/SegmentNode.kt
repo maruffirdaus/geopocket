@@ -9,10 +9,14 @@ import io.github.sceneview.SceneScope
 import io.github.sceneview.math.toRotation
 import io.github.sceneview.node.ViewNode
 
+/**
+ * WARNING: Contains ViewNode. Keep alive and toggle [visible] instead of conditional composition.
+ */
 @Composable
 fun SceneScope.SegmentNode(
     state: SegmentNodeState,
-    windowManager: ViewNode.WindowManager
+    windowManager: ViewNode.WindowManager,
+    visible: Boolean
 ) {
     val localUp = state.quaternion * Float3(0f, 0f, 1f)
 
@@ -23,17 +27,19 @@ fun SceneScope.SegmentNode(
     val cubeWidth = 0.0025f
     val cubeHeight = 0.0001f
 
-    CubeNode(
-        size = Float3(1f, cubeWidth, cubeHeight),
-        materialInstance = blackMaterial,
-        position = state.worldPosition,
-        rotation = state.quaternion.toRotation(),
-        scale = state.scale
-    )
+    if (visible)
+        CubeNode(
+            size = Float3(1f, cubeWidth, cubeHeight),
+            materialInstance = blackMaterial,
+            position = state.worldPosition,
+            rotation = state.quaternion.toRotation(),
+            scale = state.scale
+        )
     ViewNodeWrapper(
         windowManager = windowManager,
         position = state.worldPosition + localUp * cubeHeight,
-        rotation = state.quaternion.toRotation()
+        rotation = state.quaternion.toRotation(),
+        visible = visible
     ) {
         val convertedLength = (state.length * 100).toInt()
         Label("$convertedLength cm")

@@ -60,7 +60,8 @@ class ARViewModel(
                     angle = buildAnglePreview(),
                     closingSegment = buildClosingSegmentPreview(),
                     closingAngle = buildClosingAnglePreview()
-                ) else null
+                ) else null,
+                environmentScanned = true
             )
         }
     }

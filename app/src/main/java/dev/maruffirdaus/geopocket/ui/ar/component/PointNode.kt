@@ -44,7 +44,8 @@ fun ARSceneScope.PointNode(
         ViewNodeWrapper(
             windowManager = windowManager,
             rotation = rotation.toRotation(),
-            collisionShape = Sphere(0.1f)
+            collisionShape = Sphere(0.1f),
+            visible = true
         ) {
             PointNodeContent(state.id)
         }

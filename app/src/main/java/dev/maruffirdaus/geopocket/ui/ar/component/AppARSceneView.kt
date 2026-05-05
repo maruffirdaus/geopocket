@@ -39,6 +39,8 @@ fun AppARSceneView(
     points: Map<String, PointNodeState>,
     segments: Map<String, SegmentNodeState>,
     angles: Map<String, AngleNodeState>,
+    maxPoints: Int,
+    closedShape: Boolean,
     onUpdateReticle: (Pose, Position) -> Unit,
     onPointMoved: (String, Pose) -> Unit
 ) {
@@ -128,46 +130,31 @@ fun AppARSceneView(
             }
         }
     ) {
-        reticle?.let {
-            key("reticle") {
-                ReticleNode(
-                    state = it,
-                    windowManager = windowManager
-                )
-            }
-        }
-        preview?.segment?.let {
-            key("segmentPreview") {
-                SegmentNode(
-                    state = it,
-                    windowManager = windowManager
-                )
-            }
-        }
-        preview?.closingSegment?.let {
-            key("closingSegmentPreview") {
-                SegmentNode(
-                    state = it,
-                    windowManager = windowManager
-                )
-            }
-        }
-        preview?.angle?.let {
-            key("anglePreview") {
-                AngleNode(
-                    state = it,
-                    windowManager = windowManager
-                )
-            }
-        }
-        preview?.closingAngle?.let {
-            key("closingAnglePreview") {
-                AngleNode(
-                    state = it,
-                    windowManager = windowManager
-                )
-            }
-        }
+        ReticleNode(
+            state = reticle ?: ReticleNodeState(),
+            windowManager = windowManager,
+            visible = reticle != null
+        )
+        SegmentNode(
+            state = preview?.segment ?: SegmentNodeState("", ""),
+            windowManager = windowManager,
+            visible = preview?.segment != null
+        )
+        SegmentNode(
+            state = preview?.closingSegment ?: SegmentNodeState("", ""),
+            windowManager = windowManager,
+            visible = preview?.closingSegment != null
+        )
+        AngleNode(
+            state = preview?.angle ?: AngleNodeState(""),
+            windowManager = windowManager,
+            visible = preview?.angle != null
+        )
+        AngleNode(
+            state = preview?.closingAngle ?: AngleNodeState(""),
+            windowManager = windowManager,
+            visible = preview?.closingAngle != null
+        )
         anchors.forEach { (id, anchor) ->
             key(id) {
                 points[id]?.let { point ->
@@ -182,21 +169,21 @@ fun AppARSceneView(
                 }
             }
         }
-        segments.values.forEach { segment ->
-            key(segment.id) {
-                SegmentNode(
-                    state = segment,
-                    windowManager = windowManager
-                )
-            }
+        repeat(if (closedShape) maxPoints else maxPoints - 1) { index ->
+            val segment = segments.values.toList().getOrNull(index)
+            SegmentNode(
+                state = segment ?: SegmentNodeState("", ""),
+                windowManager = windowManager,
+                visible = segment != null
+            )
         }
-        angles.values.forEach { angle ->
-            key(angle.id) {
-                AngleNode(
-                    state = angle,
-                    windowManager = windowManager
-                )
-            }
+        repeat(if (closedShape) maxPoints else maxPoints - 2) { index ->
+            val angle = angles.values.toList().getOrNull(index)
+            AngleNode(
+                state = angle ?: AngleNodeState(""),
+                windowManager = windowManager,
+                visible = angle != null
+            )
         }
     }
 }

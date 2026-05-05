@@ -101,6 +101,8 @@ fun ARScreen(
             points = uiState.points,
             segments = uiState.segments,
             angles = uiState.angles,
+            maxPoints = uiState.subtopic.constraint.pointCount,
+            closedShape = uiState.subtopic.constraint.closedShape,
             onUpdateReticle = { pose, camPos ->
                 viewModel.onEvent(AREvent.OnUpdateReticle(pose, camPos))
             },
@@ -251,7 +253,7 @@ fun ARScreenContent(
         }
         arContent()
         if (uiState.completed) return@Scaffold
-        if (uiState.reticle == null && uiState.points.size < uiState.subtopic.constraint.pointCount)
+        if (!uiState.environmentScanned)
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),

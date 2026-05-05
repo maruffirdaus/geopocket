@@ -13,6 +13,7 @@ import io.github.sceneview.node.ViewNode
 @Composable
 fun SceneScope.ViewNodeWrapper(
     windowManager: ViewNode.WindowManager,
+    visible: Boolean,
     position: Position = Position(x = 0f),
     rotation: Rotation = Rotation(x = 0f),
     collisionShape: CollisionShape? = null,
@@ -24,6 +25,7 @@ fun SceneScope.ViewNodeWrapper(
         unlit = true,
         position = position,
         rotation = rotation,
+        isVisible = visible,
         apply = {
             pxPerUnits = 2000f
             this.collisionShape = collisionShape

@@ -24,7 +24,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.ArrowClockwise
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import com.adamglin.phosphoricons.regular.Info
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.settings.component.SettingsGroup
@@ -87,7 +89,8 @@ fun SettingsScreenContent(
                 description = "Semua progres akan dihapus dan tidak dapat dikembalikan",
                 onClick = {
                     isResetProgressDialogOpen = true
-                }
+                },
+                icon = PhosphorIcons.Regular.ArrowClockwise
             )
             val items = remember {
                 listOf(
@@ -97,7 +100,8 @@ fun SettingsScreenContent(
                         description = "Lihat lisensi pustaka pihak ketiga",
                         onClick = {
                             navHandler.push(AppNavKey.Licenses)
-                        }
+                        },
+                        icon = PhosphorIcons.Regular.Info
                     )
                 )
             }
