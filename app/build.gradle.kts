@@ -1,10 +1,7 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.aboutlibraries.android)
     alias(libs.plugins.android.application)
     alias(libs.plugins.koin.compiler)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -48,11 +45,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_21)
-        }
-    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -89,8 +81,8 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.compose.viewmodel.navigation)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.materialKolor)
-    implementation(libs.phosphorIcon)
+    implementation(libs.material.kolor)
+    implementation(libs.phosphor.icon)
     implementation(libs.telephoto)
     implementation(platform(libs.androidx.compose.bom))
     implementation(platform(libs.koin.bom))
