@@ -106,8 +106,11 @@ fun ARScreen(
             onUpdateReticle = { pose, camPos ->
                 viewModel.onEvent(AREvent.OnUpdateReticle(pose, camPos))
             },
-            onPointMoved = { id, pose ->
-                viewModel.onEvent(AREvent.OnPointMoved(id, pose))
+            onPointMoving = { id, pose ->
+                viewModel.onEvent(AREvent.OnPointMoving(id, pose))
+            },
+            onPointMoved = {
+                viewModel.onEvent(AREvent.OnPointMoved)
             }
         )
     }

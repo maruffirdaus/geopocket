@@ -31,14 +31,16 @@ fun ARSceneScope.PointNode(
     state: PointNodeState,
     anchor: Anchor,
     windowManager: ViewNode.WindowManager,
-    onPointMoved: (Pose) -> Unit
+    onPointMoving: (Pose) -> Unit,
+    onPointMoved: () -> Unit
 ) {
     val rotation = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
 
     AnchorNode(
         anchor = anchor,
+        onUpdated = { onPointMoved() },
         apply = {
-            onPoseChanged = onPointMoved
+            onPoseChanged = onPointMoving
         }
     ) {
         ViewNodeWrapper(

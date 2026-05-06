@@ -8,7 +8,8 @@ sealed interface AREvent {
     object OnEnablePreview : AREvent
     object OnEnablePlaneRenderer : AREvent
     object OnAddPoint : AREvent
-    data class OnPointMoved(val id: String, val pose: Pose) : AREvent
+    data class OnPointMoving(val id: String, val pose: Pose) : AREvent
+    object OnPointMoved : AREvent
     object OnClearPoints : AREvent
     data class OnCompletionImageCaptured(val path: String) : AREvent
 }

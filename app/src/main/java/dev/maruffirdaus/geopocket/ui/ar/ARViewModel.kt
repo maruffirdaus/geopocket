@@ -37,7 +37,8 @@ class ARViewModel(
             AREvent.OnEnablePreview -> onEnablePreview()
             AREvent.OnEnablePlaneRenderer -> onEnablePlaneRenderer()
             AREvent.OnAddPoint -> onAddPoint()
-            is AREvent.OnPointMoved -> onPointMoved(event.id, event.pose)
+            is AREvent.OnPointMoving -> onPointMoving(event.id, event.pose)
+            AREvent.OnPointMoved -> onPointMoved()
             AREvent.OnClearPoints -> onClearPoints()
             is AREvent.OnCompletionImageCaptured -> onCompletionImageCaptured(event.path)
         }
@@ -284,7 +285,7 @@ class ARViewModel(
         return angles
     }
 
-    private fun onPointMoved(id: String, pose: Pose) {
+    private fun onPointMoving(id: String, pose: Pose) {
         val point = uiState.value.points[id] ?: return
 
         val updatedPoints = uiState.value.points + (id to point.copy(worldPosition = pose.position))
@@ -296,7 +297,6 @@ class ARViewModel(
                 angles = it.angles + buildUpdatedAngles(id, updatedPoints)
             )
         }
-        updateCompletion()
     }
 
     private fun buildUpdatedSegments(id: String, pose: Pose): Map<String, SegmentNodeState> {
@@ -350,6 +350,10 @@ class ARViewModel(
         }
 
         return updatedAngles
+    }
+
+    private fun onPointMoved() {
+        updateCompletion()
     }
 
     private fun updateCompletion() {

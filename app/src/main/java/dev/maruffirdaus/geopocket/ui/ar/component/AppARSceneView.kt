@@ -42,7 +42,8 @@ fun AppARSceneView(
     maxPoints: Int,
     closedShape: Boolean,
     onUpdateReticle: (Pose, Position) -> Unit,
-    onPointMoved: (String, Pose) -> Unit
+    onPointMoving: (String, Pose) -> Unit,
+    onPointMoved: () -> Unit
 ) {
     var width by remember { mutableIntStateOf(0) }
     var height by remember { mutableIntStateOf(0) }
@@ -162,9 +163,8 @@ fun AppARSceneView(
                         state = point,
                         anchor = anchor,
                         windowManager = windowManager,
-                        onPointMoved = { pose ->
-                            onPointMoved(id, pose)
-                        }
+                        onPointMoving = { pose -> onPointMoving(id, pose) },
+                        onPointMoved = onPointMoved
                     )
                 }
             }
