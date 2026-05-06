@@ -37,8 +37,8 @@ fun ARSceneScope.PointNode(
 
     AnchorNode(
         anchor = anchor,
-        onUpdated = {
-            onPointMoved(it.pose)
+        apply = {
+            onPoseChanged = onPointMoved
         }
     ) {
         ViewNodeWrapper(
