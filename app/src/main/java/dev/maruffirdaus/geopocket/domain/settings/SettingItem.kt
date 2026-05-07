@@ -2,7 +2,7 @@ package dev.maruffirdaus.geopocket.domain.settings
 
 sealed class SettingItem(
     val title: String,
-    val description: String,
+    val description: String
 ) {
     sealed class Action(
         title: String,
@@ -16,14 +16,14 @@ sealed class SettingItem(
     ) : SettingItem(title, description)
 
     object MeasurementAssist : Switch(
-        title = "Bantuan pengukuran",
-        description = "Memudahkan pengukuran, namun tingkat akurasi dapat berkurang",
+        title = "Koreksi otomatis",
+        description = "Ukuran akan disesuaikan otomatis jika sudah mendekati nilai yang benar",
         default = true
     )
 
     object SmoothInteraction : Switch(
-        title = "Respons lebih halus",
-        description = "Mengutamakan kelancaran interaksi, namun meningkatkan beban sistem",
+        title = "Retikel halus",
+        description = "Membuat pergerakan retikel lebih mulus, namun dapat membebani perangkat",
         default = false
     )
 
@@ -50,6 +50,5 @@ sealed class SettingItem(
             Group.ABOUT to listOf(OpenSourceLicenses)
         )
         val entries = entriesByGroup.flatMap { it.value }
-        val saveableBoolean = entries.filterIsInstance<Switch>()
     }
 }

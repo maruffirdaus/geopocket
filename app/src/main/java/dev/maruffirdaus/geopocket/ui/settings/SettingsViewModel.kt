@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.maruffirdaus.geopocket.data.repository.SettingsRepository
 import dev.maruffirdaus.geopocket.data.repository.TopicRepository
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
+import dev.maruffirdaus.geopocket.domain.settings.SettingItem.Switch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,7 +37,7 @@ class SettingsViewModel(
         }
     }
 
-    private fun onSwitchChanged(item: SettingItem.Switch, checked: Boolean) {
+    private fun onSwitchChanged(item: Switch, checked: Boolean) {
         viewModelScope.launch {
             settingsRepository.saveBoolean(item, checked)
             _uiState.update {
@@ -52,9 +53,9 @@ class SettingsViewModel(
     }
 
     private fun refreshSettings() {
-        val checked = mutableMapOf<SettingItem.Switch, Boolean>()
+        val checked = mutableMapOf<Switch, Boolean>()
         runBlocking(Dispatchers.IO) {
-            SettingItem.saveableBoolean.forEach {
+            SettingItem.entries.filterIsInstance<Switch>().forEach {
                 checked[it] = settingsRepository.getBoolean(it)
             }
         }

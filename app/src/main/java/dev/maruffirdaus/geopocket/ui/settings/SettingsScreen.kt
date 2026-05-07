@@ -32,8 +32,8 @@ import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.settings.component.SettingsGroup
-import dev.maruffirdaus.geopocket.ui.settings.model.ActionSettingsGroupItem
-import dev.maruffirdaus.geopocket.ui.settings.model.SwitchSettingsGroupItem
+import dev.maruffirdaus.geopocket.ui.settings.extension.toIcon
+import dev.maruffirdaus.geopocket.ui.settings.model.SettingsGroupItem
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -125,9 +125,10 @@ fun SettingsScreenContent(
                     title = group.title,
                     items = items.map {
                         when (it) {
-                            is SettingItem.Action -> ActionSettingsGroupItem(
+                            is SettingItem.Action -> SettingsGroupItem.Action(
                                 title = it.title,
                                 description = it.description,
+                                icon = it.toIcon(),
                                 onClick = {
                                     when (it) {
                                         SettingItem.ResetProgress -> {
@@ -141,9 +142,10 @@ fun SettingsScreenContent(
                                 }
                             )
 
-                            is SettingItem.Switch -> SwitchSettingsGroupItem(
+                            is SettingItem.Switch -> SettingsGroupItem.Switch(
                                 title = it.title,
                                 description = it.description,
+                                icon = it.toIcon(),
                                 checked = uiState.checked[it] ?: it.default,
                                 onCheckedChange = { checked ->
                                     onEvent(SettingsEvent.OnSwitchChanged(it, checked))
