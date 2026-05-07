@@ -84,8 +84,8 @@ fun AppARSceneView(
                     true -> Config.DepthMode.AUTOMATIC
                     else -> Config.DepthMode.DISABLED
                 }
-            config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
-            config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
+            config.instantPlacementMode = Config.InstantPlacementMode.DISABLED
+            config.lightEstimationMode = Config.LightEstimationMode.DISABLED
         },
         planeRenderer = planeRenderer,
         cameraNode = cameraNode,

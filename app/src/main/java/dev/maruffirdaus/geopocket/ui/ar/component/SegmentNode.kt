@@ -21,20 +21,19 @@ fun SceneScope.SegmentNode(
     val localUp = state.quaternion * Float3(0f, 0f, 1f)
 
     val blackMaterial = remember(materialLoader) {
-        materialLoader.createColorInstance(Color.Black)
+        materialLoader.createUnlitColorInstance(Color.Black)
     }
 
     val cubeWidth = 0.0025f
     val cubeHeight = 0.0001f
 
-    if (visible)
-        CubeNode(
-            size = Float3(1f, cubeWidth, cubeHeight),
-            materialInstance = blackMaterial,
-            position = state.worldPosition,
-            rotation = state.quaternion.toRotation(),
-            scale = state.scale
-        )
+    if (visible) CubeNode(
+        size = Float3(1f, cubeWidth, cubeHeight),
+        materialInstance = blackMaterial,
+        position = state.worldPosition,
+        rotation = state.quaternion.toRotation(),
+        scale = state.scale
+    )
     ViewNodeWrapper(
         windowManager = windowManager,
         position = state.worldPosition + localUp * cubeHeight,
