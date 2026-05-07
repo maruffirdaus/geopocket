@@ -98,7 +98,7 @@ fun ARScreen(
             reticle = uiState.reticle,
             preview = uiState.preview,
             planeRenderer = uiState.planeRendererEnabled,
-            hitTestIntervalMs = viewModel.hitTestIntervalMs,
+            hitTestIntervalMs = uiState.hitTestIntervalMs,
             points = uiState.points,
             segments = uiState.segments,
             angles = uiState.angles,

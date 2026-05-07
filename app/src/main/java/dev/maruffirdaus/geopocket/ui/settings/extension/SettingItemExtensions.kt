@@ -13,5 +13,5 @@ fun SettingItem.toIcon(): ImageVector = when (this) {
     SettingItem.MeasurementAssist -> PhosphorIcons.Regular.Ruler
     SettingItem.SmoothInteraction -> PhosphorIcons.Regular.Crosshair
     SettingItem.ResetProgress -> PhosphorIcons.Regular.ArrowClockwise
-    SettingItem.OpenSourceLicenses -> PhosphorIcons.Regular.Info
+    SettingItem.Licenses -> PhosphorIcons.Regular.Info
 }

@@ -13,6 +13,7 @@ data class ARUiState(
     val preview: PreviewState? = null,
     val previewEnabled: Boolean = true,
     val planeRendererEnabled: Boolean = true,
+    val hitTestIntervalMs: Long = 33L,
     val points: Map<String, PointNodeState> = mapOf(),
     val segments: Map<String, SegmentNodeState> = mapOf(),
     val angles: Map<String, AngleNodeState> = mapOf(),

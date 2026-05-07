@@ -1,6 +1,7 @@
 package dev.maruffirdaus.geopocket.ui.ar
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.data.repository.SettingsRepository
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
@@ -15,11 +16,12 @@ import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.math.Position
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 
@@ -29,15 +31,15 @@ class ARViewModel(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ARUiState(subtopic = subtopic))
-    val uiState = _uiState.asStateFlow()
+    val uiState = _uiState
+        .onStart { loadSettings() }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(1000L),
+            ARUiState()
+        )
 
-    val hitTestIntervalMs = runBlocking(Dispatchers.IO) {
-        if (settingsRepository.getBoolean(SettingItem.SmoothInteraction)) 16L else 33L
-    }
-
-    private val measurementAssist = runBlocking(Dispatchers.IO) {
-        settingsRepository.getBoolean(SettingItem.MeasurementAssist)
-    }
+    private var measurementAssist: Boolean = SettingItem.MeasurementAssist.default
 
     private var currentPose: Pose? = null
     private var currentCamPos: Position? = null
@@ -83,31 +85,36 @@ class ARViewModel(
     private fun buildSegmentPreview(): SegmentNodeState? {
         val pose = currentPose ?: return null
         val camPos = currentCamPos ?: return null
-        val lastPoint = _uiState.value.points.values.lastOrNull() ?: return null
+        val lastPoint = uiState.value.points.values.lastOrNull() ?: return null
+        val size = uiState.value.points.size
+        val endPointId = ('A' + size).toString()
         return SegmentNodeState(
             startPointId = lastPoint.id,
-            endPointId = "Z",
+            endPointId = endPointId,
             startPos = lastPoint.worldPosition,
             endPos = pose.position,
             camPos = camPos,
-            measurementAssist = measurementAssist
+            measurementAssist = measurementAssist,
+            constraint = subtopic.constraint.segments["${lastPoint.id}$endPointId"]
         )
     }
 
     private fun buildAnglePreview(): AngleNodeState? {
         val pose = currentPose ?: return null
-        val points = _uiState.value.points
+        val points = uiState.value.points
         val size = points.size
         if (size <= 1) return null
         val lastPoint = points[('A' + size - 1).toString()] ?: return null
         val prevPoint = points[('A' + size - 2).toString()] ?: return null
+        val id = "${prevPoint.id}${lastPoint.id}${'A' + size}"
         return AngleNodeState(
-            id = lastPoint.id,
+            id = id,
             startPos = prevPoint.worldPosition,
             centerPos = lastPoint.worldPosition,
             endPos = pose.position,
             quaternion = lastPoint.quaternion,
-            measurementAssist = measurementAssist
+            measurementAssist = measurementAssist,
+            constraint = subtopic.constraint.angles[id]
         )
     }
 
@@ -115,30 +122,37 @@ class ARViewModel(
         if (!isClosing()) return null
         val pose = currentPose ?: return null
         val camPos = currentCamPos ?: return null
-        val firstWorldPos = _uiState.value.points["A"]?.worldPosition ?: return null
+        val firstWorldPos = uiState.value.points["A"]?.worldPosition ?: return null
+        val size = uiState.value.points.size
+        val startPointId = ('A' + size).toString()
         return SegmentNodeState(
-            startPointId = "Z",
+            startPointId = startPointId,
             endPointId = "A",
             startPos = pose.position,
             endPos = firstWorldPos,
             camPos = camPos,
-            measurementAssist = measurementAssist
+            measurementAssist = measurementAssist,
+            constraint = subtopic.constraint.segments["${startPointId}A"]
         )
     }
 
     private fun buildClosingAnglePreview(): AngleNodeState? {
         if (!isClosing()) return null
         val pose = currentPose ?: return null
-        val points = _uiState.value.points
-        val lastWorldPos = points.values.lastOrNull()?.worldPosition ?: return null
+        val points = uiState.value.points
+        val lastPoint = points.values.lastOrNull() ?: return null
+        val lastWorldPos = lastPoint.worldPosition
         val firstWorldPos = points["A"]?.worldPosition ?: return null
+        val size = uiState.value.points.size
+        val id = "${lastPoint.id}${'A' + size}A"
         return AngleNodeState(
-            id = "Z",
+            id = id,
             startPos = lastWorldPos,
             centerPos = pose.position,
             endPos = firstWorldPos,
             quaternion = pose.quaternion * quaternionCorrection,
-            measurementAssist = measurementAssist
+            measurementAssist = measurementAssist,
+            constraint = subtopic.constraint.angles[id]
         )
     }
 
@@ -420,6 +434,16 @@ class ARViewModel(
     private fun onCompletionImageCaptured(path: String) {
         _uiState.update {
             it.copy(completionImage = path)
+        }
+    }
+
+    private fun loadSettings() {
+        viewModelScope.launch {
+            val smoothInteraction = settingsRepository.getBoolean(SettingItem.SmoothInteraction)
+            measurementAssist = settingsRepository.getBoolean(SettingItem.MeasurementAssist)
+            _uiState.update {
+                it.copy(hitTestIntervalMs = if (smoothInteraction) 16L else 33L)
+            }
         }
     }
 }

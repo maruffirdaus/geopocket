@@ -32,9 +32,9 @@ sealed class SettingItem(
         description = "Semua progres akan dihapus dan tidak dapat dikembalikan",
     )
 
-    object OpenSourceLicenses : Action(
-        title = "Lisensi open source",
-        description = "Lihat lisensi pustaka pihak ketiga"
+    object Licenses : Action(
+        title = "Lisensi",
+        description = "Lihat lisensi pihak ketiga"
     )
 
     enum class Group(val title: String) {
@@ -44,11 +44,13 @@ sealed class SettingItem(
     }
 
     companion object {
-        val entriesByGroup = mapOf(
-            Group.AR to listOf(MeasurementAssist, SmoothInteraction),
-            Group.DATA to listOf(ResetProgress),
-            Group.ABOUT to listOf(OpenSourceLicenses)
-        )
-        val entries = entriesByGroup.flatMap { it.value }
+        val entriesByGroup by lazy {
+            mapOf(
+                Group.AR to listOf(MeasurementAssist, SmoothInteraction),
+                Group.DATA to listOf(ResetProgress),
+                Group.ABOUT to listOf(Licenses)
+            )
+        }
+        val entries by lazy { entriesByGroup.flatMap { it.value } }
     }
 }

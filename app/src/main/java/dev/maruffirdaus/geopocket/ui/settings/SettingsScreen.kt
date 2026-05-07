@@ -123,19 +123,19 @@ fun SettingsScreenContent(
             SettingItem.entriesByGroup.forEach { (group, items) ->
                 SettingsGroup(
                     title = group.title,
-                    items = items.map {
-                        when (it) {
+                    items = items.map { item ->
+                        when (item) {
                             is SettingItem.Action -> SettingsGroupItem.Action(
-                                title = it.title,
-                                description = it.description,
-                                icon = it.toIcon(),
+                                title = item.title,
+                                description = item.description,
+                                icon = item.toIcon(),
                                 onClick = {
-                                    when (it) {
+                                    when (item) {
                                         SettingItem.ResetProgress -> {
                                             isResetProgressDialogOpen = true
                                         }
 
-                                        SettingItem.OpenSourceLicenses -> {
+                                        SettingItem.Licenses -> {
                                             navHandler.push(AppNavKey.Licenses)
                                         }
                                     }
@@ -143,12 +143,12 @@ fun SettingsScreenContent(
                             )
 
                             is SettingItem.Switch -> SettingsGroupItem.Switch(
-                                title = it.title,
-                                description = it.description,
-                                icon = it.toIcon(),
-                                checked = uiState.checked[it] ?: it.default,
+                                title = item.title,
+                                description = item.description,
+                                icon = item.toIcon(),
+                                checked = uiState.checked[item] ?: item.default,
                                 onCheckedChange = { checked ->
-                                    onEvent(SettingsEvent.OnSwitchChanged(it, checked))
+                                    onEvent(SettingsEvent.OnSwitchChanged(item, checked))
                                 }
                             )
                         }

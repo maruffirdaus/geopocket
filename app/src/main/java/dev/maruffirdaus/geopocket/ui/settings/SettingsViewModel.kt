@@ -6,14 +6,12 @@ import dev.maruffirdaus.geopocket.data.repository.SettingsRepository
 import dev.maruffirdaus.geopocket.data.repository.TopicRepository
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem.Switch
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -23,7 +21,7 @@ class SettingsViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState = _uiState
-        .onStart { refreshSettings() }
+        .onStart { loadSettings() }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(1000L),
@@ -52,15 +50,16 @@ class SettingsViewModel(
         }
     }
 
-    private fun refreshSettings() {
-        val checked = mutableMapOf<Switch, Boolean>()
-        runBlocking(Dispatchers.IO) {
-            SettingItem.entries.filterIsInstance<Switch>().forEach {
-                checked[it] = settingsRepository.getBoolean(it)
+    private fun loadSettings() {
+        viewModelScope.launch {
+            val checked = buildMap {
+                SettingItem.entries.filterIsInstance<Switch>().forEach {
+                    put(it, settingsRepository.getBoolean(it))
+                }
             }
-        }
-        _uiState.update {
-            it.copy(checked = checked)
+            _uiState.update {
+                it.copy(checked = checked)
+            }
         }
     }
 }
