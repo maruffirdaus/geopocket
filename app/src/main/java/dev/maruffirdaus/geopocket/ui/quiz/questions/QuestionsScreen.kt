@@ -80,43 +80,42 @@ fun QuestionsScreenContent(
 
     Scaffold(
         topBar = {
-            if (uiState.score == null)
-                TopAppBar(
-                    title = {
-                        Text("Kuis")
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                navHandler.pop<AppNavKey>()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = PhosphorIcons.Regular.ArrowLeft,
-                                contentDescription = "Kembali"
-                            )
+            if (uiState.score == null) TopAppBar(
+                title = {
+                    Text("Kuis")
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navHandler.pop<AppNavKey>()
                         }
-                    },
-                    actions = {
-                        FilledTonalButton(
-                            onClick = {
-                                navHandler.push(QuizNavKey.Scratchpad)
-                            },
-                            modifier = Modifier
-                                .height(ButtonDefaults.ExtraSmallContainerHeight)
-                                .padding(horizontal = 8.dp),
-                            contentPadding = ButtonDefaults.ExtraSmallContentPadding
-                        ) {
-                            Icon(
-                                imageVector = PhosphorIcons.Regular.PencilLine,
-                                contentDescription = "Scratchpad",
-                                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize)
-                            )
-                            Spacer(Modifier.width(ButtonDefaults.ExtraSmallIconSpacing))
-                            Text("Coretan")
-                        }
+                    ) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.ArrowLeft,
+                            contentDescription = "Kembali"
+                        )
                     }
-                )
+                },
+                actions = {
+                    FilledTonalButton(
+                        onClick = {
+                            navHandler.push(QuizNavKey.Scratchpad)
+                        },
+                        modifier = Modifier
+                            .height(ButtonDefaults.ExtraSmallContainerHeight)
+                            .padding(horizontal = 8.dp),
+                        contentPadding = ButtonDefaults.ExtraSmallContentPadding
+                    ) {
+                        Icon(
+                            imageVector = PhosphorIcons.Regular.PencilLine,
+                            contentDescription = "Scratchpad",
+                            modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize)
+                        )
+                        Spacer(Modifier.width(ButtonDefaults.ExtraSmallIconSpacing))
+                        Text("Coretan")
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         if (uiState.score != null) {

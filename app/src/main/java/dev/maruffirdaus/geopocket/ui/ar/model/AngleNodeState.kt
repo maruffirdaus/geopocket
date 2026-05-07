@@ -1,5 +1,6 @@
 package dev.maruffirdaus.geopocket.ui.ar.model
 
+import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.topic.constraint.AngleConstraint
 import dev.maruffirdaus.geopocket.ui.ar.extension.angleBetween
 import dev.maruffirdaus.geopocket.ui.ar.extension.angleBisectorPosition
@@ -7,34 +8,39 @@ import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.math.Position
 import kotlin.math.abs
 
-data class AngleNodeState(
+@ConsistentCopyVisibility
+data class AngleNodeState private constructor(
     val id: String,
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
-    val degree: Float = 0f
+    val degree: Float = 0f,
+    private val measurementAssist: Boolean = SettingItem.MeasurementAssist.default,
+    private val constraint: AngleConstraint? = null
 ) {
-    private var constraint: AngleConstraint? = null
-
     constructor(
         id: String,
         startPos: Position,
         centerPos: Position,
         endPos: Position,
         quaternion: Quaternion,
+        measurementAssist: Boolean,
         constraint: AngleConstraint? = null
     ) : this(
         id = id,
         worldPosition = centerPos.angleBisectorPosition(startPos, endPos),
         quaternion = quaternion,
-        degree = snapDegreeToTarget(centerPos.angleBetween(startPos, endPos), constraint)
-    ) {
-        this.constraint = constraint
-    }
+        degree = centerPos.angleBetween(startPos, endPos).let {
+            if (measurementAssist) snapDegreeToTarget(it, constraint) else it
+        },
+        measurementAssist = measurementAssist,
+        constraint = constraint
+    )
 
     constructor(
         startPoint: PointNodeState,
         centerPoint: PointNodeState,
         endPoint: PointNodeState,
+        measurementAssist: Boolean,
         constraint: AngleConstraint? = null
     ) : this(
         id = "${startPoint.id}${centerPoint.id}${endPoint.id}",
@@ -43,16 +49,15 @@ data class AngleNodeState(
             endPoint.worldPosition
         ),
         quaternion = centerPoint.quaternion,
-        degree = snapDegreeToTarget(
-            centerPoint.worldPosition.angleBetween(
-                startPoint.worldPosition,
-                endPoint.worldPosition
-            ),
-            constraint
-        )
-    ) {
-        this.constraint = constraint
-    }
+        degree = centerPoint.worldPosition.angleBetween(
+            startPoint.worldPosition,
+            endPoint.worldPosition
+        ).let {
+            if (measurementAssist) snapDegreeToTarget(it, constraint) else it
+        },
+        measurementAssist = measurementAssist,
+        constraint = constraint
+    )
 
     fun copy(
         startPos: Position,
@@ -64,10 +69,13 @@ data class AngleNodeState(
         centerPos = centerPos,
         endPos = endPos,
         quaternion = quaternion,
+        measurementAssist = measurementAssist,
         constraint = constraint
     )
 
     companion object {
+        val Empty = AngleNodeState("")
+
         private fun snapDegreeToTarget(degree: Float, constraint: AngleConstraint?): Float {
             val snappedToMin =
                 constraint?.minDegree?.takeIf { abs(degree - it) <= constraint.tolerance }

@@ -1,5 +1,6 @@
 package dev.maruffirdaus.geopocket.ui.ar.model
 
+import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.topic.constraint.SegmentConstraint
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.Float4
@@ -13,16 +14,18 @@ import io.github.sceneview.math.Position
 import io.github.sceneview.math.Scale
 import kotlin.math.abs
 
-data class SegmentNodeState(
+@ConsistentCopyVisibility
+data class SegmentNodeState private constructor(
     val startPointId: String,
     val endPointId: String,
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
     val scale: Scale = Scale(),
     val length: Float = 0f,
+    private val measurementAssist: Boolean = SettingItem.MeasurementAssist.default,
+    private val constraint: SegmentConstraint? = null
 ) {
     val id = startPointId + endPointId
-    private var constraint: SegmentConstraint? = null
 
     constructor(
         startPointId: String,
@@ -30,6 +33,7 @@ data class SegmentNodeState(
         startPos: Position,
         endPos: Position,
         camPos: Position,
+        measurementAssist: Boolean,
         constraint: SegmentConstraint? = null
     ) : this(
         startPointId = startPointId,
@@ -37,10 +41,12 @@ data class SegmentNodeState(
         worldPosition = (startPos + endPos) / 2f,
         quaternion = calculateQuaternion(startPos, endPos, camPos),
         scale = Float3(length(endPos - startPos), 1f, 1f),
-        length = snapLengthToTarget(length(endPos - startPos), constraint)
-    ) {
-        this.constraint = constraint
-    }
+        length = length(endPos - startPos).let {
+            if (measurementAssist) snapLengthToTarget(it, constraint) else (it * 100).toInt() / 100f
+        },
+        measurementAssist = measurementAssist,
+        constraint = constraint
+    )
 
     fun copy(
         startPos: Position,
@@ -52,10 +58,13 @@ data class SegmentNodeState(
         startPos = startPos,
         endPos = endPos,
         camPos = camPos,
+        measurementAssist = measurementAssist,
         constraint = constraint
     )
 
     companion object {
+        val Empty = SegmentNodeState("", "")
+
         private fun calculateQuaternion(
             startPos: Position,
             endPos: Position,

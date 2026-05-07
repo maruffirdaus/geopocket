@@ -2,6 +2,8 @@ package dev.maruffirdaus.geopocket.ui.ar
 
 import androidx.lifecycle.ViewModel
 import com.google.ar.core.Pose
+import dev.maruffirdaus.geopocket.data.repository.SettingsRepository
+import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
@@ -13,18 +15,29 @@ import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.math.Position
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class ARViewModel(
-    @InjectedParam private val subtopic: Subtopic
+    @InjectedParam private val subtopic: Subtopic,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ARUiState(subtopic = subtopic))
     val uiState = _uiState.asStateFlow()
+
+    val hitTestIntervalMs = runBlocking(Dispatchers.IO) {
+        if (settingsRepository.getBoolean(SettingItem.SmoothInteraction)) 16L else 33L
+    }
+
+    private val measurementAssist = runBlocking(Dispatchers.IO) {
+        settingsRepository.getBoolean(SettingItem.MeasurementAssist)
+    }
 
     private var currentPose: Pose? = null
     private var currentCamPos: Position? = null
@@ -76,7 +89,8 @@ class ARViewModel(
             endPointId = "Z",
             startPos = lastPoint.worldPosition,
             endPos = pose.position,
-            camPos = camPos
+            camPos = camPos,
+            measurementAssist = measurementAssist
         )
     }
 
@@ -92,7 +106,8 @@ class ARViewModel(
             startPos = prevPoint.worldPosition,
             centerPos = lastPoint.worldPosition,
             endPos = pose.position,
-            quaternion = lastPoint.quaternion
+            quaternion = lastPoint.quaternion,
+            measurementAssist = measurementAssist
         )
     }
 
@@ -106,7 +121,8 @@ class ARViewModel(
             endPointId = "A",
             startPos = pose.position,
             endPos = firstWorldPos,
-            camPos = camPos
+            camPos = camPos,
+            measurementAssist = measurementAssist
         )
     }
 
@@ -121,7 +137,8 @@ class ARViewModel(
             startPos = lastWorldPos,
             centerPos = pose.position,
             endPos = firstWorldPos,
-            quaternion = pose.quaternion * quaternionCorrection
+            quaternion = pose.quaternion * quaternionCorrection,
+            measurementAssist = measurementAssist
         )
     }
 
@@ -228,6 +245,7 @@ class ARViewModel(
             startPos = lastPoint.worldPosition,
             endPos = point.worldPosition,
             camPos = camPos,
+            measurementAssist = measurementAssist,
             constraint = subtopic.constraint.segments["${lastPoint.id}${point.id}"]
         )
     }
@@ -239,6 +257,7 @@ class ARViewModel(
             startPoint = startPoint,
             centerPoint = lastPoint,
             endPoint = point,
+            measurementAssist = measurementAssist,
             constraint = subtopic.constraint.angles["${startPoint.id}${lastPoint.id}${point.id}"]
         )
     }
@@ -256,6 +275,7 @@ class ARViewModel(
             startPos = point.worldPosition,
             endPos = firstPoint.worldPosition,
             camPos = camPos,
+            measurementAssist = measurementAssist,
             constraint = subtopic.constraint.segments["${point.id}${firstPoint.id}"]
         )
     }
@@ -271,6 +291,7 @@ class ARViewModel(
                 startPoint = lastPoint,
                 centerPoint = point,
                 endPoint = firstPoint,
+                measurementAssist = measurementAssist,
                 constraint = subtopic.constraint.angles["${lastPoint.id}${point.id}${firstPoint.id}"]
             )
         )
@@ -279,6 +300,7 @@ class ARViewModel(
                 startPoint = point,
                 centerPoint = firstPoint,
                 endPoint = secondPoint,
+                measurementAssist = measurementAssist,
                 constraint = subtopic.constraint.angles["${point.id}${firstPoint.id}${secondPoint.id}"]
             )
         }

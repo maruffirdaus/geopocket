@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import dev.maruffirdaus.geopocket.ui.common.component.TopicStatusLabel
 import dev.maruffirdaus.geopocket.ui.common.model.TopicStatus
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SubtopicCard(
     subtopic: Subtopic,

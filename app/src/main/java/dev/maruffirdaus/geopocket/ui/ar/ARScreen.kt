@@ -98,6 +98,7 @@ fun ARScreen(
             reticle = uiState.reticle,
             preview = uiState.preview,
             planeRenderer = uiState.planeRendererEnabled,
+            hitTestIntervalMs = viewModel.hitTestIntervalMs,
             points = uiState.points,
             segments = uiState.segments,
             angles = uiState.angles,
@@ -256,23 +257,22 @@ fun ARScreenContent(
         }
         arContent()
         if (uiState.completed) return@Scaffold
-        if (!uiState.environmentScanned)
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Memindai lingkungan",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White.copy(alpha = 0.9f)
-                )
-                Text(
-                    text = "Arahkan kamera ke permukaan datar",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.5f)
-                )
-            }
+        if (!uiState.environmentScanned) Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Memindai lingkungan",
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+            Text(
+                text = "Arahkan kamera ke permukaan datar",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.5f)
+            )
+        }
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {

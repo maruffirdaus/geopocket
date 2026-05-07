@@ -3,6 +3,8 @@ package dev.maruffirdaus.geopocket.ui.settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -22,15 +24,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
-import com.adamglin.phosphoricons.regular.ArrowClockwise
 import com.adamglin.phosphoricons.regular.ArrowLeft
-import com.adamglin.phosphoricons.regular.Info
+import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.settings.component.SettingsGroup
-import dev.maruffirdaus.geopocket.ui.settings.model.SettingItem
+import dev.maruffirdaus.geopocket.ui.settings.model.ActionSettingsGroupItem
+import dev.maruffirdaus.geopocket.ui.settings.model.SwitchSettingsGroupItem
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -40,7 +43,10 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     navHandler: NavHandler = koinInject()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     SettingsScreenContent(
+        uiState = uiState,
         onEvent = viewModel::onEvent,
         navHandler = navHandler
     )
@@ -49,6 +55,7 @@ fun SettingsScreen(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreenContent(
+    uiState: SettingsUiState,
     onEvent: (SettingsEvent) -> Unit,
     navHandler: NavHandler
 ) {
@@ -79,62 +86,73 @@ fun SettingsScreenContent(
         Column(
             modifier = Modifier
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             var isResetProgressDialogOpen by remember { mutableStateOf(false) }
-            val resetProgressItem = SettingItem(
-                title = "Reset progres",
-                description = "Semua progres akan dihapus dan tidak dapat dikembalikan",
-                onClick = {
-                    isResetProgressDialogOpen = true
-                },
-                icon = PhosphorIcons.Regular.ArrowClockwise
-            )
-            val items = remember {
-                listOf(
-                    resetProgressItem,
-                    SettingItem(
-                        title = "Lisensi open source",
-                        description = "Lihat lisensi pustaka pihak ketiga",
-                        onClick = {
-                            navHandler.push(AppNavKey.Licenses)
-                        },
-                        icon = PhosphorIcons.Regular.Info
-                    )
-                )
-            }
 
-            if (isResetProgressDialogOpen)
-                AlertDialog(
-                    onDismissRequest = { isResetProgressDialogOpen = false },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                onEvent(SettingsEvent.OnResetProgress)
-                                isResetProgressDialogOpen = false
-                            }
-                        ) {
-                            Text("Konfirmasi")
+            if (isResetProgressDialogOpen) AlertDialog(
+                onDismissRequest = { isResetProgressDialogOpen = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onEvent(SettingsEvent.OnResetProgress)
+                            isResetProgressDialogOpen = false
                         }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = { isResetProgressDialogOpen = false }
-                        ) {
-                            Text("Batal")
+                    ) {
+                        Text("Konfirmasi")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { isResetProgressDialogOpen = false }
+                    ) {
+                        Text("Batal")
+                    }
+                },
+                title = {
+                    Text(SettingItem.ResetProgress.title)
+                },
+                text = {
+                    Text(SettingItem.ResetProgress.description)
+                }
+            )
+
+            SettingItem.entriesByGroup.forEach { (group, items) ->
+                SettingsGroup(
+                    title = group.title,
+                    items = items.map {
+                        when (it) {
+                            is SettingItem.Action -> ActionSettingsGroupItem(
+                                title = it.title,
+                                description = it.description,
+                                onClick = {
+                                    when (it) {
+                                        SettingItem.ResetProgress -> {
+                                            isResetProgressDialogOpen = true
+                                        }
+
+                                        SettingItem.OpenSourceLicenses -> {
+                                            navHandler.push(AppNavKey.Licenses)
+                                        }
+                                    }
+                                }
+                            )
+
+                            is SettingItem.Switch -> SwitchSettingsGroupItem(
+                                title = it.title,
+                                description = it.description,
+                                checked = uiState.checked[it] ?: it.default,
+                                onCheckedChange = { checked ->
+                                    onEvent(SettingsEvent.OnSwitchChanged(it, checked))
+                                }
+                            )
                         }
-                    },
-                    title = {
-                        Text(resetProgressItem.title)
-                    },
-                    text = {
-                        Text(resetProgressItem.description)
                     }
                 )
-
-            SettingsGroup(items)
+            }
         }
     }
 }
@@ -144,6 +162,7 @@ fun SettingsScreenContent(
 private fun SettingsScreenPreview() {
     GeoPocketTheme {
         SettingsScreenContent(
+            uiState = SettingsUiState(),
             onEvent = {},
             navHandler = NavHandler()
         )

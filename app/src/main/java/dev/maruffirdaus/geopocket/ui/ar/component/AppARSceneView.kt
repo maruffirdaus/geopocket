@@ -15,7 +15,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Pose
-import dev.maruffirdaus.geopocket.BuildConfig
 import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
@@ -29,13 +28,12 @@ import io.github.sceneview.math.Position
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberViewNodeManager
 
-private val HIT_TEST_INTERVAL_MS = if (BuildConfig.DEBUG) 100L else 33L
-
 @Composable
 fun AppARSceneView(
     reticle: ReticleNodeState?,
     preview: PreviewState?,
     planeRenderer: Boolean,
+    hitTestIntervalMs: Long,
     points: Map<String, PointNodeState>,
     segments: Map<String, SegmentNodeState>,
     angles: Map<String, AngleNodeState>,
@@ -95,7 +93,7 @@ fun AppARSceneView(
         onSessionUpdated = { session, frame ->
             val currentTimeMs = System.currentTimeMillis()
 
-            if (currentTimeMs - lastHitTestMs >= HIT_TEST_INTERVAL_MS) {
+            if (currentTimeMs - lastHitTestMs >= hitTestIntervalMs) {
                 lastHitTestMs = currentTimeMs
 
                 val centerX = width / 2f
@@ -137,22 +135,22 @@ fun AppARSceneView(
             visible = reticle != null
         )
         SegmentNode(
-            state = preview?.segment ?: SegmentNodeState("", ""),
+            state = preview?.segment ?: SegmentNodeState.Empty,
             windowManager = windowManager,
             visible = preview?.segment != null
         )
         SegmentNode(
-            state = preview?.closingSegment ?: SegmentNodeState("", ""),
+            state = preview?.closingSegment ?: SegmentNodeState.Empty,
             windowManager = windowManager,
             visible = preview?.closingSegment != null
         )
         AngleNode(
-            state = preview?.angle ?: AngleNodeState(""),
+            state = preview?.angle ?: AngleNodeState.Empty,
             windowManager = windowManager,
             visible = preview?.angle != null
         )
         AngleNode(
-            state = preview?.closingAngle ?: AngleNodeState(""),
+            state = preview?.closingAngle ?: AngleNodeState.Empty,
             windowManager = windowManager,
             visible = preview?.closingAngle != null
         )
@@ -172,7 +170,7 @@ fun AppARSceneView(
         repeat(if (closedShape) maxPoints else maxPoints - 1) { index ->
             val segment = segments.values.toList().getOrNull(index)
             SegmentNode(
-                state = segment ?: SegmentNodeState("", ""),
+                state = segment ?: SegmentNodeState.Empty,
                 windowManager = windowManager,
                 visible = segment != null
             )
@@ -180,7 +178,7 @@ fun AppARSceneView(
         repeat(if (closedShape) maxPoints else maxPoints - 2) { index ->
             val angle = angles.values.toList().getOrNull(index)
             AngleNode(
-                state = angle ?: AngleNodeState(""),
+                state = angle ?: AngleNodeState.Empty,
                 windowManager = windowManager,
                 visible = angle != null
             )

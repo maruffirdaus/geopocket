@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.aboutlibraries.core)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.ink.authoring)
     implementation(libs.androidx.ink.authoring.compose)
     implementation(libs.androidx.ink.brush)

@@ -72,7 +72,8 @@ class QuestionsViewModel(
             val nextSubtopic = subtopic.nextSubtopic()
 
             if (isCompleted && nextSubtopic != null) {
-                topicRepository.save(
+                val nextSubtopicProgress = topicRepository.getSubtopicProgress(nextSubtopic.id)
+                if (nextSubtopicProgress == null) topicRepository.save(
                     SubtopicProgress(id = nextSubtopic.id)
                 )
             }
