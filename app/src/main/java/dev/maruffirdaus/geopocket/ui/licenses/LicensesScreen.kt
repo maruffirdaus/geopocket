@@ -31,7 +31,7 @@ fun LicensesScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Lisensi open source")
+                    Text("Lisensi")
                 },
                 navigationIcon = {
                     IconButton(
