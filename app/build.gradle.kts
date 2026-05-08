@@ -51,6 +51,12 @@ android {
     }
 }
 
+aboutLibraries {
+    collect {
+        configPath = file("../config")
+    }
+}
+
 dependencies {
     implementation(libs.aboutlibraries.compose.m3)
     implementation(libs.aboutlibraries.core)

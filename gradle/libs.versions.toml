@@ -1,5 +1,5 @@
 [versions]
-aboutlibraries = "14.1.0"
+aboutlibraries = "15.0.0-a02"
 activityCompose = "1.13.0"
 agp = "9.2.1"
 androidxJunit = "1.3.0"
