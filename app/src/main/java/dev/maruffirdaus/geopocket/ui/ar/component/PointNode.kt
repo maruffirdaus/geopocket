@@ -19,11 +19,8 @@ import com.google.ar.core.Anchor
 import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
-import dev.romainguy.kotlin.math.Float3
-import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.ARSceneScope
 import io.github.sceneview.collision.Sphere
-import io.github.sceneview.math.toRotation
 import io.github.sceneview.node.ViewNode
 
 @Composable
@@ -34,8 +31,6 @@ fun ARSceneScope.PointNode(
     onPointMoving: (Pose) -> Unit,
     onPointMoved: () -> Unit
 ) {
-    val rotation = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
-
     AnchorNode(
         anchor = anchor,
         onUpdated = { onPointMoved() },
@@ -45,7 +40,6 @@ fun ARSceneScope.PointNode(
     ) {
         ViewNodeWrapper(
             windowManager = windowManager,
-            rotation = rotation.toRotation(),
             collisionShape = Sphere(0.1f),
             visible = true
         ) {

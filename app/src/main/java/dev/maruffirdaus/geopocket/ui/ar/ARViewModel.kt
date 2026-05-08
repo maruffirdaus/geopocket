@@ -44,7 +44,7 @@ class ARViewModel(
     private var currentPose: Pose? = null
     private var currentCamPos: Position? = null
 
-    private val quaternionCorrection = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
+    private val layFlatCorrection = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
 
     fun onEvent(event: AREvent) {
         when (event) {
@@ -69,7 +69,7 @@ class ARViewModel(
             state.copy(
                 reticle = ReticleNodeState(
                     worldPosition = pose.position,
-                    quaternion = pose.quaternion * quaternionCorrection
+                    quaternion = pose.quaternion * layFlatCorrection
                 ),
                 preview = if (state.previewEnabled) PreviewState(
                     segment = buildSegmentPreview(),
@@ -150,7 +150,7 @@ class ARViewModel(
             startPos = lastWorldPos,
             centerPos = pose.position,
             endPos = firstWorldPos,
-            quaternion = pose.quaternion * quaternionCorrection,
+            quaternion = pose.quaternion * layFlatCorrection,
             measurementAssist = measurementAssist,
             constraint = subtopic.constraint.angles[id]
         )
@@ -186,7 +186,7 @@ class ARViewModel(
         val point = PointNodeState(
             id = ('A' + uiState.value.points.size).toString(),
             worldPosition = pose.position,
-            quaternion = pose.quaternion,
+            quaternion = pose.quaternion * layFlatCorrection,
         )
         val lastPoint = uiState.value.points.values.lastOrNull()
 
