@@ -8,15 +8,15 @@ import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.math.Position
 import kotlin.math.abs
 
-@ConsistentCopyVisibility
-data class AngleNodeState private constructor(
+data class AngleNodeState(
     val id: String,
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
-    val degree: Float = 0f,
-    private val measurementAssist: Boolean = SettingItem.MeasurementAssist.default,
-    private val constraint: AngleConstraint? = null
+    val degree: Float = 0f
 ) {
+    private var measurementAssist: Boolean = SettingItem.MeasurementAssist.default
+    private var constraint: AngleConstraint? = null
+
     constructor(
         id: String,
         startPos: Position,
@@ -31,10 +31,11 @@ data class AngleNodeState private constructor(
         quaternion = quaternion,
         degree = centerPos.angleBetween(startPos, endPos).let {
             if (measurementAssist) snapDegreeToTarget(it, constraint) else it
-        },
-        measurementAssist = measurementAssist,
-        constraint = constraint
-    )
+        }
+    ) {
+        this.measurementAssist = measurementAssist
+        this.constraint = constraint
+    }
 
     constructor(
         startPoint: PointNodeState,
@@ -54,10 +55,11 @@ data class AngleNodeState private constructor(
             endPoint.worldPosition
         ).let {
             if (measurementAssist) snapDegreeToTarget(it, constraint) else it
-        },
-        measurementAssist = measurementAssist,
-        constraint = constraint
-    )
+        }
+    ) {
+        this.measurementAssist = measurementAssist
+        this.constraint = constraint
+    }
 
     fun copy(
         startPos: Position,

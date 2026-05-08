@@ -14,18 +14,17 @@ import io.github.sceneview.math.Position
 import io.github.sceneview.math.Scale
 import kotlin.math.abs
 
-@ConsistentCopyVisibility
-data class SegmentNodeState private constructor(
+data class SegmentNodeState(
+    val id: String,
     val startPointId: String,
     val endPointId: String,
     val worldPosition: Position = Position(),
     val quaternion: Quaternion = Quaternion(),
     val scale: Scale = Scale(),
-    val length: Float = 0f,
-    private val measurementAssist: Boolean = SettingItem.MeasurementAssist.default,
-    private val constraint: SegmentConstraint? = null
+    val length: Float = 0f
 ) {
-    val id = startPointId + endPointId
+    private var measurementAssist: Boolean = SettingItem.MeasurementAssist.default
+    private var constraint: SegmentConstraint? = null
 
     constructor(
         startPointId: String,
@@ -36,6 +35,7 @@ data class SegmentNodeState private constructor(
         measurementAssist: Boolean,
         constraint: SegmentConstraint? = null
     ) : this(
+        id = startPointId + endPointId,
         startPointId = startPointId,
         endPointId = endPointId,
         worldPosition = (startPos + endPos) / 2f,
@@ -43,10 +43,11 @@ data class SegmentNodeState private constructor(
         scale = Float3(length(endPos - startPos), 1f, 1f),
         length = length(endPos - startPos).let {
             if (measurementAssist) snapLengthToTarget(it, constraint) else (it * 100).toInt() / 100f
-        },
-        measurementAssist = measurementAssist,
-        constraint = constraint
-    )
+        }
+    ) {
+        this.measurementAssist = measurementAssist
+        this.constraint = constraint
+    }
 
     fun copy(
         startPos: Position,
@@ -63,7 +64,7 @@ data class SegmentNodeState private constructor(
     )
 
     companion object {
-        val Empty = SegmentNodeState("", "")
+        val Empty = SegmentNodeState("", "", "")
 
         private fun calculateQuaternion(
             startPos: Position,
