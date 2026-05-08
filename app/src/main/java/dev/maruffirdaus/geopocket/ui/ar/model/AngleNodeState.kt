@@ -78,9 +78,9 @@ data class AngleNodeState private constructor(
 
         private fun snapDegreeToTarget(degree: Float, constraint: AngleConstraint?): Float {
             val snappedToMin =
-                constraint?.minDegree?.takeIf { abs(degree - it) <= constraint.tolerance }
+                constraint?.minDegree?.takeIf { abs(degree - it) <= AngleConstraint.TOLERANCE }
             val snappedToMax =
-                constraint?.maxDegree?.takeIf { abs(degree - it) <= constraint.tolerance }
+                constraint?.maxDegree?.takeIf { abs(degree - it) <= AngleConstraint.TOLERANCE }
             return snappedToMin ?: snappedToMax ?: degree
         }
     }

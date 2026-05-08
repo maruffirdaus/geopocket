@@ -101,9 +101,9 @@ data class SegmentNodeState private constructor(
 
         private fun snapLengthToTarget(length: Float, constraint: SegmentConstraint?): Float {
             val snappedToMin =
-                constraint?.minLength?.takeIf { abs(length - it) <= constraint.tolerance }
+                constraint?.minLength?.takeIf { abs(length - it) <= SegmentConstraint.TOLERANCE }
             val snappedToMax =
-                constraint?.maxLength?.takeIf { abs(length - it) <= constraint.tolerance }
+                constraint?.maxLength?.takeIf { abs(length - it) <= SegmentConstraint.TOLERANCE }
             return snappedToMin ?: snappedToMax ?: length
         }
     }
