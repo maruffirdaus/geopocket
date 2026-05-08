@@ -25,7 +25,7 @@ class SettingsViewModel(
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(1000L),
-            SettingsUiState()
+            _uiState.value
         )
 
     fun onEvent(event: SettingsEvent) {

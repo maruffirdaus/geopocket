@@ -24,7 +24,7 @@ class TopicViewModel(
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(1000L),
-            TopicUiState(topic = topic)
+            _uiState.value
         )
 
     private fun refreshSubtopicProgresses() {

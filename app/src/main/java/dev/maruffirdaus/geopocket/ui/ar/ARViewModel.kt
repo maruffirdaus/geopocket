@@ -36,7 +36,7 @@ class ARViewModel(
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(1000L),
-            ARUiState()
+            _uiState.value
         )
 
     private var measurementAssist: Boolean = SettingItem.MeasurementAssist.default
@@ -75,7 +75,8 @@ class ARViewModel(
                     segment = buildSegmentPreview(),
                     angle = buildAnglePreview(),
                     closingSegment = buildClosingSegmentPreview(),
-                    closingAngle = buildClosingAnglePreview()
+                    closingAngle = buildClosingAnglePreview(),
+                    closingAngle2 = buildClosingAngle2Preview()
                 ) else null,
                 environmentScanned = true
             )
@@ -151,6 +152,26 @@ class ARViewModel(
             centerPos = pose.position,
             endPos = firstWorldPos,
             quaternion = pose.quaternion * layFlatCorrection,
+            measurementAssist = measurementAssist,
+            constraint = subtopic.constraint.angles[id]
+        )
+    }
+
+    private fun buildClosingAngle2Preview(): AngleNodeState? {
+        if (!isClosing()) return null
+        val pose = currentPose ?: return null
+        val points = uiState.value.points
+        val firstPoint = points["A"] ?: return null
+        val firstWorldPos = firstPoint.worldPosition
+        val secondWorldPos = points["B"]?.worldPosition ?: return null
+        val size = uiState.value.points.size
+        val id = "${'A' + size}AB"
+        return AngleNodeState(
+            id = id,
+            startPos = pose.position,
+            centerPos = firstWorldPos,
+            endPos = secondWorldPos,
+            quaternion = firstPoint.quaternion,
             measurementAssist = measurementAssist,
             constraint = subtopic.constraint.angles[id]
         )

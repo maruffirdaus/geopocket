@@ -5,4 +5,5 @@ data class PreviewState(
     val closingSegment: SegmentNodeState? = null,
     val angle: AngleNodeState? = null,
     val closingAngle: AngleNodeState? = null,
+    val closingAngle2: AngleNodeState? = null
 )

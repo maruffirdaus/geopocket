@@ -21,7 +21,7 @@ class HomeViewModel(
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(1000L),
-            HomeUiState()
+            _uiState.value
         )
 
     private fun refreshSubtopicProgresses() {

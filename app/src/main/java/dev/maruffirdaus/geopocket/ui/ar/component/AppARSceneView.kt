@@ -154,6 +154,11 @@ fun AppARSceneView(
             windowManager = windowManager,
             visible = preview?.closingAngle != null
         )
+        AngleNode(
+            state = preview?.closingAngle2 ?: AngleNodeState.Empty,
+            windowManager = windowManager,
+            visible = preview?.closingAngle2 != null
+        )
         anchors.forEach { (id, anchor) ->
             key(id) {
                 points[id]?.let { point ->
