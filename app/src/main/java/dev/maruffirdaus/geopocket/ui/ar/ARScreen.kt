@@ -53,6 +53,7 @@ import dev.maruffirdaus.geopocket.ui.ar.component.AppARSceneView
 import dev.maruffirdaus.geopocket.ui.ar.component.InstructionsCard
 import dev.maruffirdaus.geopocket.ui.ar.extension.capture
 import dev.maruffirdaus.geopocket.ui.ar.extension.saveToCache
+import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
@@ -221,8 +222,7 @@ fun ARScreenContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .alignHorizontalSpace(16.dp)
             ) {
                 ZoomableAsyncImage(
                     model = uiState.completionImage,
@@ -303,7 +303,9 @@ fun ARScreenContent(
                 segments = uiState.segments,
                 angles = uiState.angles,
                 constraint = uiState.subtopic.constraint,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .alignHorizontalSpace(16.dp)
             )
         }
     }

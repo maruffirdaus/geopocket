@@ -1,10 +1,10 @@
 package dev.maruffirdaus.geopocket.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.plus
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -29,6 +29,7 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
+import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.settings.component.SettingsGroup
@@ -83,44 +84,43 @@ fun SettingsScreenContent(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
-                .verticalScroll(rememberScrollState())
-                .padding(innerPadding)
-                .padding(16.dp),
+        var isResetProgressDialogOpen by remember { mutableStateOf(false) }
+
+        if (isResetProgressDialogOpen) AlertDialog(
+            onDismissRequest = { isResetProgressDialogOpen = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onEvent(SettingsEvent.OnResetProgress)
+                        isResetProgressDialogOpen = false
+                    }
+                ) {
+                    Text("Konfirmasi")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { isResetProgressDialogOpen = false }
+                ) {
+                    Text("Batal")
+                }
+            },
+            title = {
+                Text(SettingItem.ResetProgress.title)
+            },
+            text = {
+                Text(SettingItem.ResetProgress.description)
+            }
+        )
+
+        LazyColumn(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            contentPadding = innerPadding + PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            var isResetProgressDialogOpen by remember { mutableStateOf(false) }
+            items(SettingItem.Group.entries) { group ->
+                val items = SettingItem.entriesByGroup[group] ?: return@items
 
-            if (isResetProgressDialogOpen) AlertDialog(
-                onDismissRequest = { isResetProgressDialogOpen = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            onEvent(SettingsEvent.OnResetProgress)
-                            isResetProgressDialogOpen = false
-                        }
-                    ) {
-                        Text("Konfirmasi")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { isResetProgressDialogOpen = false }
-                    ) {
-                        Text("Batal")
-                    }
-                },
-                title = {
-                    Text(SettingItem.ResetProgress.title)
-                },
-                text = {
-                    Text(SettingItem.ResetProgress.description)
-                }
-            )
-
-            SettingItem.entriesByGroup.forEach { (group, items) ->
                 SettingsGroup(
                     title = group.title,
                     items = items.map { item ->
@@ -152,7 +152,8 @@ fun SettingsScreenContent(
                                 }
                             )
                         }
-                    }
+                    },
+                    modifier = Modifier.alignHorizontalSpace()
                 )
             }
         }

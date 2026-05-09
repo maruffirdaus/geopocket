@@ -2,7 +2,6 @@ package dev.maruffirdaus.geopocket.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,6 +26,7 @@ import com.adamglin.phosphoricons.regular.Gear
 import dev.maruffirdaus.geopocket.R
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.Topic
+import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.home.component.TopicCard
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
@@ -93,7 +93,7 @@ fun HomeScreenContent(
                     onClick = {
                         navHandler.push(AppNavKey.Topic(item.name))
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.alignHorizontalSpace(),
                     progress = if (unlockedSubtopics.isEmpty()) 0f else {
                         completedSubtopic.size.toFloat() / subtopicIds.size.toFloat()
                     }

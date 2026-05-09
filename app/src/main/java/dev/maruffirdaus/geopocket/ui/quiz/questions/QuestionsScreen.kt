@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +48,7 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import com.adamglin.phosphoricons.regular.PencilLine
 import dev.maruffirdaus.geopocket.ui.common.component.PageIndicator
+import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavKey
@@ -76,6 +80,7 @@ fun QuestionsScreenContent(
     onEvent: (QuestionsEvent) -> Unit,
     navHandler: NavHandler
 ) {
+    val layoutDirection = LocalLayoutDirection.current
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -123,7 +128,7 @@ fun QuestionsScreenContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp),
+                    .alignHorizontalSpace(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val isCompleted = uiState.score >= 75
@@ -182,7 +187,10 @@ fun QuestionsScreenContent(
         }
 
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding()
+            )
         ) {
             val pagerState = rememberPagerState { uiState.questions.size }
             val isLastPage = pagerState.currentPage == pagerState.pageCount - 1
@@ -196,7 +204,13 @@ fun QuestionsScreenContent(
                         pagerState.animateScrollToPage(index)
                     }
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(
+                        start = innerPadding.calculateStartPadding(layoutDirection),
+                        end = innerPadding.calculateEndPadding(layoutDirection)
+                    )
+                    .padding(vertical = 16.dp)
+                    .alignHorizontalSpace(16.dp)
             )
             HorizontalDivider()
             HorizontalPager(
@@ -212,7 +226,12 @@ fun QuestionsScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollState)
-                        .padding(16.dp),
+                        .padding(
+                            start = innerPadding.calculateStartPadding(layoutDirection),
+                            end = innerPadding.calculateEndPadding(layoutDirection)
+                        )
+                        .padding(vertical = 16.dp)
+                        .alignHorizontalSpace(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Card {
@@ -259,8 +278,12 @@ fun QuestionsScreenContent(
                     }
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(
+                        start = innerPadding.calculateStartPadding(layoutDirection),
+                        end = innerPadding.calculateEndPadding(layoutDirection)
+                    )
+                    .padding(vertical = 16.dp)
+                    .alignHorizontalSpace(16.dp),
                 enabled = !isLastPage || canFinish
             ) {
                 Text(

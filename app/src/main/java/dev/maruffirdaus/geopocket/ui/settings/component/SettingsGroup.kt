@@ -22,10 +22,12 @@ import dev.maruffirdaus.geopocket.ui.settings.model.SettingsGroupItem
 @Composable
 fun SettingsGroup(
     title: String,
-    items: List<SettingsGroupItem>
+    items: List<SettingsGroupItem>,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
     ) {
         Text(
             text = title,
