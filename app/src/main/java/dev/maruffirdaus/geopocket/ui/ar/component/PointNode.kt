@@ -17,10 +17,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.ar.core.Anchor
 import com.google.ar.core.Pose
+import dev.maruffirdaus.geopocket.ui.ar.model.ARConstants
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import io.github.sceneview.ar.ARSceneScope
 import io.github.sceneview.collision.Sphere
+import io.github.sceneview.math.toRotation
 import io.github.sceneview.node.ViewNode
 
 @Composable
@@ -40,6 +42,7 @@ fun ARSceneScope.PointNode(
     ) {
         ViewNodeWrapper(
             windowManager = windowManager,
+            rotation = ARConstants.FaceUpQuaternion.toRotation(),
             collisionShape = Sphere(0.1f),
             visible = true
         ) {

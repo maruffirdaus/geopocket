@@ -6,13 +6,12 @@ import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.data.repository.SettingsRepository
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
+import dev.maruffirdaus.geopocket.ui.ar.model.ARConstants
 import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
 import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
 import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
-import dev.romainguy.kotlin.math.Float3
-import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.math.Position
@@ -44,8 +43,6 @@ class ARViewModel(
     private var currentPose: Pose? = null
     private var currentCamPos: Position? = null
 
-    private val layFlatCorrection = Quaternion.fromAxisAngle(Float3(1f, 0f, 0f), -90f)
-
     fun onEvent(event: AREvent) {
         when (event) {
             is AREvent.OnUpdateReticle -> onUpdateReticle(event.pose, event.camPos)
@@ -69,7 +66,7 @@ class ARViewModel(
             state.copy(
                 reticle = ReticleNodeState(
                     worldPosition = pose.position,
-                    quaternion = pose.quaternion * layFlatCorrection
+                    quaternion = pose.quaternion * ARConstants.FaceUpQuaternion
                 ),
                 preview = if (state.previewEnabled) PreviewState(
                     segment = buildSegmentPreview(),
@@ -113,7 +110,7 @@ class ARViewModel(
             startPos = prevPoint.worldPosition,
             centerPos = lastPoint.worldPosition,
             endPos = pose.position,
-            quaternion = lastPoint.quaternion,
+            quaternion = lastPoint.quaternion * ARConstants.FaceUpQuaternion,
             measurementAssist = measurementAssist,
             constraint = subtopic.constraint.angles[id]
         )
@@ -151,7 +148,7 @@ class ARViewModel(
             startPos = lastWorldPos,
             centerPos = pose.position,
             endPos = firstWorldPos,
-            quaternion = pose.quaternion * layFlatCorrection,
+            quaternion = pose.quaternion * ARConstants.FaceUpQuaternion,
             measurementAssist = measurementAssist,
             constraint = subtopic.constraint.angles[id]
         )
@@ -171,7 +168,7 @@ class ARViewModel(
             startPos = pose.position,
             centerPos = firstWorldPos,
             endPos = secondWorldPos,
-            quaternion = firstPoint.quaternion,
+            quaternion = firstPoint.quaternion * ARConstants.FaceUpQuaternion,
             measurementAssist = measurementAssist,
             constraint = subtopic.constraint.angles[id]
         )
@@ -207,7 +204,7 @@ class ARViewModel(
         val point = PointNodeState(
             id = ('A' + uiState.value.points.size).toString(),
             worldPosition = pose.position,
-            quaternion = pose.quaternion * layFlatCorrection,
+            quaternion = pose.quaternion,
         )
         val lastPoint = uiState.value.points.values.lastOrNull()
 
@@ -292,6 +289,7 @@ class ARViewModel(
             startPoint = startPoint,
             centerPoint = lastPoint,
             endPoint = point,
+            correction = ARConstants.FaceUpQuaternion,
             measurementAssist = measurementAssist,
             constraint = subtopic.constraint.angles["${startPoint.id}${lastPoint.id}${point.id}"]
         )
@@ -326,6 +324,7 @@ class ARViewModel(
                 startPoint = lastPoint,
                 centerPoint = point,
                 endPoint = firstPoint,
+                correction = ARConstants.FaceUpQuaternion,
                 measurementAssist = measurementAssist,
                 constraint = subtopic.constraint.angles["${lastPoint.id}${point.id}${firstPoint.id}"]
             )
@@ -335,6 +334,7 @@ class ARViewModel(
                 startPoint = point,
                 centerPoint = firstPoint,
                 endPoint = secondPoint,
+                correction = ARConstants.FaceUpQuaternion,
                 measurementAssist = measurementAssist,
                 constraint = subtopic.constraint.angles["${point.id}${firstPoint.id}${secondPoint.id}"]
             )

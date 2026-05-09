@@ -41,6 +41,7 @@ data class AngleNodeState(
         startPoint: PointNodeState,
         centerPoint: PointNodeState,
         endPoint: PointNodeState,
+        correction: Quaternion,
         measurementAssist: Boolean,
         constraint: AngleConstraint? = null
     ) : this(
@@ -49,7 +50,7 @@ data class AngleNodeState(
             startPoint.worldPosition,
             endPoint.worldPosition
         ),
-        quaternion = centerPoint.quaternion,
+        quaternion = centerPoint.quaternion * correction,
         degree = centerPoint.worldPosition.angleBetween(
             startPoint.worldPosition,
             endPoint.worldPosition

@@ -222,6 +222,7 @@ fun ARScreenContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .padding(vertical = 16.dp)
                     .alignHorizontalSpace(16.dp)
             ) {
                 ZoomableAsyncImage(

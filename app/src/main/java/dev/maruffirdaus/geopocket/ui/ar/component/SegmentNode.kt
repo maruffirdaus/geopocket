@@ -40,7 +40,6 @@ fun SceneScope.SegmentNode(
         rotation = state.quaternion.toRotation(),
         visible = visible
     ) {
-        val convertedLength = (state.length * 100).toInt()
-        Label("$convertedLength cm")
+        Label("${(state.length * 100).toInt()} cm")
     }
 }
