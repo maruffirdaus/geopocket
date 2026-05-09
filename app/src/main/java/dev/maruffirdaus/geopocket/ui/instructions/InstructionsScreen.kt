@@ -107,7 +107,6 @@ fun InstructionsScreenContent(
                 InstructionsControls(
                     subtopic = uiState.subtopic,
                     navHandler = navHandler,
-                    expanded = true,
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f)
@@ -131,7 +130,6 @@ fun InstructionsScreenContent(
             InstructionsControls(
                 subtopic = uiState.subtopic,
                 navHandler = navHandler,
-                expanded = false,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -159,7 +157,6 @@ private fun InstructionsVisual(
 private fun InstructionsControls(
     subtopic: Subtopic,
     navHandler: NavHandler,
-    expanded: Boolean,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -180,7 +177,7 @@ private fun InstructionsControls(
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .responsiveWidth(expanded),
+                    .alignHorizontalSpace(16.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -199,28 +196,18 @@ private fun InstructionsControls(
                     pagerState.animateScrollToPage(index)
                 }
             },
-            modifier = Modifier.responsiveWidth(expanded)
+            modifier = Modifier.alignHorizontalSpace(16.dp)
         )
         Button(
             onClick = {
                 navHandler.replace(AppNavKey.AR(subtopic.name))
             },
-            modifier = Modifier.responsiveWidth(expanded)
+            modifier = Modifier.alignHorizontalSpace(16.dp)
         ) {
             Text("Mulai")
         }
     }
 }
-
-private fun Modifier.responsiveWidth(expanded: Boolean) = then(
-    if (expanded) {
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-    } else {
-        Modifier.alignHorizontalSpace(16.dp)
-    }
-)
 
 @Composable
 @Preview
