@@ -79,8 +79,10 @@ fun TopicScreenContent(
             contentPadding = innerPadding + PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(Subtopic.entries.filter { it.topic == uiState.topic }
-                .sortedBy { it.order }) { item ->
+            val items = Subtopic.entries.filter { it.topic == uiState.topic }.sortedBy { it.order }
+
+            items(items) { item ->
+                val subtopicProgress = uiState.subtopicProgresses.firstOrNull { it.id == item.id }
                 val unlockedSubtopicIds = uiState.subtopicProgresses.map { it.id }.toSet()
 
                 SubtopicCard(
@@ -90,8 +92,8 @@ fun TopicScreenContent(
                         navHandler.push(AppNavKey.Instructions(item.name))
                     },
                     modifier = Modifier.alignHorizontalSpace(),
-                    highestScore = uiState.subtopicProgresses
-                        .firstOrNull { it.id == item.id }?.highestScore ?: 0
+                    highestScore = subtopicProgress?.highestScore,
+                    completed = subtopicProgress?.isCompleted ?: false
                 )
             }
         }

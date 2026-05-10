@@ -55,6 +55,7 @@ import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavKey
 import dev.maruffirdaus.geopocket.ui.quiz.questions.component.OptionCard
 import dev.maruffirdaus.geopocket.ui.quiz.questions.component.ShapeCanvas
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import dev.maruffirdaus.geopocket.ui.theme.LocalExtendedColors
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -81,6 +82,7 @@ fun QuestionsScreenContent(
     navHandler: NavHandler
 ) {
     val layoutDirection = LocalLayoutDirection.current
+    val extendedColors = LocalExtendedColors.current
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -140,16 +142,16 @@ fun QuestionsScreenContent(
                         .size(256.dp)
                         .clip(
                             shape = if (isCompleted) {
-                                MaterialShapes.VerySunny.toShape()
+                                MaterialShapes.Clover8Leaf.toShape()
                             } else {
-                                MaterialShapes.Sunny.toShape()
+                                MaterialShapes.Clover4Leaf.toShape()
                             }
                         )
                         .background(
                             color = if (isCompleted) {
-                                MaterialTheme.colorScheme.primary
+                                extendedColors.success.color
                             } else {
-                                MaterialTheme.colorScheme.error
+                                extendedColors.fail.color
                             }
                         ),
                     contentAlignment = Alignment.Center
@@ -157,9 +159,9 @@ fun QuestionsScreenContent(
                     Text(
                         text = uiState.score.toString(),
                         color = if (isCompleted) {
-                            MaterialTheme.colorScheme.onPrimary
+                            extendedColors.success.onColor
                         } else {
-                            MaterialTheme.colorScheme.onError
+                            extendedColors.fail.onColor
                         },
                         style = MaterialTheme.typography.displayLarge
                     )

@@ -19,7 +19,9 @@ fun GeoPocketTheme(
         line = extendedColorRoles(LineBaseColor.harmonize(primary), darkTheme),
         angle = extendedColorRoles(AngleBaseColor.harmonize(primary), darkTheme),
         triangle = extendedColorRoles(TriangleBaseColor.harmonize(primary), darkTheme),
-        quadrilateral = extendedColorRoles(QuadrilateralBaseColor.harmonize(primary), darkTheme)
+        quadrilateral = extendedColorRoles(QuadrilateralBaseColor.harmonize(primary), darkTheme),
+        success = extendedColorRoles(SuccessBaseColor.harmonize(primary), darkTheme),
+        fail = extendedColorRoles(FailBaseColor.harmonize(primary), darkTheme)
     )
 
     CompositionLocalProvider(LocalExtendedColors provides extendedColors) {

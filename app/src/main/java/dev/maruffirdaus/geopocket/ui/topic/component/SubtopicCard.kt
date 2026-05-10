@@ -26,6 +26,7 @@ import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.ui.common.component.TopicStatusLabel
 import dev.maruffirdaus.geopocket.ui.common.model.TopicStatus
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import dev.maruffirdaus.geopocket.ui.theme.LocalExtendedColors
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -34,16 +35,17 @@ fun SubtopicCard(
     unlocked: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    highestScore: Int = 0
+    highestScore: Int? = null,
+    completed: Boolean = false
 ) {
+    val extendedColors = LocalExtendedColors.current
+
     Card(
         onClick = onClick,
         modifier = modifier,
         enabled = unlocked,
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        val isCompleted = highestScore >= 75
-
         Column(
             modifier = Modifier.padding(24.dp)
         ) {
@@ -51,32 +53,32 @@ fun SubtopicCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                if (unlocked) {
+                if (unlocked && highestScore != null) {
                     Box(
                         modifier = Modifier
                             .size(64.dp)
                             .clip(
-                                shape = if (isCompleted) {
-                                    MaterialShapes.VerySunny.toShape()
+                                shape = if (completed) {
+                                    MaterialShapes.Clover8Leaf.toShape()
                                 } else {
-                                    MaterialShapes.Sunny.toShape()
+                                    MaterialShapes.Clover4Leaf.toShape()
                                 }
                             )
                             .background(
-                                color = if (isCompleted) {
-                                    MaterialTheme.colorScheme.primary
+                                color = if (completed) {
+                                    extendedColors.success.color
                                 } else {
-                                    MaterialTheme.colorScheme.error
+                                    extendedColors.fail.color
                                 }
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = highestScore.toString(),
-                            color = if (isCompleted) {
-                                MaterialTheme.colorScheme.onPrimary
+                            color = if (completed) {
+                                extendedColors.success.onColor
                             } else {
-                                MaterialTheme.colorScheme.onError
+                                extendedColors.fail.onColor
                             },
                             style = MaterialTheme.typography.titleLarge
                         )
@@ -86,11 +88,10 @@ fun SubtopicCard(
                 TopicStatusLabel(
                     status = when {
                         !unlocked -> TopicStatus.LOCKED
-                        isCompleted -> TopicStatus.PASSED
+                        completed -> TopicStatus.PASSED
                         else -> TopicStatus.NOT_PASSED
                     }
                 )
-
             }
             Spacer(Modifier.height(24.dp))
             Text(
