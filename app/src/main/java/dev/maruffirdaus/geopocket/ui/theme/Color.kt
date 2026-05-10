@@ -82,3 +82,8 @@ fun extendedColorRoles(baseColor: Color, isDark: Boolean): ExtendedColorRoles {
         )
     }
 }
+
+const val DisabledContentAlpha = 0.38f
+
+fun Color.applyDisabledAlpha(enabled: Boolean): Color =
+    copy(alpha = if (enabled) 1f else DisabledContentAlpha)

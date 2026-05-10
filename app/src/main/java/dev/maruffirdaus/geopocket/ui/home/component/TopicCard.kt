@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -30,6 +29,7 @@ import dev.maruffirdaus.geopocket.ui.home.extension.toIcon
 import dev.maruffirdaus.geopocket.ui.home.extension.toIconContainerShape
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import dev.maruffirdaus.geopocket.ui.theme.LocalExtendedColors
+import dev.maruffirdaus.geopocket.ui.theme.applyDisabledAlpha
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -52,7 +52,7 @@ fun TopicCard(
         onClick = onClick,
         modifier = modifier,
         enabled = unlocked,
-        shape = RoundedCornerShape(24.dp)
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
             modifier = Modifier.padding(24.dp)
@@ -65,20 +65,14 @@ fun TopicCard(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(topic.toIconContainerShape())
-                        .background(
-                            color = colorRoles.color.copy(
-                                alpha = if (!unlocked) 0.38f else 1f
-                            )
-                        ),
+                        .background(colorRoles.color.applyDisabledAlpha(unlocked)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = topic.toIcon(),
                         contentDescription = topic.title,
                         modifier = Modifier.size(32.dp),
-                        tint = colorRoles.onColor.copy(
-                            alpha = if (!unlocked) 0.38f else 1f
-                        )
+                        tint = colorRoles.onColor.applyDisabledAlpha(unlocked)
                     )
                 }
                 TopicStatusLabel(

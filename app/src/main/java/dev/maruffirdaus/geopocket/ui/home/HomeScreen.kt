@@ -80,7 +80,7 @@ fun HomeScreenContent(
         LazyColumn(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             contentPadding = innerPadding + PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(Topic.entries.sortedBy { it.order }) { item ->
                 val subtopicIds = Subtopic.entries.filter { it.topic == item }.map { it.id }.toSet()

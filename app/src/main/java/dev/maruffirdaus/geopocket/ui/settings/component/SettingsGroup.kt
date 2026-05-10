@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -35,20 +34,20 @@ fun SettingsGroup(
             style = MaterialTheme.typography.labelLarge
         )
         Column(
-            modifier = Modifier.clip(RoundedCornerShape(16.dp)),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            modifier = Modifier.clip(MaterialTheme.shapes.largeIncreased),
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             items.forEach { item ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(4.dp))
+                        .clip(MaterialTheme.shapes.extraSmall)
                         .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                        .let {
+                        .then(
                             if (item is SettingsGroupItem.Action) {
-                                it.clickable(onClick = item.onClick)
-                            } else it
-                        }
+                                Modifier.clickable(onClick = item.onClick)
+                            } else Modifier
+                        )
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically

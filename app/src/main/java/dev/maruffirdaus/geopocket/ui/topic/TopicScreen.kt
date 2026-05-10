@@ -77,7 +77,7 @@ fun TopicScreenContent(
         LazyColumn(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             contentPadding = innerPadding + PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(Subtopic.entries.filter { it.topic == uiState.topic }
                 .sortedBy { it.order }) { item ->

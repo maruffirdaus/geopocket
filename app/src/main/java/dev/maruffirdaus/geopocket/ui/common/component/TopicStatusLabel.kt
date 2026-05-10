@@ -18,21 +18,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.ui.common.model.TopicStatus
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
+import dev.maruffirdaus.geopocket.ui.theme.applyDisabledAlpha
 
 @Composable
 fun TopicStatusLabel(
     status: TopicStatus,
     modifier: Modifier = Modifier
 ) {
+    val isUnlocked = status != TopicStatus.LOCKED
+
     Row(
         modifier = modifier
             .height(28.dp)
             .clip(CircleShape)
-            .background(
-                color = MaterialTheme.colorScheme.secondary.copy(
-                    alpha = if (status == TopicStatus.LOCKED) 0.38f else 1f
-                )
-            )
+            .background(MaterialTheme.colorScheme.secondary.applyDisabledAlpha(isUnlocked))
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -41,15 +40,11 @@ fun TopicStatusLabel(
             imageVector = status.icon,
             contentDescription = status.title,
             modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.onSecondary.copy(
-                alpha = if (status == TopicStatus.LOCKED) 0.38f else 1f
-            )
+            tint = MaterialTheme.colorScheme.onSecondary.applyDisabledAlpha(isUnlocked)
         )
         Text(
             text = status.title,
-            color = MaterialTheme.colorScheme.onSecondary.copy(
-                alpha = if (status == TopicStatus.LOCKED) 0.38f else 1f
-            ),
+            color = MaterialTheme.colorScheme.onSecondary.applyDisabledAlpha(isUnlocked),
             style = MaterialTheme.typography.labelSmall
         )
     }
