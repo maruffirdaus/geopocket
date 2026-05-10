@@ -9,13 +9,12 @@ import com.materialkolor.palettes.TonalPalette
 
 val SeedColor = Color(0xFF2563EB)
 
-val LineBaseColor = Color(0xFF0891B2)
-val AngleBaseColor = Color(0xFFBA7517)
-val TriangleBaseColor = Color(0xFF7F77DD)
-val QuadrilateralBaseColor = Color(0xFF639922)
+val LineBaseColor = Color(0xFFBDBDBD)
+val AngleBaseColor = Color(0xFF42A5F5)
+val TriangleBaseColor = Color(0xFF66BB6A)
+val QuadrilateralBaseColor = Color(0xFFFFCA28)
 
-val SuccessBaseColor = Color(0xFF16A34A)
-val FailBaseColor = Color(0xFFE05C2D)
+val FailBaseColor = Color(0xFFFF7043)
 
 @Immutable
 data class ExtendedColorRoles(
@@ -31,7 +30,6 @@ data class AppExtendedColors(
     val angle: ExtendedColorRoles,
     val triangle: ExtendedColorRoles,
     val quadrilateral: ExtendedColorRoles,
-    val success: ExtendedColorRoles,
     val fail: ExtendedColorRoles
 )
 
@@ -56,12 +54,6 @@ val LocalExtendedColors = staticCompositionLocalOf {
             Color.Unspecified
         ),
         quadrilateral = ExtendedColorRoles(
-            Color.Unspecified,
-            Color.Unspecified,
-            Color.Unspecified,
-            Color.Unspecified
-        ),
-        success = ExtendedColorRoles(
             Color.Unspecified,
             Color.Unspecified,
             Color.Unspecified,
@@ -101,7 +93,7 @@ fun extendedColorRoles(baseColor: Color, isDark: Boolean): ExtendedColorRoles {
     }
 }
 
-const val DisabledContentAlpha = 0.38f
+const val DisabledAlpha = 0.38f
 
 fun Color.applyDisabledAlpha(enabled: Boolean): Color =
-    copy(alpha = if (enabled) 1f else DisabledContentAlpha)
+    copy(alpha = if (enabled) 1f else DisabledAlpha)

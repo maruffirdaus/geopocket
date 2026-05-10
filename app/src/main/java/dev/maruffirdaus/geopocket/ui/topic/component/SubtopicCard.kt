@@ -59,14 +59,14 @@ fun SubtopicCard(
                             .size(64.dp)
                             .clip(
                                 shape = if (completed) {
-                                    MaterialShapes.Clover8Leaf.toShape()
+                                    MaterialShapes.Cookie12Sided.toShape()
                                 } else {
-                                    MaterialShapes.Clover4Leaf.toShape()
+                                    MaterialShapes.Cookie9Sided.toShape()
                                 }
                             )
                             .background(
                                 color = if (completed) {
-                                    extendedColors.success.color
+                                    MaterialTheme.colorScheme.primary
                                 } else {
                                     extendedColors.fail.color
                                 }
@@ -76,7 +76,7 @@ fun SubtopicCard(
                         Text(
                             text = highestScore.toString(),
                             color = if (completed) {
-                                extendedColors.success.onColor
+                                MaterialTheme.colorScheme.onPrimary
                             } else {
                                 extendedColors.fail.onColor
                             },
