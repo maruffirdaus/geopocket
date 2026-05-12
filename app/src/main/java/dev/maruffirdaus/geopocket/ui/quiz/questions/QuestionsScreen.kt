@@ -1,8 +1,6 @@
 package dev.maruffirdaus.geopocket.ui.quiz.questions
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -26,20 +24,15 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,7 +48,6 @@ import dev.maruffirdaus.geopocket.ui.quiz.navigation.QuizNavKey
 import dev.maruffirdaus.geopocket.ui.quiz.questions.component.OptionCard
 import dev.maruffirdaus.geopocket.ui.quiz.questions.component.ShapeCanvas
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
-import dev.maruffirdaus.geopocket.ui.theme.LocalExtendedColors
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -82,12 +74,11 @@ fun QuestionsScreenContent(
     navHandler: NavHandler
 ) {
     val layoutDirection = LocalLayoutDirection.current
-    val extendedColors = LocalExtendedColors.current
     val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
-            if (uiState.score == null) TopAppBar(
+            TopAppBar(
                 title = {
                     Text("Kuis")
                 },
@@ -125,70 +116,6 @@ fun QuestionsScreenContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.score != null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(vertical = 16.dp)
-                    .alignHorizontalSpace(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val isCompleted = uiState.score >= 75
-
-                Spacer(Modifier.weight(1f))
-                Box(
-                    modifier = Modifier
-                        .size(256.dp)
-                        .clip(
-                            shape = if (isCompleted) {
-                                MaterialShapes.Cookie12Sided.toShape()
-                            } else {
-                                MaterialShapes.Cookie9Sided.toShape()
-                            }
-                        )
-                        .background(
-                            color = if (isCompleted) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                extendedColors.fail.color
-                            }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = uiState.score.toString(),
-                        color = if (isCompleted) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            extendedColors.fail.onColor
-                        },
-                        style = MaterialTheme.typography.displayLarge
-                    )
-                }
-                Spacer(Modifier.weight(0.5f))
-                Text(
-                    text = if (isCompleted) {
-                        "Selamat, kamu lulus dan memenuhi nilai minimum"
-                    } else {
-                        "Kamu belum memenuhi nilai minimum. Silakan ulangi"
-                    },
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.displaySmall
-                )
-                Spacer(Modifier.weight(1f))
-                Button(
-                    onClick = {
-                        navHandler.pop<AppNavKey>()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Kembali")
-                }
-            }
-            return@Scaffold
-        }
-
         Column(
             modifier = Modifier.padding(
                 top = innerPadding.calculateTopPadding(),
@@ -271,7 +198,13 @@ fun QuestionsScreenContent(
             Button(
                 onClick = {
                     if (canFinish) {
-                        onEvent(QuestionsEvent.OnFinish)
+                        onEvent(
+                            QuestionsEvent.OnFinish(
+                                onResultSaved = { score, isCompleted ->
+                                    navHandler.replace(QuizNavKey.Result(score, isCompleted))
+                                }
+                            )
+                        )
                         return@Button
                     }
                     if (!isLastPage) {

@@ -35,7 +35,7 @@ class QuestionsViewModel(
     fun onEvent(event: QuestionsEvent) {
         when (event) {
             is QuestionsEvent.OnSelectOption -> onSelectOption(event.index, event.id)
-            is QuestionsEvent.OnFinish -> onFinish()
+            is QuestionsEvent.OnFinish -> onFinish(event.onResultSaved)
         }
     }
 
@@ -45,7 +45,7 @@ class QuestionsViewModel(
         }
     }
 
-    private fun onFinish() {
+    private fun onFinish(onResultSaved: (Int, Boolean) -> Unit) {
         val questions = uiState.value.questions
         val selectedOptionIds = uiState.value.selectedOptionIds
         var score = 0f
@@ -59,7 +59,8 @@ class QuestionsViewModel(
         viewModelScope.launch {
             val lastScore = topicRepository.getSubtopicProgress(subtopic.id)?.highestScore
             val highestScore = maxOf(normalizedScore, lastScore ?: 0)
-            val isCompleted = highestScore >= 75
+            val minimumScore = 75
+            val isCompleted = highestScore >= minimumScore
 
             topicRepository.save(
                 SubtopicProgress(
@@ -77,10 +78,8 @@ class QuestionsViewModel(
                     SubtopicProgress(id = nextSubtopic.id)
                 )
             }
-        }
 
-        _uiState.update {
-            it.copy(score = normalizedScore)
+            onResultSaved(normalizedScore, normalizedScore >= minimumScore)
         }
     }
 

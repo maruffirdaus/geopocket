@@ -10,6 +10,5 @@ data class QuestionsUiState(
     val segments: Map<String, SegmentResult> = mapOf(),
     val angles: Map<String, AngleResult> = mapOf(),
     val questions: List<Question> = listOf(),
-    val selectedOptionIds: Map<Int, String> = mapOf(),
-    val score: Int? = null
+    val selectedOptionIds: Map<Int, String> = mapOf()
 )

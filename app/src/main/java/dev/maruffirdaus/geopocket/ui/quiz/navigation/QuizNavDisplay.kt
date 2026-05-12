@@ -11,6 +11,7 @@ import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.quiz.questions.QuestionsScreen
 import dev.maruffirdaus.geopocket.ui.quiz.questions.QuestionsViewModel
+import dev.maruffirdaus.geopocket.ui.quiz.result.QuizResultScreen
 import dev.maruffirdaus.geopocket.ui.quiz.scratchpad.ScratchpadScreen
 import dev.maruffirdaus.geopocket.ui.quiz.scratchpad.ScratchpadViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -44,6 +45,13 @@ fun QuizNavDisplay(
             entry<QuizNavKey.Scratchpad> {
                 ScratchpadScreen(
                     viewModel = scratchpadViewModel
+                )
+            }
+            entry<QuizNavKey.Result> { key ->
+                QuizResultScreen(
+                    viewModel = koinViewModel {
+                        parametersOf(key.score, key.completed)
+                    }
                 )
             }
         }

@@ -12,6 +12,11 @@ class NavHandler {
 
     fun push(key: NavKey) {
         when (key) {
+            is AppNavKey.Quiz -> {
+                reset<QuizNavKey>()
+                appBackStack.add(key)
+            }
+
             is AppNavKey -> appBackStack.add(key)
             is QuizNavKey -> quizBackStack.add(key)
         }
@@ -19,6 +24,11 @@ class NavHandler {
 
     fun replace(key: NavKey) {
         when (key) {
+            is AppNavKey.Quiz -> {
+                reset<QuizNavKey>()
+                appBackStack[appBackStack.lastIndex] = key
+            }
+
             is AppNavKey -> appBackStack[appBackStack.lastIndex] = key
             is QuizNavKey -> quizBackStack[quizBackStack.lastIndex] = key
         }
@@ -28,6 +38,15 @@ class NavHandler {
         when (T::class) {
             AppNavKey::class -> if (appBackStack.size > 1) appBackStack.removeLastOrNull()
             QuizNavKey::class -> if (quizBackStack.size > 1) quizBackStack.removeLastOrNull()
+        }
+    }
+
+    private inline fun <reified T : NavKey> reset() {
+        when (T::class) {
+            QuizNavKey::class -> {
+                quizBackStack.clear()
+                quizBackStack.add(QuizNavKey.Questions)
+            }
         }
     }
 }

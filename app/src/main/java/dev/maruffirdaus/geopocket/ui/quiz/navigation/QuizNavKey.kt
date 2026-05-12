@@ -6,8 +6,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface QuizNavKey : NavKey {
     @Serializable
-    object Questions: QuizNavKey
+    object Questions : QuizNavKey
 
     @Serializable
-    object Scratchpad: QuizNavKey
+    object Scratchpad : QuizNavKey
+
+    @Serializable
+    data class Result(
+        val score: Int,
+        val completed: Boolean
+    ) : QuizNavKey
 }
