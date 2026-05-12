@@ -91,7 +91,7 @@ fun HomeScreenContent(
                     topic = item,
                     unlocked = item.order == 0 || unlockedSubtopics.isNotEmpty(),
                     onClick = {
-                        navHandler.push(AppNavKey.Topic(item.name))
+                        navHandler.push(AppNavKey.Topic(item))
                     },
                     modifier = Modifier.alignHorizontalSpace(),
                     progress = if (unlockedSubtopics.isEmpty()) 0f else {

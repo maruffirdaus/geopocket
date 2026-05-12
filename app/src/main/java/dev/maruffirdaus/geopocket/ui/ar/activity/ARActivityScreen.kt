@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar
+package dev.maruffirdaus.geopocket.ui.ar.activity
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -6,13 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconButton
@@ -22,7 +18,6 @@ import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,9 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,22 +42,22 @@ import com.adamglin.phosphoricons.regular.Plus
 import com.adamglin.phosphoricons.regular.Trash
 import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
 import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
-import dev.maruffirdaus.geopocket.ui.ar.component.AppARSceneView
-import dev.maruffirdaus.geopocket.ui.ar.component.InstructionsCard
-import dev.maruffirdaus.geopocket.ui.ar.extension.capture
-import dev.maruffirdaus.geopocket.ui.ar.extension.saveToCache
+import dev.maruffirdaus.geopocket.ui.ar.activity.component.AppARSceneView
+import dev.maruffirdaus.geopocket.ui.ar.activity.component.InstructionsCard
+import dev.maruffirdaus.geopocket.ui.ar.activity.extension.capture
+import dev.maruffirdaus.geopocket.ui.ar.activity.extension.saveToCache
+import dev.maruffirdaus.geopocket.ui.ar.navigation.ARNavKey
 import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import kotlinx.coroutines.launch
-import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ARScreen(
-    viewModel: ARViewModel = koinViewModel(),
+fun ARActivityScreen(
+    viewModel: ARActivityViewModel = koinViewModel(),
     navHandler: NavHandler = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -80,7 +73,18 @@ fun ARScreen(
                     scope.launch {
                         val file = bitmap.saveToCache(activity)
                         bitmap.recycle()
-                        viewModel.onEvent(AREvent.OnCompletionImageCaptured(file.absolutePath))
+                        navHandler.replace(
+                            ARNavKey.Result(
+                                subtopic = uiState.subtopic,
+                                segments = uiState.segments.mapValues {
+                                    SegmentResult(it.value.id, it.value.length)
+                                },
+                                angles = uiState.angles.mapValues {
+                                    AngleResult(it.value.id, it.value.degree)
+                                },
+                                completionImage = file.absolutePath
+                            )
+                        )
                     }
                 },
                 onError = {
@@ -90,7 +94,7 @@ fun ARScreen(
         }
     }
 
-    ARScreenContent(
+    ARActivityScreenContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
         navHandler = navHandler
@@ -106,13 +110,13 @@ fun ARScreen(
             maxPoints = uiState.subtopic.constraint.pointCount,
             closedShape = uiState.subtopic.constraint.closedShape,
             onUpdateReticle = { pose, camPos ->
-                viewModel.onEvent(AREvent.OnUpdateReticle(pose, camPos))
+                viewModel.onEvent(ARActivityEvent.OnUpdateReticle(pose, camPos))
             },
             onPointMoving = { id, pose ->
-                viewModel.onEvent(AREvent.OnPointMoving(id, pose))
+                viewModel.onEvent(ARActivityEvent.OnPointMoving(id, pose))
             },
             onPointMoved = {
-                viewModel.onEvent(AREvent.OnPointMoved)
+                viewModel.onEvent(ARActivityEvent.OnPointMoved)
             }
         )
     }
@@ -120,36 +124,13 @@ fun ARScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ARScreenContent(
-    uiState: ARUiState,
-    onEvent: (AREvent) -> Unit,
+fun ARActivityScreenContent(
+    uiState: ARActivityUiState,
+    onEvent: (ARActivityEvent) -> Unit,
     navHandler: NavHandler,
     arContent: @Composable () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            if (uiState.completionImage == null) return@Scaffold
-            LargeFlexibleTopAppBar(
-                title = {
-                    Text("Berhasil")
-                },
-                subtitle = {
-                    Text("Kamu telah menyelesaikan aktivitas ini dengan baik")
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navHandler.pop<AppNavKey>()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = PhosphorIcons.Regular.ArrowLeft,
-                            contentDescription = "Kembali"
-                        )
-                    }
-                }
-            )
-        },
         floatingActionButton = {
             if (uiState.completed) return@Scaffold
             Row(
@@ -161,7 +142,7 @@ fun ARScreenContent(
                 ) {
                     IconButton(
                         onClick = {
-                            onEvent(AREvent.OnEnablePreview)
+                            onEvent(ARActivityEvent.OnEnablePreview)
                         },
                         colors = if (uiState.previewEnabled) {
                             IconButtonDefaults.filledTonalIconButtonColors()
@@ -176,7 +157,7 @@ fun ARScreenContent(
                     }
                     IconButton(
                         onClick = {
-                            onEvent(AREvent.OnEnablePlaneRenderer)
+                            onEvent(ARActivityEvent.OnEnablePlaneRenderer)
                         },
                         colors = if (uiState.planeRendererEnabled) {
                             IconButtonDefaults.filledTonalIconButtonColors()
@@ -191,7 +172,7 @@ fun ARScreenContent(
                     }
                     IconButton(
                         onClick = {
-                            onEvent(AREvent.OnClearPoints)
+                            onEvent(ARActivityEvent.OnClearPoints)
                         },
                         enabled = uiState.points.isNotEmpty()
                     ) {
@@ -204,7 +185,7 @@ fun ARScreenContent(
                 Spacer(Modifier.width(8.dp))
                 FloatingActionButton(
                     onClick = {
-                        onEvent(AREvent.OnAddPoint)
+                        onEvent(ARActivityEvent.OnAddPoint)
                     },
                     elevation = FloatingActionButtonDefaults.elevation(1.dp, 1.dp, 1.dp, 1.dp)
                 ) {
@@ -217,45 +198,6 @@ fun ARScreenContent(
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { innerPadding ->
-        if (uiState.completionImage != null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(vertical = 16.dp)
-                    .alignHorizontalSpace(16.dp)
-            ) {
-                ZoomableAsyncImage(
-                    model = uiState.completionImage,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        navHandler.replace(
-                            AppNavKey.Quiz(
-                                subtopic = uiState.subtopic,
-                                segments = uiState.segments.mapValues {
-                                    SegmentResult(it.value.id, it.value.length)
-                                },
-                                angles = uiState.angles.mapValues {
-                                    AngleResult(it.value.id, it.value.degree)
-                                }
-                            )
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Mulai kuis")
-                }
-            }
-            return@Scaffold
-        }
         arContent()
         if (uiState.completed) return@Scaffold
         if (!uiState.environmentScanned) Column(
@@ -314,10 +256,10 @@ fun ARScreenContent(
 
 @Composable
 @Preview
-private fun ARScreenPreview() {
+private fun ARActivityScreenPreview() {
     GeoPocketTheme {
-        ARScreenContent(
-            uiState = ARUiState(),
+        ARActivityScreenContent(
+            uiState = ARActivityUiState(),
             onEvent = {},
             navHandler = NavHandler()
         ) {}

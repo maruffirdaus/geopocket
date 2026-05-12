@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

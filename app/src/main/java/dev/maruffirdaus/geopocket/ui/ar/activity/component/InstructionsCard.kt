@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,9 +23,9 @@ import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.constraint.AngleConstraint
 import dev.maruffirdaus.geopocket.domain.topic.constraint.Constraint
 import dev.maruffirdaus.geopocket.domain.topic.constraint.SegmentConstraint
-import dev.maruffirdaus.geopocket.ui.ar.extension.toHint
-import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.extension.toHint
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.AngleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.SegmentNodeState
 import dev.maruffirdaus.geopocket.ui.common.component.PageIndicator
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import kotlinx.coroutines.launch

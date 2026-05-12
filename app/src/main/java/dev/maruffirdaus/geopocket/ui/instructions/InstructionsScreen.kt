@@ -200,7 +200,7 @@ private fun InstructionsControls(
         )
         Button(
             onClick = {
-                navHandler.replace(AppNavKey.AR(subtopic.name))
+                navHandler.replace(AppNavKey.AR(subtopic))
             },
             modifier = Modifier.alignHorizontalSpace(16.dp)
         ) {

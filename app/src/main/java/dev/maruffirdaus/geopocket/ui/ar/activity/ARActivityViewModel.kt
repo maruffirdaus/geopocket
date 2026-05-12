@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar
+package dev.maruffirdaus.geopocket.ui.ar.activity
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,12 +6,12 @@ import com.google.ar.core.Pose
 import dev.maruffirdaus.geopocket.data.repository.SettingsRepository
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.ui.ar.model.ARConstants
-import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
-import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.ARConstants
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.AngleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.PreviewState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.ReticleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.SegmentNodeState
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.quaternion
 import io.github.sceneview.math.Position
@@ -23,13 +23,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
+import kotlin.collections.forEach
+import kotlin.collections.plus
+import kotlin.collections.plusAssign
 
 @KoinViewModel
-class ARViewModel(
+class ARActivityViewModel(
     @InjectedParam private val subtopic: Subtopic,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ARUiState(subtopic = subtopic))
+    private val _uiState = MutableStateFlow(ARActivityUiState(subtopic = subtopic))
     val uiState = _uiState
         .onStart { loadSettings() }
         .stateIn(
@@ -43,16 +46,15 @@ class ARViewModel(
     private var currentPose: Pose? = null
     private var currentCamPos: Position? = null
 
-    fun onEvent(event: AREvent) {
+    fun onEvent(event: ARActivityEvent) {
         when (event) {
-            is AREvent.OnUpdateReticle -> onUpdateReticle(event.pose, event.camPos)
-            AREvent.OnEnablePreview -> onEnablePreview()
-            AREvent.OnEnablePlaneRenderer -> onEnablePlaneRenderer()
-            AREvent.OnAddPoint -> onAddPoint()
-            is AREvent.OnPointMoving -> onPointMoving(event.id, event.pose)
-            AREvent.OnPointMoved -> onPointMoved()
-            AREvent.OnClearPoints -> onClearPoints()
-            is AREvent.OnCompletionImageCaptured -> onCompletionImageCaptured(event.path)
+            is ARActivityEvent.OnUpdateReticle -> onUpdateReticle(event.pose, event.camPos)
+            ARActivityEvent.OnEnablePreview -> onEnablePreview()
+            ARActivityEvent.OnEnablePlaneRenderer -> onEnablePlaneRenderer()
+            ARActivityEvent.OnAddPoint -> onAddPoint()
+            is ARActivityEvent.OnPointMoving -> onPointMoving(event.id, event.pose)
+            ARActivityEvent.OnPointMoved -> onPointMoved()
+            ARActivityEvent.OnClearPoints -> onClearPoints()
         }
     }
 
@@ -449,12 +451,6 @@ class ARViewModel(
                 segments = mapOf(),
                 angles = mapOf()
             )
-        }
-    }
-
-    private fun onCompletionImageCaptured(path: String) {
-        _uiState.update {
-            it.copy(completionImage = path)
         }
     }
 

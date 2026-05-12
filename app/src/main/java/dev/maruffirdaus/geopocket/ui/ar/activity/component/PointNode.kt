@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.ar.core.Anchor
 import com.google.ar.core.Pose
-import dev.maruffirdaus.geopocket.ui.ar.model.ARConstants
-import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.ARConstants
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.PointNodeState
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import io.github.sceneview.ar.ARSceneScope
 import io.github.sceneview.collision.Sphere

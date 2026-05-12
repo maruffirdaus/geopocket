@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.extension
+package dev.maruffirdaus.geopocket.ui.ar.activity.extension
 
 import android.app.Activity
 import android.graphics.Bitmap

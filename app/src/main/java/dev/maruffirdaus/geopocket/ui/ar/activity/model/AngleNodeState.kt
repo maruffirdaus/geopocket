@@ -1,9 +1,9 @@
-package dev.maruffirdaus.geopocket.ui.ar.model
+package dev.maruffirdaus.geopocket.ui.ar.activity.model
 
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.topic.constraint.AngleConstraint
-import dev.maruffirdaus.geopocket.ui.ar.extension.angleBetween
-import dev.maruffirdaus.geopocket.ui.ar.extension.angleBisectorPosition
+import dev.maruffirdaus.geopocket.ui.ar.activity.extension.angleBetween
+import dev.maruffirdaus.geopocket.ui.ar.activity.extension.angleBisectorPosition
 import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.math.Position
 import kotlin.math.abs

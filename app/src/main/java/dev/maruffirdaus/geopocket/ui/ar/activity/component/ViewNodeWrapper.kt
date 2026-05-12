@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable

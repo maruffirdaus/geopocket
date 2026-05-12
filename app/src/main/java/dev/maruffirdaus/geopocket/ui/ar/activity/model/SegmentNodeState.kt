@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.model
+package dev.maruffirdaus.geopocket.ui.ar.activity.model
 
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
 import dev.maruffirdaus.geopocket.domain.topic.constraint.SegmentConstraint

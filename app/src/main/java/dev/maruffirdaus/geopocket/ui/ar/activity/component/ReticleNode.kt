@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.ReticleNodeState
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme
 import io.github.sceneview.SceneScope
 import io.github.sceneview.math.toRotation

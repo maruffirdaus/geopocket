@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.model
+package dev.maruffirdaus.geopocket.ui.ar.activity.model
 
 data class PreviewState(
     val segment: SegmentNodeState? = null,

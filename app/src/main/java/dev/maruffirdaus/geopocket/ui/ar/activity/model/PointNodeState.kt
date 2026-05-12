@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.model
+package dev.maruffirdaus.geopocket.ui.ar.activity.model
 
 import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.math.Position

@@ -13,17 +13,17 @@ sealed interface AppNavKey : NavKey {
 
     @Serializable
     data class Topic(
-        val topic: String
+        val topic: dev.maruffirdaus.geopocket.domain.topic.Topic
     ) : AppNavKey
 
     @Serializable
     data class Instructions(
-        val subtopic: String
+        val subtopic: Subtopic
     ) : AppNavKey
 
     @Serializable
     data class AR(
-        val subtopic: String
+        val subtopic: Subtopic
     ) : AppNavKey
 
     @Serializable

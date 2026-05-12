@@ -5,9 +5,7 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.domain.topic.Topic
-import dev.maruffirdaus.geopocket.ui.ar.ARScreen
+import dev.maruffirdaus.geopocket.ui.ar.navigation.ARNavDisplay
 import dev.maruffirdaus.geopocket.ui.home.HomeScreen
 import dev.maruffirdaus.geopocket.ui.instructions.InstructionsScreen
 import dev.maruffirdaus.geopocket.ui.licenses.LicensesScreen
@@ -35,22 +33,20 @@ fun AppNavDisplay(
             entry<AppNavKey.Topic> { key ->
                 TopicScreen(
                     viewModel = koinViewModel {
-                        parametersOf(Topic.valueOf(key.topic))
+                        parametersOf(key.topic)
                     }
                 )
             }
             entry<AppNavKey.Instructions> { key ->
                 InstructionsScreen(
                     viewModel = koinViewModel {
-                        parametersOf(Subtopic.valueOf(key.subtopic))
+                        parametersOf(key.subtopic)
                     }
                 )
             }
             entry<AppNavKey.AR> { key ->
-                ARScreen(
-                    viewModel = koinViewModel {
-                        parametersOf(Subtopic.valueOf(key.subtopic))
-                    }
+                ARNavDisplay(
+                    subtopic = key.subtopic
                 )
             }
             entry<AppNavKey.Quiz> { key ->

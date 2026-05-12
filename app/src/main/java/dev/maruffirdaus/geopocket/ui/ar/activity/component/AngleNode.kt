@@ -1,7 +1,7 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.runtime.Composable
-import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.AngleNodeState
 import io.github.sceneview.SceneScope
 import io.github.sceneview.math.toRotation
 import io.github.sceneview.node.ViewNode

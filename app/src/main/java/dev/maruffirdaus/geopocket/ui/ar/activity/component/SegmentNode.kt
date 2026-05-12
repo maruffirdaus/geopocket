@@ -1,9 +1,9 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.SegmentNodeState
 import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.SceneScope
 import io.github.sceneview.math.toRotation

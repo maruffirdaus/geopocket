@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.ar.component
+package dev.maruffirdaus.geopocket.ui.ar.activity.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -15,11 +15,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Pose
-import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
-import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.AngleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.PreviewState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.ReticleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.SegmentNodeState
 import io.github.sceneview.SurfaceType
 import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.arcore.isValid

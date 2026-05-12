@@ -89,7 +89,7 @@ fun TopicScreenContent(
                     subtopic = item,
                     unlocked = item.order == 0 || item.id in unlockedSubtopicIds,
                     onClick = {
-                        navHandler.push(AppNavKey.Instructions(item.name))
+                        navHandler.push(AppNavKey.Instructions(item))
                     },
                     modifier = Modifier.alignHorizontalSpace(),
                     highestScore = subtopicProgress?.highestScore,

@@ -1,13 +1,13 @@
-package dev.maruffirdaus.geopocket.ui.ar
+package dev.maruffirdaus.geopocket.ui.ar.activity
 
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
-import dev.maruffirdaus.geopocket.ui.ar.model.AngleNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.PointNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.PreviewState
-import dev.maruffirdaus.geopocket.ui.ar.model.ReticleNodeState
-import dev.maruffirdaus.geopocket.ui.ar.model.SegmentNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.AngleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.PointNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.PreviewState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.ReticleNodeState
+import dev.maruffirdaus.geopocket.ui.ar.activity.model.SegmentNodeState
 
-data class ARUiState(
+data class ARActivityUiState(
     val subtopic: Subtopic = Subtopic.LINE_SEGMENT,
     val reticle: ReticleNodeState? = null,
     val preview: PreviewState? = null,
@@ -18,6 +18,5 @@ data class ARUiState(
     val segments: Map<String, SegmentNodeState> = mapOf(),
     val angles: Map<String, AngleNodeState> = mapOf(),
     val environmentScanned: Boolean = false,
-    val completed: Boolean = false,
-    val completionImage: String? = null
+    val completed: Boolean = false
 )
