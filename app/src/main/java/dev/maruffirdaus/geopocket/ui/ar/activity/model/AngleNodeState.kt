@@ -7,6 +7,7 @@ import dev.maruffirdaus.geopocket.ui.ar.activity.extension.angleBisectorPosition
 import dev.romainguy.kotlin.math.Quaternion
 import io.github.sceneview.math.Position
 import kotlin.math.abs
+import kotlin.math.truncate
 
 data class AngleNodeState(
     val id: String,
@@ -30,7 +31,7 @@ data class AngleNodeState(
         worldPosition = centerPos.angleBisectorPosition(startPos, endPos),
         quaternion = quaternion,
         degree = centerPos.angleBetween(startPos, endPos).let {
-            if (measurementAssist) snapDegreeToTarget(it, constraint) else it
+            truncate(if (measurementAssist) snapDegreeToTarget(it, constraint) else it)
         }
     ) {
         this.measurementAssist = measurementAssist
@@ -55,7 +56,7 @@ data class AngleNodeState(
             startPoint.worldPosition,
             endPoint.worldPosition
         ).let {
-            if (measurementAssist) snapDegreeToTarget(it, constraint) else it
+            truncate(if (measurementAssist) snapDegreeToTarget(it, constraint) else it)
         }
     ) {
         this.measurementAssist = measurementAssist

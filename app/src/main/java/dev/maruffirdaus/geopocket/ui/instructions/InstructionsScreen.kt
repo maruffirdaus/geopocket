@@ -37,7 +37,7 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.ui.common.component.PageIndicator
-import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
+import dev.maruffirdaus.geopocket.ui.common.extension.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.instructions.component.InstructionsAnimationCanvas
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler

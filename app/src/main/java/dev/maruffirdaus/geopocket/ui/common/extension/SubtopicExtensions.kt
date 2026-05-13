@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.common.extensions
+package dev.maruffirdaus.geopocket.ui.common.extension
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size

@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.common.extensions
+package dev.maruffirdaus.geopocket.ui.common.extension
 
 import android.graphics.Paint
 import android.graphics.Typeface

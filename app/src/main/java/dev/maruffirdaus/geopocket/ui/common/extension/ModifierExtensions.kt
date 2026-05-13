@@ -1,4 +1,4 @@
-package dev.maruffirdaus.geopocket.ui.common.extensions
+package dev.maruffirdaus.geopocket.ui.common.extension
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

@@ -29,7 +29,7 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import dev.maruffirdaus.geopocket.domain.settings.SettingItem
-import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
+import dev.maruffirdaus.geopocket.ui.common.extension.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.settings.component.SettingsGroup

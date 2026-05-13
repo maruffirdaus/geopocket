@@ -13,6 +13,7 @@ import dev.romainguy.kotlin.math.normalize
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Scale
 import kotlin.math.abs
+import kotlin.math.truncate
 
 data class SegmentNodeState(
     val id: String,
@@ -42,7 +43,8 @@ data class SegmentNodeState(
         quaternion = calculateQuaternion(startPos, endPos, camPos),
         scale = Float3(length(endPos - startPos), 1f, 1f),
         length = length(endPos - startPos).let {
-            if (measurementAssist) snapLengthToTarget(it, constraint) else (it * 100).toInt() / 100f
+            val length = if (measurementAssist) snapLengthToTarget(it, constraint) else it
+            truncate(length * 100) / 100
         }
     ) {
         this.measurementAssist = measurementAssist

@@ -25,9 +25,9 @@ import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.constraint.AngleConstraint
 import dev.maruffirdaus.geopocket.domain.topic.constraint.SegmentConstraint
-import dev.maruffirdaus.geopocket.ui.common.extensions.midpoint
-import dev.maruffirdaus.geopocket.ui.common.extensions.pointPositions
-import dev.maruffirdaus.geopocket.ui.common.extensions.textPaint
+import dev.maruffirdaus.geopocket.ui.common.extension.midpoint
+import dev.maruffirdaus.geopocket.ui.common.extension.pointPositions
+import dev.maruffirdaus.geopocket.ui.common.extension.textPaint
 import kotlinx.coroutines.delay
 
 private const val POINT_HOLD_DURATION = 400L

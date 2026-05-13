@@ -47,7 +47,7 @@ import dev.maruffirdaus.geopocket.ui.ar.activity.component.InstructionsCard
 import dev.maruffirdaus.geopocket.ui.ar.activity.extension.capture
 import dev.maruffirdaus.geopocket.ui.ar.activity.extension.saveToCache
 import dev.maruffirdaus.geopocket.ui.ar.navigation.ARNavKey
-import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
+import dev.maruffirdaus.geopocket.ui.common.extension.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
 import dev.maruffirdaus.geopocket.ui.theme.GeoPocketTheme

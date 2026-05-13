@@ -16,9 +16,9 @@ import androidx.compose.ui.unit.dp
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.result.AngleResult
 import dev.maruffirdaus.geopocket.domain.topic.result.SegmentResult
-import dev.maruffirdaus.geopocket.ui.common.extensions.midpoint
-import dev.maruffirdaus.geopocket.ui.common.extensions.pointPositions
-import dev.maruffirdaus.geopocket.ui.common.extensions.textPaint
+import dev.maruffirdaus.geopocket.ui.common.extension.midpoint
+import dev.maruffirdaus.geopocket.ui.common.extension.pointPositions
+import dev.maruffirdaus.geopocket.ui.common.extension.textPaint
 
 @Composable
 fun ShapeCanvas(

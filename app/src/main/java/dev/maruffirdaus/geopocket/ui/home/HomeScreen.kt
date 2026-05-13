@@ -26,7 +26,7 @@ import com.adamglin.phosphoricons.regular.Gear
 import dev.maruffirdaus.geopocket.R
 import dev.maruffirdaus.geopocket.domain.topic.Subtopic
 import dev.maruffirdaus.geopocket.domain.topic.Topic
-import dev.maruffirdaus.geopocket.ui.common.extensions.alignHorizontalSpace
+import dev.maruffirdaus.geopocket.ui.common.extension.alignHorizontalSpace
 import dev.maruffirdaus.geopocket.ui.home.component.TopicCard
 import dev.maruffirdaus.geopocket.ui.navigation.AppNavKey
 import dev.maruffirdaus.geopocket.ui.navigation.NavHandler
