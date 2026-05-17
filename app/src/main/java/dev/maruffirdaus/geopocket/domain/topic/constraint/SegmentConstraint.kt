@@ -6,6 +6,6 @@ data class SegmentConstraint(
     val maxLength: Float? = null
 ) {
     companion object {
-        const val TOLERANCE = 0.006f
+        const val TOLERANCE = 0.005f
     }
 }

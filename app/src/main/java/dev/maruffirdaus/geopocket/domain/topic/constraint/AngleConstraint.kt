@@ -6,6 +6,6 @@ data class AngleConstraint(
     val maxDegree: Float? = null
 ) {
     companion object {
-        const val TOLERANCE = 1.8f
+        const val TOLERANCE = 1.6f
     }
 }
