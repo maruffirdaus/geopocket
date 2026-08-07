@@ -1,8 +1,9 @@
 # GeoPocket
 
-An Android augmented reality application designed to help elementary school students learn geometry through hands-on, real world interaction. Covering four core topics: Line, Angle, Triangle, and Quadrilateral, the app guides students through a linear quest based progression combining animated lessons, quizzes, and AR drawing activities.
+An Android augmented reality application designed to help elementary school students learn geometry through hands-on, real world interaction. Covering four core topics: Line, Angle, Triangle, and Quadrilateral, the app guides students through a linear quest based progression combining animated instruction, quizzes, and AR drawing activities.
 
 Using SceneView, students place and manipulate geometric shapes directly in their physical environment, connecting points and measuring lengths and angles in AR to build spatial understanding beyond what a flat diagram can teach. The UI is presented in Indonesian, tailored for its target audience.
+
 ## Screenshots
 
 <img src="https://github.com/user-attachments/assets/8ccba166-6cb4-4267-9fa2-bf83a1622da1" height="512px">
